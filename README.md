@@ -4,6 +4,11 @@ Welcome to your new gem! In this directory, you'll find the files you need to be
 
 TODO: Delete this and the text above, and describe your gem
 
+## Statistics
+Without running puppet, spinning up containers and running bats tests took on average 1-3 seconds, vs ~15 with a hacked version of testkitchen, ~4 minutes with unhacked (when offline).
+
+Thats a sick improvement!
+
 ## Installation
 
 Add this line to your application's Gemfile:

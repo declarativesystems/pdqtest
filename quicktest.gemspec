@@ -13,6 +13,8 @@ Gem::Specification.new do |spec|
   spec.description   = %q{write one...}
   spec.homepage      = "https://github.com/GeoffWilliams/quicktest"
   spec.licenses      = 'apache-2'
+
+  # file MUST be in git to be fucking readable!!!!!
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
   end
@@ -25,4 +27,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3.0"
 
   spec.add_runtime_dependency "escort", "0.4.0"
+  spec.add_runtime_dependency "docker-api"
 end

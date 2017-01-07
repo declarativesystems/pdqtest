@@ -1,2 +1,4 @@
 #!/usr/bin/env ruby
 puts 'hello'
+require 'quicktest/instance'
+Quicktest::Instance.run
