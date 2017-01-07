@@ -8,6 +8,7 @@ module Quicktest
     MODULE_DIR    = '/etc/puppetlabs/code/modules'
     MAGIC_MARKER  = /# @Quicktest/
     BATS_TESTS    = './test/integration'
+    SETUP_SUFFIX  = '__setup.sh'
     BEFORE_SUFFIX = '__before.bats'
     AFTER_SUFFIX  = '.bats'
     EXAMPLES_DIR  = './examples'
@@ -59,6 +60,17 @@ module Quicktest
       end
     end
 
+    def self.setup_test(container, example)
+      setup = BATS_TESTS + '/' + test_basename(example) + SETUP_SUFFIX
+      if File.exists?(setup)
+        puts "Setting up test for #{example}"
+        script = File.read(setup)
+        puts container.exec(Quicktest::Docker.wrap_cmd(script))
+      else
+        puts "no setup file for #{example} (should be in #{setup})"
+      end
+    end
+
     def self.run(container)
       puts "fetch deps"
       puts container.exec(Quicktest::Docker.wrap_cmd(install_deps))
@@ -67,6 +79,9 @@ module Quicktest
       puts "run tests"
       find_examples.each { |e|
         puts "testing e"
+
+        setup_test(container, e)
+
         # see if we should run a bats test before running puppet
         bats_test(container, e, BEFORE_SUFFIX)
 
