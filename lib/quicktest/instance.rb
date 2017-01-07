@@ -1,23 +1,23 @@
 require 'docker-api'
+require 'quicktest/puppet'
+require 'quicktest/docker'
 module Quicktest
   module Instance
     IMAGE_NAME='geoffwilliams/puppet-agent:2016-12-19-1'
-    ENV='term=xterm LC_ALL=C PATH=/usr/local/bats/bin:$PATH'
+    TEST_DIR='/cut'
     @remove_container = false
 
-    def self.wrap_cmd(cmd)
-      ['bash',  '-c', "#{ENV} #{cmd}"]
-    end
+
 
     def self.do_tests(container)
-      cmd =   wrap_cmd(
-          'bats /cut/test/integration/delete_nis_users/bats/verify.bats'
-        )
-      puts "grinding gears for #{cmd}"
-      puts container.exec(
-      cmd
-      )
-
+      # cmd =   wrap_cmd(
+      #     "bats /#{TEST_DIR}/test/integration/delete_nis_users/bats/verify.bats"
+      #   )
+      # puts "grinding gears for #{cmd}"
+      # puts container.exec(
+      # cmd
+      # )
+      Quicktest::Puppet.run(container)
     end
 
     def self.run
@@ -30,18 +30,18 @@ module Quicktest
       #]
 
       # puts hostconfig
-      container = Docker::Container.create(
+      container = ::Docker::Container.create(
         'Image' => IMAGE_NAME,
-        'Volumes' => {'/cut' => {pwd => 'ro'}},
+        'Volumes' => {TEST_DIR => {pwd => 'ro'}},
         # 'HostConfig' => {
         #   'Binds' => [
         #     '/cut:' + pwd
         #   ]
         # }
       )
-      container.start({'Binds' => [ pwd +':/cut']})
+      container.start({'Binds' => [ pwd +':'+ TEST_DIR]})
       puts "alive, running tests"
-      do_tests(container)
+      Quicktest::Puppet.run(container)
 
 
 

@@ -1,10 +1,9 @@
 module Quicktest
   module Docker
-    def run_tests
-      container.start
+    ENV='term=xterm LC_ALL=C PATH=/usr/local/bats/bin:/opt/puppetlabs/puppet/bin:$PATH;'
 
-
-      container.stop
+    def self.wrap_cmd(cmd)
+      ['bash',  '-c', "#{ENV} #{cmd}"]
     end
   end
 end
