@@ -3,7 +3,7 @@ require 'quicktest/docker'
 require 'quicktest/instance'
 
 module Quicktest
-  module Puppet
+  class Puppet
     METADATA      = 'metadata.json'
     MODULE_DIR    = '/etc/puppetlabs/code/modules'
     MAGIC_MARKER  = /# @Quicktest/
@@ -12,6 +12,15 @@ module Quicktest
     BEFORE_SUFFIX = '__before.bats'
     AFTER_SUFFIX  = '.bats'
     EXAMPLES_DIR  = './examples'
+    @@bats_executed = []
+
+    def self.reset_bats_executed
+      @@bats_executed = []
+    end
+
+    def self.get_bats_executed
+      @@bats_executed
+    end
 
     def self.module_metadata
       file = File.read(Dir.pwd + File::SEPARATOR + METADATA)
@@ -51,13 +60,14 @@ module Quicktest
     end
 
     def self.bats_test(container, example, suffix)
-      tests = BATS_TESTS + '/' + test_basename(example) + suffix
-      puts tests
-      if File.exists?(tests)
+      testcase = BATS_TESTS + '/' + test_basename(example) + suffix
+      puts testcase
+      if File.exists?(testcase)
         puts "*** bats test ****"
-        puts container.exec(Quicktest::Docker.wrap_cmd("bats #{Quicktest::Instance::TEST_DIR}/#{tests}"))
+        puts container.exec(Quicktest::Docker.wrap_cmd("bats #{Quicktest::Instance::TEST_DIR}/#{testcase}"))
+        @@bats_executed << testcase
       else
-        puts "no #{suffix} tests for #{example} (should be at #{tests})"
+        puts "no #{suffix} tests for #{example} (should be at #{testcase})"
       end
     end
 
