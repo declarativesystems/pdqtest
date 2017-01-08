@@ -7,43 +7,16 @@ module Quicktest
     TEST_DIR='/cut'
     @remove_container = false
 
-
-
-    def self.do_tests(container)
-      # cmd =   wrap_cmd(
-      #     "bats /#{TEST_DIR}/test/integration/delete_nis_users/bats/verify.bats"
-      #   )
-      # puts "grinding gears for #{cmd}"
-      # puts container.exec(
-      # cmd
-      # )
-      Quicktest::Puppet.run(container)
-    end
-
     def self.run
       puts "runtest"
       pwd = Dir.pwd
-      # hostconfig = {}
-      #  hostconfig['Binds'] = '/cut:'+pwd+':ro'
-       #[
-      #  '/cut:'+pwd+':ro'
-      #]
-
-      # puts hostconfig
       container = ::Docker::Container.create(
         'Image' => IMAGE_NAME,
         'Volumes' => {TEST_DIR => {pwd => 'ro'}},
-        # 'HostConfig' => {
-        #   'Binds' => [
-        #     '/cut:' + pwd
-        #   ]
-        # }
       )
       container.start({'Binds' => [ pwd +':'+ TEST_DIR]})
       puts "alive, running tests"
       Quicktest::Puppet.run(container)
-
-
 
       if @remove_container
           container.stop
