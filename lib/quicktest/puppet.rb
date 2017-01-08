@@ -4,7 +4,7 @@ require 'quicktest/instance'
 
 module Quicktest
   module Puppet
-    METADATA_FILE = Dir.pwd + File::SEPARATOR + 'metadata.json'
+    METADATA      = 'metadata.json'
     MODULE_DIR    = '/etc/puppetlabs/code/modules'
     MAGIC_MARKER  = /# @Quicktest/
     BATS_TESTS    = './test/integration'
@@ -14,8 +14,7 @@ module Quicktest
     EXAMPLES_DIR  = './examples'
 
     def self.module_metadata
-      puts METADATA_FILE
-      file = File.read(METADATA_FILE)
+      file = File.read(Dir.pwd + File::SEPARATOR + METADATA)
       JSON.parse(file)
     end
 
@@ -34,9 +33,11 @@ module Quicktest
 
     def self.find_examples()
       examples = []
-      Find.find(EXAMPLES_DIR) do |e|
-        if ! File.directory?(e) and ! File.readlines(e).grep(MAGIC_MARKER).empty?
-          examples << e
+      if Dir.exists?(EXAMPLES_DIR)
+        Find.find(EXAMPLES_DIR) do |e|
+          if ! File.directory?(e) and ! File.readlines(e).grep(MAGIC_MARKER).empty?
+            examples << e
+          end
         end
       end
       puts "examples to run" + examples.to_s

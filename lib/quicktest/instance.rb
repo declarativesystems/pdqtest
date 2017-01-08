@@ -5,25 +5,44 @@ module Quicktest
   module Instance
     IMAGE_NAME='geoffwilliams/puppet-agent:2016-12-19-1'
     TEST_DIR='/cut'
-    @remove_container = false
+    @@remove_container = false
+    @@active_container = nil
+
+    def self.get_active_container
+      @@active_container
+    end
+
+    def self.get_remove_container
+      @@remove_container
+    end
+
+    def self.set_remove_container(remove_container)
+      @@remove_container = remove_container
+    end
 
     def self.run
-      puts "runtest"
+      # needed to prevent timeouts from container.exec()
+      Excon.defaults[:write_timeout] = 1000
+      Excon.defaults[:read_timeout] = 1000
+
+
       pwd = Dir.pwd
-      container = ::Docker::Container.create(
+      puts "runtest #{pwd}"
+      @@active_container = ::Docker::Container.create(
         'Image' => IMAGE_NAME,
         'Volumes' => {TEST_DIR => {pwd => 'ro'}},
       )
-      container.start({'Binds' => [ pwd +':'+ TEST_DIR]})
+      @@active_container.start({'Binds' => [ pwd +':'+ TEST_DIR]})
       puts "alive, running tests"
-      Quicktest::Puppet.run(container)
+      Quicktest::Puppet.run(@@active_container)
 
-      if @remove_container
-          container.stop
-          container.delete(:force => true)
+      if @@remove_container
+          @@active_container.stop
+          @@active_container.delete(:force => true)
+          @@active_container = nil
       else
-          puts "finished build, container #{container.id} left on system"
-          puts "  docker exec -ti #{container.id} bash "
+          puts "finished build, container #{@@active_container.id} left on system"
+          puts "  docker exec -ti #{@@active_container.id} bash "
       end
     end
   end
