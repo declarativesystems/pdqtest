@@ -7,8 +7,13 @@ describe Quicktest::Instance do
     Dir.chdir('spec/fixtures/correct_test_structure') do
       Quicktest::Instance::set_remove_container(false)
       Quicktest::Instance.run
-      c = Quicktest::Instance::get_active_container
-      expect(c).not_to eq(nil)
+      container = Quicktest::Instance::get_active_container
+      expect(container).not_to eq(nil)
+      instance = Docker::Container.get(container.id)
+      expect(instance).not_to eq(nil)
+
+      # now cleanup after ourselves
+      container.delete(:force => true)
     end
   end
 
