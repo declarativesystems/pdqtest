@@ -3,7 +3,7 @@ require 'quicktest/puppet'
 require 'quicktest/docker'
 module Quicktest
   module Instance
-    IMAGE_NAME='geoffwilliams/puppet-agent:2016-12-19-1'
+    IMAGE_NAME='geoffwilliams/quicktest-centos:2017-01-08-0'
     TEST_DIR='/cut'
     @@remove_container = false
     @@active_container = nil
