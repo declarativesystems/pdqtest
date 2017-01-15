@@ -29,5 +29,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "fakefs", "0.10.1"
 
   spec.add_runtime_dependency "escort", "0.4.0"
-  spec.add_runtime_dependency "docker-api"
+  spec.add_runtime_dependency "docker-api", "1.33.1"
 end
