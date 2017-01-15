@@ -10,3 +10,4 @@
 .tmp
 .librarian
 Puppetfile.lock
+*.gem
