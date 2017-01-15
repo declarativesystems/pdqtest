@@ -1,4 +1,33 @@
 #!/usr/bin/env ruby
-puts 'hello'
 require 'quicktest/instance'
-Quicktest::Instance.run
+require 'quicktest/rspec'
+require 'escort'
+
+# display help if nothing specified
+ARGV.push('-h') if ARGV.empty?
+
+Escort::App.create do |app|
+  app.version Quicktest::VERSION
+  app.summary "quicktest"
+  app.description "test puppet code quickly"
+
+  app.command :all do |command|
+    command.action do |options, arguments|
+      Quicktest::Rspec.run
+      Quicktest::Instance.run
+    end
+  end
+
+  app.command :rspec do |command|
+    command.action do |options, arguments|
+      Quicktest::Rspec.run
+    end
+  end
+
+
+  app.command :acceptance do |command|
+    command.action do |options, arguments|
+      Quicktest::Instance.run
+    end
+  end
+end

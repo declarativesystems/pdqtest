@@ -15,7 +15,8 @@ RUN \
     which \
     gpm-libs \
     policycoreutils \
-    policycoreutils-restorecond && \
+    policycoreutils-restorecond \
+    tputs && \
   echo "metadata_expire=never" >> /etc/yum.conf && \
   echo "LANG=C" >> /etc/environment && \
   echo "LC_ALL=C" >> /etc/environment && \
@@ -28,7 +29,7 @@ RUN \
 RUN yum -y install http://yum.puppetlabs.com/el/7/PC1/x86_64/puppet-agent-1.8.2-1.el7.x86_64.rpm && \
   /opt/puppetlabs/puppet/bin/puppet --version && \
   /opt/puppetlabs/puppet/bin/facter --version
-
+:qdd
 RUN git clone https://github.com/sstephenson/bats /usr/local/bats
 RUN /opt/puppetlabs/puppet/bin/gem install librarian-puppet
 

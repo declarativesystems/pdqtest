@@ -13,13 +13,22 @@ module Quicktest
     AFTER_SUFFIX  = '.bats'
     EXAMPLES_DIR  = './examples'
     @@bats_executed = []
+    @@setup_executed = []
 
     def self.reset_bats_executed
       @@bats_executed = []
     end
 
+    def self.reset_setup_executed
+      @@setup_executed = []
+    end
+
     def self.get_bats_executed
       @@bats_executed
+    end
+
+    def self.get_setup_executed
+      @@setup_executed
     end
 
     def self.module_metadata
@@ -55,20 +64,25 @@ module Quicktest
 
     def self.test_basename(t)
       # remove examples/ and .pp
-      # eg /examples/apache/mod/mod_php.pp --> apache/mod/mod_php
+      # eg ./examples/apache/mod/mod_php.pp --> apache/mod/mod_php
       t.gsub(EXAMPLES_DIR + '/','').gsub('.pp','')
     end
 
     def self.bats_test(container, example, suffix)
       testcase = BATS_TESTS + '/' + test_basename(example) + suffix
-      puts testcase
+      puts ">>>>> #{testcase}"
       if File.exists?(testcase)
-        puts "*** bats test ****"
-        puts container.exec(Quicktest::Docker.wrap_cmd("bats #{Quicktest::Instance::TEST_DIR}/#{testcase}"))
+        puts "*** bats test **** bats #{Quicktest::Instance::TEST_DIR}/#{testcase}"
+        res = Quicktest::Docker.exec(container, "bats #{Quicktest::Instance::TEST_DIR}/#{testcase}")
+        status = Quicktest::Docker.exec_status(res)
+        puts res
         @@bats_executed << testcase
       else
         puts "no #{suffix} tests for #{example} (should be at #{testcase})"
+        status = true
       end
+
+      status
     end
 
     def self.setup_test(container, example)
@@ -76,32 +90,45 @@ module Quicktest
       if File.exists?(setup)
         puts "Setting up test for #{example}"
         script = File.read(setup)
-        puts container.exec(Quicktest::Docker.wrap_cmd(script))
+        res = Quicktest::Docker.exec(container, script)
+        status = Quicktest::Docker.exec_status(res)
+        @@setup_executed << setup
       else
         puts "no setup file for #{example} (should be in #{setup})"
+        status = true
       end
+
+      status
     end
 
     def self.run(container)
+      status = true
       puts "fetch deps"
-      puts container.exec(Quicktest::Docker.wrap_cmd(install_deps))
+      res = Quicktest::Docker.exec(container, install_deps)
+      status &= Quicktest::Docker.exec_status(res)
+
       puts "linking"
-      puts container.exec(Quicktest::Docker.wrap_cmd(link_module))
+      res = Quicktest::Docker.exec(container, link_module)
+      status &= Quicktest::Docker.exec_status(res)
       puts "run tests"
       find_examples.each { |e|
-        puts "testing e"
+        puts "testing #{e} #{status}"
 
-        setup_test(container, e)
+        status &= setup_test(container, e)
 
         # see if we should run a bats test before running puppet
-        bats_test(container, e, BEFORE_SUFFIX)
+        status &= bats_test(container, e, BEFORE_SUFFIX)
 
         # run puppet apply
-        puts container.exec(Quicktest::Docker.wrap_cmd(puppet_apply(e)))
+        res = Quicktest::Docker.exec(container, puppet_apply(e))
+        status &= Quicktest::Docker.exec_status(res, true)
+        puts res
 
         # see if we should run a bats test after running puppet
-        bats_test(container, e, AFTER_SUFFIX)
+        status &= bats_test(container, e, AFTER_SUFFIX)
       }
+
+      status
     end
 
     def self.puppet_apply(example)
