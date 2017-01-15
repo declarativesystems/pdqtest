@@ -30,4 +30,10 @@ Escort::App.create do |app|
       Quicktest::Instance.run
     end
   end
+
+  app.command :init do |command|
+    command.action do |options, arguments|
+      Quicktest::Skeleton.init
+    end
+  end
 end
