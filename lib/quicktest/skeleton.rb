@@ -1,6 +1,7 @@
 require 'fileutils'
 require 'digest'
 require 'quicktest/puppet'
+require 'quicktest/version'
 
 module Quicktest
   module Skeleton

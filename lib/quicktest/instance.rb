@@ -4,7 +4,7 @@ require 'quicktest/docker'
 module Quicktest
   module Instance
     TEST_DIR='/cut'
-    @@remove_container = false
+    @@remove_container = true
     @@active_container = nil
 
     def self.get_active_container

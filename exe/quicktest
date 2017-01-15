@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'quicktest/instance'
 require 'quicktest/rspec'
+require 'quicktest/skeleton'
 require 'escort'
 
 # display help if nothing specified

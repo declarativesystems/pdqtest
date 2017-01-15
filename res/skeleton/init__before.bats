@@ -4,6 +4,6 @@
 
 # Tests are really easy! just the exit status of running a command...
 @test "addition using bc" {
-  result="$(echo 2+2 | bc)"
-  [ "$result" -eq 4 ]
+  result="$(ls /)"
+  [ "$?" -eq 0 ]
 }

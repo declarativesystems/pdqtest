@@ -40,9 +40,12 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 ## Who should use Quicktest?
 You should use quicktest if you find it increases your productivity and enriches your life
 
+## Troubleshooting
+* If you can't find the `quicktest` command and your using `rbenv` be sure to run `rbenv rehash` after installing the gem to create the necessary symlinks
+
 ## Support
 This software is not supported by Puppet, Inc.  Use at your own risk.
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/quicktest.
+Bug reports and pull requests are welcome on GitHub at https://github.com/GeoffWilliams/quicktest.

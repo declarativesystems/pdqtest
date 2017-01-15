@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.summary       = %q{Quick and simple integration tests run inside of a docker container}
   spec.description   = %q{write one...}
   spec.homepage      = "https://github.com/GeoffWilliams/quicktest"
-  spec.licenses      = 'apache-2'
+  spec.licenses      = 'Apache-2.0'
 
   # file MUST be in git to be fucking readable!!!!!
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
