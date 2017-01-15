@@ -42,9 +42,9 @@ describe Quicktest::Puppet do
       # ... make sure correct bats were run
       bats_executed = Quicktest::Puppet.get_bats_executed
       expect(bats_executed).to match_array([
-        './test/integration/init.bats',
-        './test/integration/init__before.bats',
-        './test/integration/mod/mod_php.bats',
+        './spec/acceptance/init.bats',
+        './spec/acceptance/init__before.bats',
+        './spec/acceptance/mod/mod_php.bats',
       ])
     end
   end
@@ -70,7 +70,7 @@ describe Quicktest::Puppet do
       # Check that we did indeed execute the bats test
       bats_executed = Quicktest::Puppet.get_bats_executed
       expect(bats_executed).to match_array([
-        './test/integration/init.bats',
+        './spec/acceptance/init.bats',
       ])
 
       # cleanup
@@ -91,7 +91,7 @@ describe Quicktest::Puppet do
       # Check that we did indeed execute the bats test
       bats_executed = Quicktest::Puppet.get_bats_executed
       expect(bats_executed).to match_array([
-        './test/integration/init.bats',
+        './spec/acceptance/init.bats',
       ])
 
       # cleanup
@@ -114,7 +114,7 @@ describe Quicktest::Puppet do
       # Check that we did indeed execute the bats test
       setup_executed = Quicktest::Puppet.get_setup_executed
       expect(setup_executed).to match_array([
-        './test/integration/init__setup.sh',
+        './spec/acceptance/init__setup.sh',
       ])
 
       # cleanup
@@ -136,7 +136,7 @@ describe Quicktest::Puppet do
       # Check that we did indeed execute the bats test
       setup_executed = Quicktest::Puppet.get_setup_executed
       expect(setup_executed).to match_array([
-        './test/integration/init__setup.sh',
+        './spec/acceptance/init__setup.sh',
       ])
 
       # cleanup

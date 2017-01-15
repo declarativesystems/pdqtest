@@ -7,7 +7,7 @@ module Quicktest
     METADATA      = 'metadata.json'
     MODULE_DIR    = '/etc/puppetlabs/code/modules'
     MAGIC_MARKER  = /# @Quicktest/
-    BATS_TESTS    = './test/integration'
+    BATS_TESTS    = './spec/acceptance'
     SETUP_SUFFIX  = '__setup.sh'
     BEFORE_SUFFIX = '__before.bats'
     AFTER_SUFFIX  = '.bats'
