@@ -5,7 +5,7 @@ require "quicktest/instance"
 describe Quicktest::Instance do
   it "leaves container running when instructed" do
     Dir.chdir('spec/fixtures/passing_tests') do
-      Quicktest::Instance::set_remove_container(false)
+      Quicktest::Instance::set_keep_container(true)
       Quicktest::Instance.run
       container = Quicktest::Instance::get_active_container
       expect(container).not_to eq(nil)
@@ -19,7 +19,7 @@ describe Quicktest::Instance do
 
   it "closes container when instructed" do
     Dir.chdir('spec/fixtures/passing_tests') do
-      Quicktest::Instance::set_remove_container(true)
+      Quicktest::Instance::set_keep_container(false)
       Quicktest::Instance.run
       c = Quicktest::Instance::get_active_container
       expect(c).to eq(nil)
@@ -28,7 +28,7 @@ describe Quicktest::Instance do
 
   it "returns true when tests pass" do
     Dir.chdir('spec/fixtures/passing_tests') do
-      Quicktest::Instance::set_remove_container(true)
+      Quicktest::Instance::set_keep_container(true)
       status = Quicktest::Instance.run
       expect(status).to be true
     end
@@ -36,7 +36,7 @@ describe Quicktest::Instance do
 
   it "returns false when test fail" do
     Dir.chdir('spec/fixtures/failing_tests') do
-      Quicktest::Instance::set_remove_container(true)
+      Quicktest::Instance::set_keep_container(true)
       status = Quicktest::Instance.run
       expect(status).to be false
     end

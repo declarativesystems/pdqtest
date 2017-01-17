@@ -3,7 +3,7 @@ module Quicktest
     STDOUT = 0
     STDERR = 1
     STATUS = 2
-    ENV='term=xterm LC_ALL=C PATH=/usr/local/bats/bin:/opt/puppetlabs/puppet/bin:$PATH;'
+    ENV='export TERM=xterm LC_ALL=C PATH=/usr/local/bats/bin:/opt/puppetlabs/puppet/bin:$PATH;'
     IMAGE_NAME='geoffwilliams/quicktest-centos:2017-01-08-0'
 
 
@@ -12,7 +12,7 @@ module Quicktest
     end
 
     def self.exec(container, cmd)
-      container.exec(wrap_cmd(cmd))
+      container.exec(wrap_cmd(cmd), tty: true)
     end
 
     def self.new_container(test_dir)
