@@ -1,6 +1,7 @@
 require "spec_helper"
 require "pdqtest/skeleton"
 require "fileutils"
+require "pp"
 require 'fakefs/safe'
 
 describe PDQTest::Skeleton do
@@ -51,7 +52,6 @@ describe PDQTest::Skeleton do
     FakeFS::FileSystem.clone(config, '/apache')
 
     FakeFS do
-    puts File.read('/Users/geoff/github/pdqtest/lib/pdqtest/../../res/skeleton/Rakefile')
       Dir.chdir('/apache') do
         PDQTest::Skeleton.init
         expect(File.exists?('Rakefile')).to be true
