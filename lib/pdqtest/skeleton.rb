@@ -42,12 +42,13 @@ module PDQTest
     end
 
     def self.install_example
-      if ! File.exists?('examples/init.pp')
+      example_file = File.join(EXAMPLES_DIR, 'init.pp')
+      if ! File.exists?(example_file)
         init_pp = <<-END
           #{PDQTest::Puppet::MAGIC_MARKER}
           include #{PDQTest::Puppet.module_name}
         END
-        File.write('examples/init.pp', init_pp)
+        File.write(example_file, init_pp)
       end
     end
 
@@ -78,6 +79,8 @@ module PDQTest
       # make directory structure for testcases
       FileUtils.mkdir_p(ACCEPTANCE_DIR)
       FileUtils.mkdir_p(CLASSES_DIR)
+      FileUtils.mkdir_p(EXAMPLES_DIR)
+
 
       # skeleton files if required
       install_skeleton('Rakefile', 'Rakefile')
