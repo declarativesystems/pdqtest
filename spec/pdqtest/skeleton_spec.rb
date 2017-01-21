@@ -1,9 +1,9 @@
 require "spec_helper"
-require "quicktest/skeleton"
+require "pdqtest/skeleton"
 require "fileutils"
 require 'fakefs/safe'
 
-describe Quicktest::Skeleton do
+describe PDQTest::Skeleton do
 
   before do
     # copy in the whole project folder to a location identical to the current directory
@@ -22,10 +22,10 @@ describe Quicktest::Skeleton do
       Dir.chdir('/apache') do
         FileUtils.touch '.fixtures.yml'
 
-        Quicktest::Skeleton.init
+        PDQTest::Skeleton.init
         # ..to be_an_existing_file doesn't work with fakefs...
         expect(File.exists?('.fixtures.yml')).to be false
-        expect(File.exists?('.fixtures.yml.quicktest_old')).to be true
+        expect(File.exists?('.fixtures.yml.pdqtest_old')).to be true
       end
     end
   end
@@ -36,7 +36,7 @@ describe Quicktest::Skeleton do
 
     FakeFS do
       Dir.chdir('/apache') do
-        Quicktest::Skeleton.init
+        PDQTest::Skeleton.init
 
         expect(Dir.exists?('./spec')).to be true
         expect(Dir.exists?('./spec/acceptance')).to be true
@@ -51,19 +51,19 @@ describe Quicktest::Skeleton do
     FakeFS::FileSystem.clone(config, '/apache')
 
     FakeFS do
-    puts File.read('/Users/geoff/github/quicktest/lib/quicktest/../../res/skeleton/Rakefile')
+    puts File.read('/Users/geoff/github/pdqtest/lib/pdqtest/../../res/skeleton/Rakefile')
       Dir.chdir('/apache') do
-        Quicktest::Skeleton.init
+        PDQTest::Skeleton.init
         expect(File.exists?('Rakefile')).to be true
         expect(File.exists?(File.join('spec', 'spec_helper.rb'))).to be true
-        expect(File.exists?('Rakefile.quicktest_old')).to be true
-        expect(File.exists?(File.join('spec', 'spec_helper.rb.quicktest_old'))).to be true
+        expect(File.exists?('Rakefile.pdqtest_old')).to be true
+        expect(File.exists?(File.join('spec', 'spec_helper.rb.pdqtest_old'))).to be true
         expect(File.exists?(File.join('spec', 'acceptance', 'init__setup.sh'))).to be true
         expect(File.exists?(File.join('spec', 'acceptance', 'init__before.bats'))).to be true
         expect(File.exists?(File.join('spec', 'acceptance', 'init.bats'))).to be true
         expect(File.exists?(File.join('examples', 'init.pp'))).to be true
         expect(File.exists?('Gemfile')).to be true
-        expect(File.readlines('Gemfile').grep(/quicktest/).any?).to be true
+        expect(File.readlines('Gemfile').grep(/pdqtest/).any?).to be true
       end
     end
   end

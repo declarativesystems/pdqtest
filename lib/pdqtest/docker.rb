@@ -1,10 +1,10 @@
-module Quicktest
+module PDQTest
   module Docker
     STDOUT = 0
     STDERR = 1
     STATUS = 2
     ENV='export TERM=xterm LC_ALL=C PATH=/usr/local/bats/bin:/opt/puppetlabs/puppet/bin:$PATH;'
-    IMAGE_NAME='geoffwilliams/quicktest-centos:2017-01-08-0'
+    IMAGE_NAME='geoffwilliams/pdqtest-centos:2017-01-08-0'
 
 
     def self.wrap_cmd(cmd)

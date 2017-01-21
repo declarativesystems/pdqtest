@@ -1,4 +1,4 @@
-module Quicktest
+module PDQTest
   module Rspec
     def self.run
       status = system("bundle exec librarian-puppet install --path ./spec/fixtures/modules --destructive")

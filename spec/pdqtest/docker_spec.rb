@@ -1,42 +1,42 @@
 require "spec_helper"
-require "quicktest/docker"
+require "pdqtest/docker"
 require "docker-api"
 
-describe Quicktest::Docker do
+describe PDQTest::Docker do
   it "wraps commands correctly" do
     cmd = 'ls -lR * && abcd'
-    result = Quicktest::Docker::wrap_cmd(cmd)
+    result = PDQTest::Docker::wrap_cmd(cmd)
     expect(result[0]).to eq('bash')
     expect(result[1]).to eq('-c')
     expect(result[2]).to match(/; ls -lR \* && abcd/)
   end
 
   it "returns the correct exit status for a result object (normal/ok)" do
-    expect(Quicktest::Docker.exec_status([nil,nil,0])).to be true
+    expect(PDQTest::Docker.exec_status([nil,nil,0])).to be true
   end
 
   it "returns the correct exit status for a result object (normal/error)" do
-    expect(Quicktest::Docker.exec_status([nil,nil,255])).to be false
+    expect(PDQTest::Docker.exec_status([nil,nil,255])).to be false
   end
 
   it "returns the correct exit status for a result object (puppet/ok)" do
-    expect(Quicktest::Docker.exec_status([nil,nil,0], true)).to be true
-    expect(Quicktest::Docker.exec_status([nil,nil,2], true)).to be true
+    expect(PDQTest::Docker.exec_status([nil,nil,0], true)).to be true
+    expect(PDQTest::Docker.exec_status([nil,nil,2], true)).to be true
   end
 
   it "returns the correct exit status for a result object (puppet/error)" do
-    expect(Quicktest::Docker.exec_status([nil,nil,4], true)).to be false
+    expect(PDQTest::Docker.exec_status([nil,nil,4], true)).to be false
   end
 
   it "starts a container correctly" do
-    c = Quicktest::Docker.new_container('/cut')
+    c = PDQTest::Docker.new_container('/cut')
     expect(c.id.empty?).to be false
   end
 
   it "stop a container correctly" do
-    c = Quicktest::Docker.new_container('/cut')
+    c = PDQTest::Docker.new_container('/cut')
     id = c.id
-    Quicktest::Docker.cleanup_container(c)
+    PDQTest::Docker.cleanup_container(c)
     # must use braces with inspect to stop exception escaping
     # http://stackoverflow.com/a/4946723
     expect{::Docker::Container.get(id)}.to raise_error(Docker::Error::NotFoundError)

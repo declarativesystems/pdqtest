@@ -1,2 +1,1 @@
-docker build -t geoffwilliams/quicktest-centos:2017-01-08-0 . 
-
+docker build -t geoffwilliams/pdqtest-centos:2017-01-08-0 . 

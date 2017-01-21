@@ -1,12 +1,12 @@
-require 'quicktest/puppet'
-require 'quicktest/docker'
-require 'quicktest/instance'
+require 'pdqtest/puppet'
+require 'pdqtest/docker'
+require 'pdqtest/instance'
 
-module Quicktest
+module PDQTest
   class Puppet
     METADATA      = 'metadata.json'
     MODULE_DIR    = '/etc/puppetlabs/code/modules'
-    MAGIC_MARKER  = /# @Quicktest/
+    MAGIC_MARKER  = /#\s*@PDQTest/
     BATS_TESTS    = './spec/acceptance'
     SETUP_SUFFIX  = '__setup.sh'
     BEFORE_SUFFIX = '__before.bats'
@@ -41,12 +41,12 @@ module Quicktest
     end
 
     def self.link_module
-      "mkdir -p #{MODULE_DIR} && ln -s #{Quicktest::Instance::TEST_DIR} #{MODULE_DIR}/#{module_name}"
+      "mkdir -p #{MODULE_DIR} && ln -s #{PDQTest::Instance::TEST_DIR} #{MODULE_DIR}/#{module_name}"
     end
 
     def self.install_deps
       # Install dependencies for module
-      "cd #{Quicktest::Instance::TEST_DIR} && librarian-puppet install --path #{MODULE_DIR} --destructive"
+      "cd #{PDQTest::Instance::TEST_DIR} && librarian-puppet install --path #{MODULE_DIR} --destructive"
     end
 
     def self.find_examples()
@@ -72,9 +72,9 @@ module Quicktest
       testcase = BATS_TESTS + '/' + test_basename(example) + suffix
       puts ">>>>> #{testcase}"
       if File.exists?(testcase)
-        puts "*** bats test **** bats #{Quicktest::Instance::TEST_DIR}/#{testcase}"
-        res = Quicktest::Docker.exec(container, "bats #{Quicktest::Instance::TEST_DIR}/#{testcase}")
-        status = Quicktest::Docker.exec_status(res)
+        puts "*** bats test **** bats #{PDQTest::Instance::TEST_DIR}/#{testcase}"
+        res = PDQTest::Docker.exec(container, "bats #{PDQTest::Instance::TEST_DIR}/#{testcase}")
+        status = PDQTest::Docker.exec_status(res)
         puts res
         @@bats_executed << testcase
       else
@@ -90,8 +90,8 @@ module Quicktest
       if File.exists?(setup)
         puts "Setting up test for #{example}"
         script = File.read(setup)
-        res = Quicktest::Docker.exec(container, script)
-        status = Quicktest::Docker.exec_status(res)
+        res = PDQTest::Docker.exec(container, script)
+        status = PDQTest::Docker.exec_status(res)
         @@setup_executed << setup
       else
         puts "no setup file for #{example} (should be in #{setup})"
@@ -104,12 +104,12 @@ module Quicktest
     def self.run(container)
       status = true
       puts "fetch deps"
-      res = Quicktest::Docker.exec(container, install_deps)
-      status &= Quicktest::Docker.exec_status(res)
+      res = PDQTest::Docker.exec(container, install_deps)
+      status &= PDQTest::Docker.exec_status(res)
 
       puts "linking"
-      res = Quicktest::Docker.exec(container, link_module)
-      status &= Quicktest::Docker.exec_status(res)
+      res = PDQTest::Docker.exec(container, link_module)
+      status &= PDQTest::Docker.exec_status(res)
       puts "run tests"
       find_examples.each { |e|
         puts "testing #{e} #{status}"
@@ -120,8 +120,8 @@ module Quicktest
         status &= bats_test(container, e, BEFORE_SUFFIX)
 
         # run puppet apply
-        res = Quicktest::Docker.exec(container, puppet_apply(e))
-        status &= Quicktest::Docker.exec_status(res, true)
+        res = PDQTest::Docker.exec(container, puppet_apply(e))
+        status &= PDQTest::Docker.exec_status(res, true)
         puts res
 
         # see if we should run a bats test after running puppet
@@ -132,7 +132,7 @@ module Quicktest
     end
 
     def self.puppet_apply(example)
-      "cd #{Quicktest::Instance::TEST_DIR} && puppet apply #{example}"
+      "cd #{PDQTest::Instance::TEST_DIR} && puppet apply #{example}"
     end
   end
 end

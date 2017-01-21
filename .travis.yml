@@ -4,6 +4,5 @@ services:
   - docker
 rvm:
   - 2.2.2
-before_install: gem install bundler -v 1.13.6 && docker pull geoffwilliams/quicktest-centos:2017-01-08-0
+before_install: gem install bundler -v 1.13.6 && docker pull geoffwilliams/pdqtest-centos:2017-01-08-0
 script: "bundle exec rake spec"
-

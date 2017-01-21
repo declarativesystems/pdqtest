@@ -1,17 +1,17 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'quicktest/version'
+require 'pdqtest/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "quicktest"
-  spec.version       = Quicktest::VERSION
+  spec.name          = "pdqtest"
+  spec.version       = PDQTest::VERSION
   spec.authors       = ["Geoff Williams"]
   spec.email         = ["geoff.williams@puppetlabs.com"]
 
   spec.summary       = %q{Quick and simple integration tests run inside of a docker container}
   spec.description   = %q{write one...}
-  spec.homepage      = "https://github.com/GeoffWilliams/quicktest"
+  spec.homepage      = "https://github.com/GeoffWilliams/pdqtest"
   spec.licenses      = 'Apache-2.0'
 
   # file MUST be in git to be fucking readable!!!!!

@@ -1,4 +1,4 @@
 source 'https://rubygems.org'
 
-# Specify your gem's dependencies in quicktest.gemspec
+# Specify your gem's dependencies in pdqtest.gemspec
 gemspec

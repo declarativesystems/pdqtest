@@ -1,15 +1,15 @@
 #!/usr/bin/env ruby
-require 'quicktest/instance'
-require 'quicktest/rspec'
-require 'quicktest/skeleton'
+require 'pdqtest/instance'
+require 'pdqtest/rspec'
+require 'pdqtest/skeleton'
 require 'escort'
 
 # display help if nothing specified
 ARGV.push('-h') if ARGV.empty?
 
 Escort::App.create do |app|
-  app.version Quicktest::VERSION
-  app.summary "quicktest"
+  app.version PDQTest::VERSION
+  app.summary "pdqtest"
   app.description "test puppet code quickly"
 
   app.options do |opts|
@@ -23,9 +23,9 @@ Escort::App.create do |app|
 
   app.command :all do |command|
     command.action do |options, arguments|
-      Quicktest::Instance.set_keep_container(options[:global][:options][:keep_container])
-      
-      if Quicktest::Rspec.run and Quicktest::Instance.run
+      PDQTest::Instance.set_keep_container(options[:global][:options][:keep_container])
+
+      if PDQTest::Rspec.run and PDQTest::Instance.run
         puts "finished - tests ok :)"
       else
         abort("finished - THERE ARE TEST FAILURES :()")
@@ -35,15 +35,15 @@ Escort::App.create do |app|
 
   app.command :rspec do |command|
     command.action do |options, arguments|
-      Quicktest::Rspec.run
+      PDQTest::Rspec.run
     end
   end
 
 
   app.command :acceptance do |command|
     command.action do |options, arguments|
-      Quicktest::Instance.set_keep_container(options[:global][:options][:keep_container])
-      if Quicktest::Instance.run
+      PDQTest::Instance.set_keep_container(options[:global][:options][:keep_container])
+      if PDQTest::Instance.run
         puts "finished - tests ok :)"
       else
         abort("finished - THERE ARE TEST FAILURES :()")
@@ -53,13 +53,13 @@ Escort::App.create do |app|
 
   app.command :init do |command|
     command.action do |options, arguments|
-      Quicktest::Skeleton.init
+      PDQTest::Skeleton.init
     end
   end
 
   app.command :shell do |command|
     command.action do |options, arguments|
-      Quicktest::Instance.shell
+      PDQTest::Instance.shell
     end
   end
 end

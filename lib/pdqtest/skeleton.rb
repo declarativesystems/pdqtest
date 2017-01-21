@@ -1,19 +1,19 @@
 require 'fileutils'
 require 'digest'
-require 'quicktest/puppet'
-require 'quicktest/version'
+require 'pdqtest/puppet'
+require 'pdqtest/version'
 
-module Quicktest
+module PDQTest
   module Skeleton
     FIXTURES        = '.fixtures.yml'
-    BACKUP_EXT      = '.quicktest_old'
+    BACKUP_EXT      = '.pdqtest_old'
     SPEC_DIR        = 'spec'
     ACCEPTANCE_DIR  = File.join(SPEC_DIR, 'acceptance')
     CLASSES_DIR     = File.join(SPEC_DIR, 'classes')
     SKELETON_DIR    = File.join('res', 'skeleton')
     EXAMPLES_DIR    = 'examples'
     GEMFILE         = 'Gemfile'
-    GEMFILE_LINE    = "gem 'quicktest', '#{Quicktest::VERSION}'"
+    GEMFILE_LINE    = "gem 'pdqtest', '#{PDQTest::VERSION}'"
 
 
     def self.should_replace_file(target, skeleton)
@@ -44,8 +44,8 @@ module Quicktest
     def self.install_example
       if ! File.exists?('examples/init.pp')
         init_pp = <<-END
-          #{Quicktest::Puppet::MAGIC_MARKER}
-          include #{Quicktest::Puppet.module_name}
+          #{PDQTest::Puppet::MAGIC_MARKER}
+          include #{PDQTest::Puppet.module_name}
         END
         File.write('examples/init.pp', init_pp)
       end
@@ -54,7 +54,7 @@ module Quicktest
     def self.install_gemfile
       insert_gem = false
       if File.exists?(GEMFILE)
-        if ! File.readlines(GEMFILE).grep(/quicktest/).any?
+        if ! File.readlines(GEMFILE).grep(/pdqtest/).any?
           insert_gem = true
         end
       else
