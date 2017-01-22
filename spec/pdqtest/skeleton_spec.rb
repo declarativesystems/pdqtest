@@ -2,6 +2,7 @@ require "spec_helper"
 require "pdqtest/skeleton"
 require "fileutils"
 require "pp"
+require 'simplecov'
 require 'fakefs/safe'
 
 describe PDQTest::Skeleton do

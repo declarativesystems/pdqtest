@@ -1,6 +1,8 @@
 require 'docker-api'
 require 'pdqtest/puppet'
 require 'pdqtest/docker'
+require 'escort'
+
 module PDQTest
   module Instance
     TEST_DIR='/cut'
@@ -16,7 +18,6 @@ module PDQTest
     end
 
     def self.set_keep_container(keep_container)
-      puts "setting keep_container #{keep_container}"
       @@keep_container = keep_container
     end
 
@@ -26,12 +27,12 @@ module PDQTest
       Excon.defaults[:read_timeout] = 1000
 
       @@active_container = PDQTest::Docker::new_container(TEST_DIR)
-      puts "alive, running tests"
+      Escort::Logger.output.puts "alive, running tests"
       status = PDQTest::Puppet.run(@@active_container)
 
       if @@keep_container
-        puts "finished build, container #{@@active_container.id} left on system"
-        puts "  docker exec -ti #{@@active_container.id} bash "
+        Escort::Logger.output.puts "finished build, container #{@@active_container.id} left on system"
+        Escort::Logger.output.puts "  docker exec -ti #{@@active_container.id} bash "
       else
           PDQTest::Docker.cleanup_container(@@active_container)
           @@active_container = nil
@@ -55,8 +56,8 @@ module PDQTest
       # }
       system("docker exec -ti #{@@active_container.id} bash")
       if @@keep_container
-        puts "finished build, container #{@@active_container.id} left on system"
-        puts "  docker exec -ti #{@@active_container.id} bash "
+        Escort::Logger.output.puts "finished build, container #{@@active_container.id} left on system"
+        Escort::Logger.output.puts "  docker exec -ti #{@@active_container.id} bash "
       else
           PDQTest::Docker.cleanup_container(@@active_container)
           @@active_container = nil

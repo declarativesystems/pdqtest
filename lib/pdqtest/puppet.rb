@@ -1,6 +1,7 @@
 require 'pdqtest/puppet'
 require 'pdqtest/docker'
 require 'pdqtest/instance'
+require 'escort'
 
 module PDQTest
   class Puppet
@@ -58,7 +59,7 @@ module PDQTest
           end
         end
       end
-      puts "examples to run" + examples.to_s
+      Escort::Logger.output.puts "examples to run" + examples.to_s
       examples
     end
 
@@ -70,15 +71,14 @@ module PDQTest
 
     def self.bats_test(container, example, suffix)
       testcase = BATS_TESTS + '/' + test_basename(example) + suffix
-      puts ">>>>> #{testcase}"
       if File.exists?(testcase)
-        puts "*** bats test **** bats #{PDQTest::Instance::TEST_DIR}/#{testcase}"
+        Escort::Logger.output.puts "*** bats test **** bats #{PDQTest::Instance::TEST_DIR}/#{testcase}"
         res = PDQTest::Docker.exec(container, "bats #{PDQTest::Instance::TEST_DIR}/#{testcase}")
         status = PDQTest::Docker.exec_status(res)
-        puts res
+        Escort::Logger.output.puts res
         @@bats_executed << testcase
       else
-        puts "no #{suffix} tests for #{example} (should be at #{testcase})"
+        Escort::Logger.error.error "no #{suffix} tests for #{example} (should be at #{testcase})"
         status = true
       end
 
@@ -88,13 +88,13 @@ module PDQTest
     def self.setup_test(container, example)
       setup = BATS_TESTS + '/' + test_basename(example) + SETUP_SUFFIX
       if File.exists?(setup)
-        puts "Setting up test for #{example}"
+        Escort::Logger.output.puts "Setting up test for #{example}"
         script = File.read(setup)
         res = PDQTest::Docker.exec(container, script)
         status = PDQTest::Docker.exec_status(res)
         @@setup_executed << setup
       else
-        puts "no setup file for #{example} (should be in #{setup})"
+        Escort::Logger.output.puts "no setup file for #{example} (should be in #{setup})"
         status = true
       end
 
@@ -103,16 +103,16 @@ module PDQTest
 
     def self.run(container)
       status = true
-      puts "fetch deps"
+      Escort::Logger.output.puts "fetch deps"
       res = PDQTest::Docker.exec(container, install_deps)
       status &= PDQTest::Docker.exec_status(res)
 
-      puts "linking"
+      Escort::Logger.output.puts "linking"
       res = PDQTest::Docker.exec(container, link_module)
       status &= PDQTest::Docker.exec_status(res)
-      puts "run tests"
+      Escort::Logger.output.puts "run tests"
       find_examples.each { |e|
-        puts "testing #{e} #{status}"
+        Escort::Logger.output.puts "testing #{e} #{status}"
 
         status &= setup_test(container, e)
 
@@ -122,7 +122,7 @@ module PDQTest
         # run puppet apply
         res = PDQTest::Docker.exec(container, puppet_apply(e))
         status &= PDQTest::Docker.exec_status(res, true)
-        puts res
+        Escort::Logger.output.puts res
 
         # see if we should run a bats test after running puppet
         status &= bats_test(container, e, AFTER_SUFFIX)
