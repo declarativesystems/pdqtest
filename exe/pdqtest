@@ -44,9 +44,18 @@ Escort::App.create do |app|
 
 
   app.command :acceptance do |command|
+    command.options do |opts|
+      opts.opt(:example,
+        'Run only this example (eg --example examples/init.pp)',
+        :long     => '--example',
+        :type     => :string,
+        :default  => nil,
+      )
+    end
     command.action do |options, arguments|
       PDQTest::Instance.set_keep_container(options[:global][:options][:keep_container])
-      PDQTest::core.run(lambda {PDQTest::Instance.run})
+      example = options[:global][:commands][:acceptance][:options][:example]
+      PDQTest::Core.run(lambda {PDQTest::Instance.run(example)})
     end
   end
 

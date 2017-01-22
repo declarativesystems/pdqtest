@@ -163,4 +163,50 @@ describe PDQTest::Puppet do
     end
   end
 
+  it "passes individual test suite correctly" do
+    Dir.chdir(PASSING_TESTS_TESTDIR) do
+      c = PDQTest::Docker.new_container('/cut')
+      status = PDQTest::Puppet.run_example(c, 'examples/init.pp')
+
+      # make sure setup was executed
+      setup_executed = PDQTest::Puppet.get_setup_executed
+      expect(setup_executed).to match_array([
+        './spec/acceptance/init__setup.sh',
+      ])
+
+      bats_executed = PDQTest::Puppet.get_bats_executed
+      expect(bats_executed).to match_array([
+        './spec/acceptance/init.bats',
+        './spec/acceptance/init__before.bats',
+      ])
+
+      # check overall status
+      expect(status).to be true
+
+      PDQTest::Docker.cleanup_container(c)
+    end
+  end
+
+  it "fails individual test suite correctly" do
+    Dir.chdir(FAILING_TESTS_TESTDIR) do
+      c = PDQTest::Docker.new_container('/cut')
+      status = PDQTest::Puppet.run_example(c, 'examples/init.pp')
+
+      # make sure setup was executed
+      setup_executed = PDQTest::Puppet.get_setup_executed
+      expect(setup_executed).to match_array([
+        './spec/acceptance/init__setup.sh',
+      ])
+
+      # the above setup script will fail so no bats tests will run
+      bats_executed = PDQTest::Puppet.get_bats_executed
+      expect(bats_executed.empty?).to be true
+
+      # check overall status
+      expect(status).to be false
+
+      PDQTest::Docker.cleanup_container(c)
+    end
+  end
+
 end

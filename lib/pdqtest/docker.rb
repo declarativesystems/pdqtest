@@ -1,7 +1,7 @@
 module PDQTest
   module Docker
-    STDOUT = 0
-    STDERR = 1
+    OUT = 0
+    ERR = 1
     STATUS = 2
     ENV='export TERM=xterm LC_ALL=C PATH=/usr/local/bats/bin:/opt/puppetlabs/puppet/bin:$PATH;'
     IMAGE_NAME='geoffwilliams/pdqtest-centos:2017-01-08-0'
@@ -41,5 +41,30 @@ module PDQTest
       end
       status = allowable_values.include?(res[STATUS])
     end
+
+    def self.exec_out(res)
+      res[OUT]
+    end
+
+    def self.exec_err(res)
+      res[ERR]
+    end
+
+    def self.log_out(res)
+      exec_out(res).each { |l|
+        # Output comes back as an array and needs to be iterated or we lose our
+        # ansi formatting
+        Escort::Logger.output.puts l
+      }
+    end
+
+    def self.log_err(res)
+      exec_err(res).each { |l|
+        # Output comes back as an array and needs to be iterated or we lose our
+        # ansi formatting
+        Escort::Logger.error.error l
+      }
+    end
+
   end
 end

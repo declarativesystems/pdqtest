@@ -66,6 +66,7 @@ module PDQTest
     def self.test_basename(t)
       # remove examples/ and .pp
       # eg ./examples/apache/mod/mod_php.pp --> apache/mod/mod_php
+
       t.gsub(EXAMPLES_DIR + '/','').gsub('.pp','')
     end
 
@@ -75,7 +76,7 @@ module PDQTest
         Escort::Logger.output.puts "*** bats test **** bats #{PDQTest::Instance::TEST_DIR}/#{testcase}"
         res = PDQTest::Docker.exec(container, "bats #{PDQTest::Instance::TEST_DIR}/#{testcase}")
         status = PDQTest::Docker.exec_status(res)
-        Escort::Logger.output.puts res
+        PDQTest::Docker.log_out(res)
         @@bats_executed << testcase
       else
         Escort::Logger.error.error "no #{suffix} tests for #{example} (should be at #{testcase})"
@@ -92,6 +93,8 @@ module PDQTest
         script = File.read(setup)
         res = PDQTest::Docker.exec(container, script)
         status = PDQTest::Docker.exec_status(res)
+        PDQTest::Docker.log_out(res)
+
         @@setup_executed << setup
       else
         Escort::Logger.output.puts "no setup file for #{example} (should be in #{setup})"
@@ -101,7 +104,49 @@ module PDQTest
       status
     end
 
-    def self.run(container)
+    def self.run_example(container, example)
+      if ! example.start_with?('./')
+        # must prepend ./ to the example or we will not match the correct regexp
+        # in test_basename
+        example = "./#{example}"
+      end
+      Escort::Logger.output.puts "testing #{example}"
+      status = false
+
+      if setup_test(container, example)
+
+        # see if we should run a bats test before running puppet
+        if bats_test(container, example, BEFORE_SUFFIX)
+
+          # run puppet apply - 1st run
+          res = PDQTest::Docker.exec(container, puppet_apply(example))
+          PDQTest::Docker.log_out(res)
+          if PDQTest::Docker.exec_status(res, true) # allow 2 as exit status
+
+            # run puppet apply - 2nd run (check for idempotencey/no more changes)
+            res = PDQTest::Docker.exec(container, puppet_apply(example))
+            PDQTest::Docker.log_out(res)
+
+            # run the bats test if nothing failed yet
+            if PDQTest::Docker.exec_status(res) # only allow 0 as exit status
+              status = bats_test(container, example, AFTER_SUFFIX)
+            else
+              Escort::Logger.error.error "Not idempotent: #{example}"
+            end
+          else
+            Escort::Logger.error.error "First puppet run of #{example} failed"
+          end
+        else
+          Escort::Logger.error.error "Bats tests to run before #{example} failed"
+        end
+      else
+        Escort::Logger.error.error "Setup script for #{example} failed"
+      end
+
+      status
+    end
+
+    def self.run(container, example=nil)
       status = true
       Escort::Logger.output.puts "fetch deps"
       res = PDQTest::Docker.exec(container, install_deps)
@@ -111,23 +156,27 @@ module PDQTest
       res = PDQTest::Docker.exec(container, link_module)
       status &= PDQTest::Docker.exec_status(res)
       Escort::Logger.output.puts "run tests"
-      find_examples.each { |e|
-        Escort::Logger.output.puts "testing #{e} #{status}"
-
-        status &= setup_test(container, e)
-
-        # see if we should run a bats test before running puppet
-        status &= bats_test(container, e, BEFORE_SUFFIX)
-
-        # run puppet apply
-        res = PDQTest::Docker.exec(container, puppet_apply(e))
-        status &= PDQTest::Docker.exec_status(res, true)
-        Escort::Logger.output.puts res
-
-        # see if we should run a bats test after running puppet
-        status &= bats_test(container, e, AFTER_SUFFIX)
-      }
-
+      if example
+        status &= run_example(container, example)
+      else
+        find_examples.each { |e|
+          status &= run_example(container, e)
+          # Escort::Logger.output.puts "testing #{e} #{status}"
+          #
+          # status &= setup_test(container, e)
+          #
+          # # see if we should run a bats test before running puppet
+          # status &= bats_test(container, e, BEFORE_SUFFIX)
+          #
+          # # run puppet apply
+          # res = PDQTest::Docker.exec(container, puppet_apply(e))
+          # status &= PDQTest::Docker.exec_status(res, true)
+          # Escort::Logger.output.puts res
+          #
+          # # see if we should run a bats test after running puppet
+          # status &= bats_test(container, e, AFTER_SUFFIX)
+        }
+      end
       status
     end
 

@@ -21,14 +21,14 @@ module PDQTest
       @@keep_container = keep_container
     end
 
-    def self.run
+    def self.run(example=nil)
       # needed to prevent timeouts from container.exec()
       Excon.defaults[:write_timeout] = 1000
       Excon.defaults[:read_timeout] = 1000
 
       @@active_container = PDQTest::Docker::new_container(TEST_DIR)
       Escort::Logger.output.puts "alive, running tests"
-      status = PDQTest::Puppet.run(@@active_container)
+      status = PDQTest::Puppet.run(@@active_container, example)
 
       if @@keep_container
         Escort::Logger.output.puts "finished build, container #{@@active_container.id} left on system"
