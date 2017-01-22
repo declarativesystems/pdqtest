@@ -27,7 +27,7 @@ Escort::App.create do |app|
   app.command :all do |command|
     command.action do |options, arguments|
       PDQTest::Instance.set_keep_container(options[:global][:options][:keep_container])
-      PDQTest::core.run([
+      PDQTest::Core.run([
         lambda {PDQTest::Syntax.puppet},
         lambda {PDQTest::Lint.puppet},
         lambda {PDQTest::Rspec.run},
