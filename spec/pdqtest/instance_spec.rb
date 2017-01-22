@@ -4,7 +4,7 @@ require "pdqtest/instance"
 
 describe PDQTest::Instance do
   it "leaves container running when instructed" do
-    Dir.chdir('spec/fixtures/passing_tests') do
+    Dir.chdir(PASSING_TESTS_TESTDIR) do
       PDQTest::Instance::set_keep_container(true)
       PDQTest::Instance.run
       container = PDQTest::Instance::get_active_container
@@ -18,7 +18,7 @@ describe PDQTest::Instance do
   end
 
   it "closes container when instructed" do
-    Dir.chdir('spec/fixtures/passing_tests') do
+    Dir.chdir(PASSING_TESTS_TESTDIR) do
       PDQTest::Instance::set_keep_container(false)
       PDQTest::Instance.run
       c = PDQTest::Instance::get_active_container
@@ -27,7 +27,7 @@ describe PDQTest::Instance do
   end
 
   it "returns true when tests pass" do
-    Dir.chdir('spec/fixtures/passing_tests') do
+    Dir.chdir(PASSING_TESTS_TESTDIR) do
       PDQTest::Instance::set_keep_container(true)
       status = PDQTest::Instance.run
       expect(status).to be true
@@ -35,7 +35,7 @@ describe PDQTest::Instance do
   end
 
   it "returns false when test fail" do
-    Dir.chdir('spec/fixtures/failing_tests') do
+    Dir.chdir(FAILING_TESTS_TESTDIR) do
       PDQTest::Instance::set_keep_container(true)
       status = PDQTest::Instance.run
       expect(status).to be false

@@ -9,16 +9,15 @@ require 'rspec'
 require 'simplecov'
 
 
-
-#$: << File.expand_path('../../lib', __FILE__)
 require 'pdqtest'
 require 'fakefs/safe'
 
-RSpec.configure do |config|
-  # config.before(:suite) do
-  #   FakeFS.activate!
-  # end
+BLANK_MODULE_TESTDIR  = File.join('spec', 'fixtures', 'blank_module')
+FAILING_TESTS_TESTDIR = File.join('spec', 'fixtures', 'failing_tests')
+PASSING_TESTS_TESTDIR = File.join('spec', 'fixtures', 'passing_tests')
 
+
+RSpec.configure do |config|
   config.after(:suite) do
     FakeFS.deactivate!
   end

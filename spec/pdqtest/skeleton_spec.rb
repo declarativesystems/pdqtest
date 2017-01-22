@@ -17,7 +17,7 @@ describe PDQTest::Skeleton do
   end
 
   it "removes fixtures.yml" do
-    config = File.expand_path('./spec/fixtures/blank_module')
+    config = File.expand_path(BLANK_MODULE_TESTDIR)
     FakeFS::FileSystem.clone(config, '/apache')
 
     FakeFS do
@@ -33,7 +33,7 @@ describe PDQTest::Skeleton do
   end
 
   it "creates testcase directory structure correctly" do
-    config = File.expand_path('./spec/fixtures/blank_module')
+    config = File.expand_path(BLANK_MODULE_TESTDIR)
     FakeFS::FileSystem.clone(config, '/apache')
 
     FakeFS do
@@ -49,7 +49,7 @@ describe PDQTest::Skeleton do
   end
 
   it "creates skeleton files if required" do
-    config = File.expand_path('./spec/fixtures/blank_module')
+    config = File.expand_path(BLANK_MODULE_TESTDIR)
     FakeFS::FileSystem.clone(config, '/apache')
 
     FakeFS do

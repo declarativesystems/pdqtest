@@ -11,19 +11,19 @@ describe PDQTest::Puppet do
   end
 
   it "reads metadata into hash" do
-    Dir.chdir('spec/fixtures/passing_tests') do
+    Dir.chdir(PASSING_TESTS_TESTDIR) do
       expect(PDQTest::Puppet.module_metadata.class).to eq(Hash)
     end
   end
 
   it "reads correct module name from metadata" do
-    Dir.chdir('spec/fixtures/passing_tests') do
+    Dir.chdir(PASSING_TESTS_TESTDIR) do
       expect(PDQTest::Puppet.module_name).to eq('apache')
     end
   end
 
   it "finds the correct examples" do
-    Dir.chdir('spec/fixtures/passing_tests') do
+    Dir.chdir(PASSING_TESTS_TESTDIR) do
       test_cases = PDQTest::Puppet.find_examples
       expect(test_cases).to match_array([
         './examples/mod/mod_php.pp',
@@ -34,7 +34,7 @@ describe PDQTest::Puppet do
   end
 
   it "executes the correct bats tests" do
-    Dir.chdir('spec/fixtures/passing_tests') do
+    Dir.chdir(PASSING_TESTS_TESTDIR) do
 
       # run tests...
       PDQTest::Instance.run
@@ -59,7 +59,7 @@ describe PDQTest::Puppet do
 
   it "runs bats test correctly and returns true when tests pass" do
     # build a container for our test
-    Dir.chdir("./spec/fixtures/passing_tests/") do
+    Dir.chdir(PASSING_TESTS_TESTDIR) do
       c = PDQTest::Docker.new_container('/cut')
 
       # attempt to run bats
@@ -80,7 +80,7 @@ describe PDQTest::Puppet do
 
   it "runs bats test correctly and returns false when tests fail" do
     # build a container for our test
-    Dir.chdir("./spec/fixtures/failing_tests/") do
+    Dir.chdir(FAILING_TESTS_TESTDIR) do
       c = PDQTest::Docker.new_container('/cut')
 
       # attempt to run bats
@@ -103,7 +103,7 @@ describe PDQTest::Puppet do
   it "return true when setup script succeeds" do
     #def self.setup_test(container, example)
     # build a container for our test
-    Dir.chdir("./spec/fixtures/passing_tests/") do
+    Dir.chdir(PASSING_TESTS_TESTDIR) do
       c = PDQTest::Docker.new_container('/cut')
 
       # attempt to run bats
@@ -125,7 +125,7 @@ describe PDQTest::Puppet do
   it "return false when setup script fails" do
     #def self.setup_test(container, example)
     # build a container for our test
-    Dir.chdir("./spec/fixtures/failing_tests/") do
+    Dir.chdir(FAILING_TESTS_TESTDIR) do
       c = PDQTest::Docker.new_container('/cut')
 
       # attempt to run bats
@@ -146,7 +146,7 @@ describe PDQTest::Puppet do
 
 
   it "returns true on test success" do
-    Dir.chdir("./spec/fixtures/passing_tests/") do
+    Dir.chdir(PASSING_TESTS_TESTDIR) do
       c = PDQTest::Docker.new_container('/cut')
       status = PDQTest::Puppet.run(c)
       expect(status).to be true
@@ -155,7 +155,7 @@ describe PDQTest::Puppet do
   end
 
   it "returns false on test failure" do
-    Dir.chdir("./spec/fixtures/failing_tests/") do
+    Dir.chdir(FAILING_TESTS_TESTDIR) do
       c = PDQTest::Docker.new_container('/cut')
       status = PDQTest::Puppet.run(c)
       expect(status).to be false

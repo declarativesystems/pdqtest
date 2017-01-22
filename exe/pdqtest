@@ -2,6 +2,9 @@
 require 'pdqtest/instance'
 require 'pdqtest/rspec'
 require 'pdqtest/skeleton'
+require 'pdqtest/lint'
+require 'pdqtest/syntax'
+require 'pdqtest/core'
 require 'escort'
 
 # display help if nothing specified
@@ -24,18 +27,18 @@ Escort::App.create do |app|
   app.command :all do |command|
     command.action do |options, arguments|
       PDQTest::Instance.set_keep_container(options[:global][:options][:keep_container])
-
-      if PDQTest::Rspec.run and PDQTest::Instance.run
-        puts "finished - tests ok :)"
-      else
-        abort("finished - THERE ARE TEST FAILURES :()")
-      end
+      PDQTest::core.run([
+        lambda {PDQTest::Syntax.puppet},
+        lambda {PDQTest::Lint.puppet},
+        lambda {PDQTest::Rspec.run},
+        lambda {PDQTest::Instance.run},
+      ])
     end
   end
 
   app.command :rspec do |command|
     command.action do |options, arguments|
-      PDQTest::Rspec.run
+      PDQTest::core.run(lambda {PDQTest::Rspec.run})
     end
   end
 
@@ -43,11 +46,7 @@ Escort::App.create do |app|
   app.command :acceptance do |command|
     command.action do |options, arguments|
       PDQTest::Instance.set_keep_container(options[:global][:options][:keep_container])
-      if PDQTest::Instance.run
-        puts "finished - tests ok :)"
-      else
-        abort("finished - THERE ARE TEST FAILURES :()")
-      end
+      PDQTest::core.run(lambda {PDQTest::Instance.run})
     end
   end
 
@@ -60,6 +59,18 @@ Escort::App.create do |app|
   app.command :shell do |command|
     command.action do |options, arguments|
       PDQTest::Instance.shell
+    end
+  end
+
+  app.command :syntax do |command|
+    command.action do |options, arguments|
+      PDQTest::core.run(lambda {PDQTest::Syntax.puppet})
+    end
+  end
+
+  app.command :lint do |command|
+    command.action do |options, arguments|
+      PDQTest::core.run(lambda {PDQTest::Lint.puppet})
     end
   end
 end
