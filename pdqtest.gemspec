@@ -34,4 +34,5 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "puppet-lint", "2.1.0"
   spec.add_runtime_dependency "puppet-syntax", "2.2.0"
   spec.add_runtime_dependency "puppetlabs_spec_helper", "1.2.2"
+  spec.add_runtime_dependency "librarian-puppet", "2.2.3"
 end
