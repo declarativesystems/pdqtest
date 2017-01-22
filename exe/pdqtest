@@ -38,7 +38,7 @@ Escort::App.create do |app|
 
   app.command :rspec do |command|
     command.action do |options, arguments|
-      PDQTest::core.run(lambda {PDQTest::Rspec.run})
+      PDQTest::Core.run(lambda {PDQTest::Rspec.run})
     end
   end
 
@@ -73,13 +73,13 @@ Escort::App.create do |app|
 
   app.command :syntax do |command|
     command.action do |options, arguments|
-      PDQTest::core.run(lambda {PDQTest::Syntax.puppet})
+      PDQTest::Core.run(lambda {PDQTest::Syntax.puppet})
     end
   end
 
   app.command :lint do |command|
     command.action do |options, arguments|
-      PDQTest::core.run(lambda {PDQTest::Lint.puppet})
+      PDQTest::Core.run(lambda {PDQTest::Lint.puppet})
     end
   end
 end
