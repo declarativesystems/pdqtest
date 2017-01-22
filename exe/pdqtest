@@ -82,4 +82,12 @@ Escort::App.create do |app|
       PDQTest::Core.run(lambda {PDQTest::Lint.puppet})
     end
   end
+
+  app.command :setup do |command|
+    command.action do |options, arguments|
+      PDQTest::Core.run(lambda {
+        system("docker pull #{PDQTest::Docker::IMAGE_NAME}")
+      })
+    end
+  end
 end
