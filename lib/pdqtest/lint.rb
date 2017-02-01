@@ -9,7 +9,7 @@ module PDQTest
       "--no-double_quoted_strings-check",
       "--no-80chars-check",
       "--no-variable_scope-check",
-      "--disable-quoted-booleans",
+      "--no-quoted_booleans-check",
     ]
     def self.puppet
       status = true
