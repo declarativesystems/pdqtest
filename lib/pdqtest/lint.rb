@@ -5,6 +5,7 @@ module PDQTest
     ]
 
     LINT_OPTIONS = [
+      "--relative",
       "--fail-on-warnings",
       "--no-double_quoted_strings-check",
       "--no-80chars-check",
