@@ -5,16 +5,17 @@ require 'escort'
 
 module PDQTest
   class Puppet
-    METADATA      = 'metadata.json'
-    MODULE_DIR    = '/etc/puppetlabs/code/modules'
-    MAGIC_MARKER  = /#\s*@PDQTest/
-    BATS_TESTS    = './spec/acceptance'
-    SETUP_SUFFIX  = '__setup.sh'
-    BEFORE_SUFFIX = '__before.bats'
-    AFTER_SUFFIX  = '.bats'
-    EXAMPLES_DIR  = './examples'
-    @@bats_executed = []
-    @@setup_executed = []
+    METADATA          = 'metadata.json'
+    MODULE_DIR        = '/etc/puppetlabs/code/modules'
+    MAGIC_MARKER      = '@PDQTest'
+    MAGIC_MARKER_RE   = /#\s*#{MAGIC_MARKER}/
+    BATS_TESTS        = './spec/acceptance'
+    SETUP_SUFFIX      = '__setup.sh'
+    BEFORE_SUFFIX     = '__before.bats'
+    AFTER_SUFFIX      = '.bats'
+    EXAMPLES_DIR      = './examples'
+    @@bats_executed   = []
+    @@setup_executed  = []
 
     def self.reset_bats_executed
       @@bats_executed = []
@@ -54,7 +55,7 @@ module PDQTest
       examples = []
       if Dir.exists?(EXAMPLES_DIR)
         Find.find(EXAMPLES_DIR) do |e|
-          if ! File.directory?(e) and ! File.readlines(e).grep(MAGIC_MARKER).empty?
+          if ! File.directory?(e) and ! File.readlines(e).grep(MAGIC_MARKER_RE).empty?
             examples << e
           end
         end

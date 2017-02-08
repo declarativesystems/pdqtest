@@ -16,6 +16,7 @@ module PDQTest
     GEMFILE_LINE    = "gem 'pdqtest', '#{PDQTest::VERSION}'"
 
 
+
     def self.should_replace_file(target, skeleton)
       target_hash   = Digest::SHA256.file target
       skeleton_hash = File.join(SKELETON_DIR, skeleton)
@@ -88,6 +89,9 @@ module PDQTest
       install_skeleton(File.join('spec', 'acceptance', 'init.bats'), 'init.bats', false)
       install_skeleton(File.join('spec', 'acceptance', 'init__before.bats'), 'init__before.bats', false)
       install_skeleton(File.join('spec', 'acceptance', 'init__setup.sh'), 'init__setup.sh', false)
+      install_skeleton('.travis.yml', 'dot_travis.yml')
+      install_skeleton('.gitignore', 'dot_gitignore')
+      install_skeleton('.rspec', 'dot_rspec')
 
       install_example()
       install_gemfile()
