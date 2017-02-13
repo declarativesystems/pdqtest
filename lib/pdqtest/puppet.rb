@@ -39,7 +39,7 @@ module PDQTest
     end
 
     def self.module_name
-      module_metadata['name'].split('-')[1]
+      module_metadata['name'].split(/[\/-]/)[1]
     end
 
     def self.link_module
