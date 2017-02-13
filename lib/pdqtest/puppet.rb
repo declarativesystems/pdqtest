@@ -161,21 +161,12 @@ module PDQTest
         status &= run_example(container, example)
       else
         find_examples.each { |e|
-          status &= run_example(container, e)
-          # Escort::Logger.output.puts "testing #{e} #{status}"
-          #
-          # status &= setup_test(container, e)
-          #
-          # # see if we should run a bats test before running puppet
-          # status &= bats_test(container, e, BEFORE_SUFFIX)
-          #
-          # # run puppet apply
-          # res = PDQTest::Docker.exec(container, puppet_apply(e))
-          # status &= PDQTest::Docker.exec_status(res, true)
-          # Escort::Logger.output.puts res
-          #
-          # # see if we should run a bats test after running puppet
-          # status &= bats_test(container, e, AFTER_SUFFIX)
+          if status
+            status &= run_example(container, e)
+            if ! status
+              Escort::Logger.error.error "Example #{e} failed! - skipping rest of tests"
+            end
+          end
         }
       end
       status

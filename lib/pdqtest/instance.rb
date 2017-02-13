@@ -23,8 +23,8 @@ module PDQTest
 
     def self.run(example=nil)
       # needed to prevent timeouts from container.exec()
-      Excon.defaults[:write_timeout] = 1000
-      Excon.defaults[:read_timeout] = 1000
+      Excon.defaults[:write_timeout] = 10000
+      Excon.defaults[:read_timeout] = 10000
 
       @@active_container = PDQTest::Docker::new_container(TEST_DIR)
       Escort::Logger.output.puts "alive, running tests"
@@ -37,7 +37,7 @@ module PDQTest
           PDQTest::Docker.cleanup_container(@@active_container)
           @@active_container = nil
       end
-
+      Escort::Logger.output.puts "...finished status=#{status}"
       status
     end
 

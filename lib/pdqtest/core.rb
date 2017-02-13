@@ -6,6 +6,7 @@ module PDQTest
       functions = Array(functions)
       functions.each { |f|
         if ! f.call
+          Escort::Logger.error.error "Error encountered running #{f.to_s}"
           abort("ABORTED - there are test failures! :(")
         end
       }
