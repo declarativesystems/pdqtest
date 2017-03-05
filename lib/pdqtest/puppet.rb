@@ -173,7 +173,7 @@ module PDQTest
     end
 
     def self.puppet_apply(example)
-      "cd #{PDQTest::Instance::TEST_DIR} && puppet apply #{example}"
+      "cd #{PDQTest::Instance::TEST_DIR} && puppet apply --detailed-exitcodes #{example}"
     end
   end
 end
