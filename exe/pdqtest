@@ -90,4 +90,11 @@ Escort::App.create do |app|
       })
     end
   end
+
+  app.command :info do |command|
+    command.action do |options, arguments|
+      PDQTest::Puppet.info
+    end
+  end
+
 end

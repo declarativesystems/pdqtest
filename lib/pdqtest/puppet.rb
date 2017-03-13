@@ -175,5 +175,10 @@ module PDQTest
     def self.puppet_apply(example)
       "cd #{PDQTest::Instance::TEST_DIR} && puppet apply --detailed-exitcodes #{example}"
     end
+
+    def self.info
+      Escort::Logger.output.puts "Parsed module name: #{module_name}"
+      Escort::Logger.output.puts "Link module command: #{link_module}"
+    end
   end
 end
