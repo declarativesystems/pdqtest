@@ -2,40 +2,79 @@
 
 # PDQTest
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/pdqtest`. To experiment with that code, run `bin/console` for an interactive prompt.
+PDQTest - Puppet Docker Quick-test - is the quickest and easiest way to test your puppet modules. PDQTest features tests for:
+* Linting
+* Syntax
+* RSpec
+* Acceptance (BATS)
 
-TODO: Delete this and the text above, and describe your gem
-
-## Statistics
-Without running puppet, spinning up containers and running bats tests took on average 1-3 seconds, vs ~15 with a hacked version of testkitchen, ~4 minutes with unhacked (when offline).
-
-Thats a sick improvement!
+PDQTest runs linting, syntax and RSpec tests within the machine it is running from and then loads a docker container to perform acceptance testing.
 
 ## Installation
 
-Add this line to your application's Gemfile:
+To install PDQTest on your system:
 
-```ruby
-gem 'pdqtest'
+### System Ruby
+```shell
+gem install pdqtest
 ```
 
-And then execute:
+### Bundler, add this line to your application's Gemfile:
+```ruby
+gem 'pdqtest
+```
+* It's advisable to specify a version number to ensure repeatable builds
 
-    $ bundle
+### Puppet modules
+To add PDQTests to a puppet module, run the command:
+```
+pdqtest init
+```
 
-Or install it yourself as:
+This will install PDQTest into the `Gemfile` and will generate an example set of acceptance tests
 
-    $ gem install pdqtest
+## Running tests
 
-## Usage
+### Module dependencies/.fixtures.yml
+Module dependencies should be specified in your module's `metadata.json` file.  There is no requirement to maintain a `.fixtures.yml` file.
 
-TODO: Write usage instructions here
+
+### All tests
+If you just want to run all tests:
+
+```shell
+bundle exec pdqtest all
+```
+
+### RSpec tests
+```shell
+bundle exec pdqtest rspec
+```
+
+### Debugging failed builds
+PDQTest makes it easy to debug failed builds:
+
+```shell
+pdqtest shell
+```
+
+* Open a shell inside the docker container that would be used to run tests
+* Your code is available at `/cut`
+
+```shell
+pdqtest --keep-container all
+```
+* Run all tests, report pass/fail status
+* Keep the container Running
+* After testing, the container used to run tests will be left running and a message will be printed showing how to enter the container used for testing.  Your code is avaiable at `/cut`
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+PRs welcome :)  Please ensure suitable tests cover any new functionality and that all tests are passing before and after your development work:
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+```shell
+bundle exec rake spec
+```
 
 ## Who should use PDQTest?
 You should use pdqtest if you find it increases your productivity and enriches your life
