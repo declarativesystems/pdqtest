@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/GeoffWilliams/pdqtest.svg?branch=master)](https://travis-ci.org/GeoffWilliams/pdqtest)
+[![Build Status](https://travis-ci.org/declarativesystems/pdqtest.svg?branch=master)](https://travis-ci.org/GeoffWilliams/pdqtest)
 
 # PDQTest
 
