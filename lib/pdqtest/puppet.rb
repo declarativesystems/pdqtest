@@ -19,7 +19,7 @@ module PDQTest
     CLASS_RE          = /^class /
     @@bats_executed   = []
     @@setup_executed  = []
-    FIXTURES          = '.fixtures.yml'
+    FIXTURES          = 'fixtures.yml'
 
     def self.reset_bats_executed
       @@bats_executed = []
@@ -93,7 +93,7 @@ module PDQTest
       examples
     end
 
-    # process fixtures->repositories->* from .fixtures.yml if present to
+    # process fixtures->repositories->* from fixtures.yml if present to
     # generate an array of commands to run ON THE DOCKER VM to checkout the
     # required modules from git
     def self.git_fixtures()
@@ -102,14 +102,17 @@ module PDQTest
         fixtures = YAML.load_file(FIXTURES)
         if fixtures.has_key?('repositories')
           fixtures['repositories'].each { |fixture, opts|
+            target = "spec/fixtures/modules/#{fixture}"
             if opts.instance_of?(String)
               source = opts
-              target = "spec/fixtures/modules/#{fixture}"
               ref    = 'master'
             elsif opts.instance_of?(Hash)
-              target = "spec/fixtures/modules/#{fixture}"
               source = opts['repo']
-              ref    = opts['ref']
+              if opts.has_key? 'ref'
+                ref = opts['ref']
+              else
+                ref = 'master'
+              end
             end
 
             refresh_cmd << "git_refresh refresh --target-dir #{target} --source-url #{source} --ref #{ref}"

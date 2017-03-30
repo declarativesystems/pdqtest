@@ -45,9 +45,13 @@ bundle exec pdqtest setup
 This image is updated periodically, the above command will download the appropriate image for the version of `pdqtest` being used.
 
 ### Module dependencies/.fixtures.yml
-Ordinarily, there is no need to maintain a `.fixtures.yml` file.  Dependencies on public forge modules should be specified in your module's `metadata.json` file.
+There is no need to maintain a `.fixtures.yml` file and the presence of this file when using `pdqtest` is an error.
 
-If you need to download modules from git (eg those not available on forge.puppetlabs.com), then you must populate the `fixtures` section of `.fixtures.yml`, eg:
+#### Public modules (PuppetForge)
+Dependencies on public forge modules must be specified in your module's `metadata.json` file.
+
+#### Private modules (from git)
+If you need to download modules from git, then you must populate the `fixtures` section of `fixtures.yml`, eg:
 
 ```
 repositories:
@@ -56,7 +60,10 @@ repositories:
     ref: 'mybranch'
 ```
 
-Note that only the repositories section of the file will be processed as we do not use `puppetlabs_spec_helper` to do this for us.
+##### Notes:
+* The filename is `fixtures.yml` NOT `.fixtures.yml`.  The leading dot had to be removed to avoid `puppetlabs_spec_helper` also detecting the file and trying to use it.
+* The file format of `.fixtures.yml` and `fixtures.yml` for specifing git repositories is identical
+* Only the repositories section of the file will be processed as we do not use `puppetlabs_spec_helper` to do this for us.
 
 ### All tests
 If you just want to run all tests:
@@ -101,6 +108,8 @@ You should use pdqtest if you find it increases your productivity and enriches y
 ## Troubleshooting
 * If you can't find the `pdqtest` command and your using `rbenv` be sure to run `rbenv rehash` after installing the gem to create the necessary symlinks
 * Don't forget to run `pdqtest setup` before your first `pdqtest` run to download/update the Docker image
+* If you need to access private git repositories, make sure to use `fixtures.yml` not `.fixtures.yml`
+* If you need a private key to access private repositories, set this up for your regular git command/ssh and `pdqtest` will reuse the settings
 
 ## Support
 This software is not supported by Puppet, Inc.  Use at your own risk.

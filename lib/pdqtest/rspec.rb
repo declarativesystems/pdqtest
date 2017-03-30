@@ -9,18 +9,24 @@ module PDQTest
     SPEC_CLASSES_DIR  = "#{SPEC_DIR}/classes"
 
     def self.run
-      status = system("bundle exec librarian-puppet install --path ./spec/fixtures/modules --destructive")
-      PDQTest::Puppet.git_fixtures.each { |extra_mod_install_cmd|
-        if status
-          # fast-fail
-          status &= system("bundle exec #{extra_mod_install_cmd}")
-        end
-      }
+      cmd = "bundle exec librarian-puppet install --path ./spec/fixtures/modules --destructive"
+      status = system(cmd)
       if status
-        # fail fast on test execution
-        status &= system("bundle exec rake spec")
+        PDQTest::Puppet.git_fixtures.each { |extra_mod_install_cmd|
+          if status
+            cmd = "bundle exec #{extra_mod_install_cmd}"
+            status &= system(cmd)
+          end
+          if ! status
+            Escort::Logger.error.error "Install git fixtures failed: #{cmd}"
+          end
+        }
+        if status
+          status &= system("bundle exec rake spec")
+        end
+      else
+        Escort::Logger.error.error "Librarian command failed: #{cmd}"
       end
-
       PDQTest::Emoji.partial_status(status, 'RSpec-Puppet')
       status
     end
