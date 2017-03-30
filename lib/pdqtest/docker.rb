@@ -58,6 +58,11 @@ module PDQTest
       }
     end
 
+    def self.log_all(res)
+      log_err(res)
+      log_out(res)
+    end
+
     def self.log_err(res)
       exec_err(res).each { |l|
         # Output comes back as an array and needs to be iterated or we lose our

@@ -55,7 +55,7 @@ module PDQTest
       steps = []
       steps << "cd #{PDQTest::Instance::TEST_DIR}"
       steps << "librarian-puppet install --path #{MODULE_DIR} --destructive"
-      steps << git_fixtures
+      steps + git_fixtures
 
       steps.join(' && ')
     end
@@ -226,25 +226,39 @@ module PDQTest
 
     def self.run(container, example=nil)
       status = true
-      Escort::Logger.output.puts "fetch deps"
-      res = PDQTest::Docker.exec(container, install_deps)
+      Escort::Logger.output.puts "...fetch deps"
+      cmd = install_deps
+      res = PDQTest::Docker.exec(container, cmd)
       status &= PDQTest::Docker.exec_status(res)
-
-      Escort::Logger.output.puts "linking"
-      res = PDQTest::Docker.exec(container, link_module)
-      status &= PDQTest::Docker.exec_status(res)
-      Escort::Logger.output.puts "run tests"
-      if example
-        status &= run_example(container, example)
-      else
-        find_examples.each { |e|
-          if status
-            status &= run_example(container, e)
+      if status
+        Escort::Logger.output.puts "...linking"
+        cmd = link_module
+        res = PDQTest::Docker.exec(container, cmd)
+        status &= PDQTest::Docker.exec_status(res)
+        if status
+          Escort::Logger.output.puts "...run tests"
+          if example
+            status &= run_example(container, example)
             if ! status
-              Escort::Logger.error.error "Example #{e} failed! - skipping rest of tests"
+              Escort::Logger.error.error "Example #{example} failed!"
             end
+          else
+            find_examples.each { |e|
+              if status
+                status &= run_example(container, e)
+                if ! status
+                  Escort::Logger.error.error "Example #{e} failed! - skipping rest of tests"
+                end
+              end
+            }
           end
-        }
+        else
+          PDQTest::Docker.log_all(res)
+          Escort::Logger.error.error "Error linking module, see previous error, command was: #{cmd}"
+        end
+      else
+        PDQTest::Docker.log_all(res)
+        Escort::Logger.error.error "Error installing dependencies, see previous error, command was: #{cmd}"
       end
       status
     end

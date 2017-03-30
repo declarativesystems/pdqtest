@@ -28,11 +28,24 @@ RUN yum install -y cronie \
     gpm-libs \
     policycoreutils \
     policycoreutils-restorecond && yum clean all
-RUN echo "metadata_expire=never" >> /etc/yum.conf && \
-  echo "LANG=C" >> /etc/environment && \
-  echo "LC_ALL=C" >> /etc/environment && \
-  echo "export PATH=/usr/local/bats/bin:/opt/puppetlabs/puppet/bin/:${PATH}" >> /etc/environment && \
-  echo "export TERM=xterm"  >> /etc/environment
+RUN echo "metadata_expire=never" >> /etc/yum.conf
+
+# fix locale
+RUN echo 'LANG=en_US.UTF-8' > /etc/locale.conf
+RUN yum -y reinstall glibc-common
+# swallow errors
+RUN localedef --quiet -v -c -i en_US -f UTF-8 en_US.UTF-8 || true
+
+
+ENV LANG en_US.UTF-8
+# && \
+#  echo "LANG=C" >> /etc/environment && \
+ENV LC_ALL en_US.UTF-8
+#  echo "LC_ALL=C" >> /etc/environment && \
+ENV PATH /usr/local/bats/bin:/opt/puppetlabs/puppet/bin/:/usr/sbin:/sbin:/usr/bin:/bin
+#  echo "export PATH=/usr/local/bats/bin:/opt/puppetlabs/puppet/bin/:${PATH}" >> /etc/environment && \
+ENV TERM xterm
+#  echo "export TERM=xterm"  >> /etc/environment
 
 # puppet
 RUN yum -y install http://yum.puppetlabs.com/el/7/PC1/x86_64/puppet-agent-1.8.2-1.el7.x86_64.rpm && \

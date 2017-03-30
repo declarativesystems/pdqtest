@@ -11,3 +11,4 @@
 .librarian
 Puppetfile.lock
 *.gem
+/fixtures/passing_tests/spec/fixtures

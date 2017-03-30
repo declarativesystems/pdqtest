@@ -8,7 +8,12 @@ module PDQTest
 
     def self.run
       status = system("bundle exec librarian-puppet install --path ./spec/fixtures/modules --destructive")
-      status &= system(PDQTest::Pupppet.git_fixtures)
+      PDQTest::Puppet.git_fixtures.each { |extra_mod_install_cmd|
+        if status
+          # fast-fail
+          status &= system("bundle exec #{extra_mod_install_cmd}")
+        end
+      }
       if status
         # fail fast on test execution
         status &= system("bundle exec rake spec")
