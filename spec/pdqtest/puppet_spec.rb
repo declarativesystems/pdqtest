@@ -255,7 +255,7 @@ describe PDQTest::Puppet do
 
   it "checks out extra git modules from .fixtures.yml" do
     # unpack testcase
-    fixture_dir = "spec/fixtures/git_repo"
+    fixture_dir = "#{Dir.pwd}/spec/fixtures/git_repo"
     if Dir.exists? fixture_dir
       FileUtils.rm_rf fixture_dir
     end
