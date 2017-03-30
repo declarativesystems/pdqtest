@@ -1,4 +1,4 @@
-  repositories:
-    extra:
-      repo: '../git_repo'
-      ref: 'mybranch'
+repositories:
+  extra:
+    repo: '../git_repo'
+    ref: 'mybranch'

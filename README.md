@@ -36,8 +36,18 @@ This will install PDQTest into the `Gemfile` and will generate an example set of
 ## Running tests
 
 ### Module dependencies/.fixtures.yml
-Module dependencies should be specified in your module's `metadata.json` file.  There is no requirement to maintain a `.fixtures.yml` file.
+Ordinarily, there is no need to maintain a `.fixtures.yml` file.  Dependencies on public forge modules should be specified in your module's `metadata.json` file.
 
+If you need to download modules from git (eg those not available on forge.puppetlabs.com), then you must populate the `fixtures` section of `.fixtures.yml`, eg:
+
+```
+repositories:
+  corporatestuff:
+    repo: 'https://nonpublicgit.megacorp.com/corporatestuff.git'
+    ref: 'mybranch'
+```
+
+Note that only the repositories section of the file will be processed as we do not use `puppetlabs_spec_helper` to do this for us.
 
 ### All tests
 If you just want to run all tests:
