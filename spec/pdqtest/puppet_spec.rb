@@ -254,23 +254,34 @@ describe PDQTest::Puppet do
   end
 
   it "checks out extra git modules from .fixtures.yml" do
-    # unpack testcase
-    fixture_dir = "#{Dir.pwd}/spec/fixtures/git_repo"
-    if Dir.exists? fixture_dir
-      FileUtils.rm_rf fixture_dir
-    end
+    # copy whole testcase to temp directory to avoid writing files inside the
+    # checked out git directory
+    testcase_temp_dir = Dir.mktmpdir
+    FileUtils.cp_r("#{GIT_FIXTURES_TESTDIR}/.", testcase_temp_dir)
+    Dir.chdir(testcase_temp_dir) do
+      # make a directory for the testcase git repo and extract it inside the
+      # main testcase dir
+      fixture_dir = "./spec/fixtures/git_repo"
+      FileUtils.mkdir_p fixture_dir
+      Dir.chdir(fixture_dir) do
+        system("tar zxvf #{TESTCASE_REPO_TARBALL}")
+      end
 
-    Dir.mkdir fixture_dir
-    system("cd #{fixture_dir} && tar zxvf #{TESTCASE_REPO_TARBALL}")
+      # Ask for the list of commands to extract the features.  These come back in
+      # an array and there should be just one fixture, as listed in .fixtures.yml
+      # for the testcase
+      fixtures_cmd = PDQTest::Puppet::git_fixtures()
+      expect(fixtures_cmd.class).to be Array
+      expect(fixtures_cmd.size).to be 1
 
-    Dir.chdir(GIT_FIXTURES_TESTDIR) do
-      status = PDQTest::Puppet::git_fixtures()
-      expect(status.class).to be Array
-      system("ls -lR")
+      # Run the commands we got back to prove that they do indeed extract the
+      # git testcase files correctly
+      system("bundle exec #{fixtures_cmd[0]}")
+
       expect(File.exists?('./spec/fixtures/modules/extra/readme.txt')).to be true
     end
     # cleanup the testcase git repo
-    FileUtils.rm_rf(fixture_dir)
+    FileUtils.rm_rf(testcase_temp_dir)
   end
 
 end

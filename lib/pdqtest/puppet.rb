@@ -112,7 +112,7 @@ module PDQTest
               ref    = opts['ref']
             end
 
-            refresh_cmd << "git_refresh #{target} #{source} #{ref}"
+            refresh_cmd << "git_refresh refresh --target-dir #{target} --source-url #{source} --ref #{ref}"
           }
         end
       end

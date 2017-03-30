@@ -1,4 +1,4 @@
 repositories:
   extra:
-    repo: '../git_repo'
+    repo: './spec/fixtures/git_repo'
     ref: 'mybranch'
