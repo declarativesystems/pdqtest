@@ -4,6 +4,7 @@ require "pdqtest/instance"
 require "pdqtest/puppet"
 
 describe PDQTest::Puppet do
+  TESTCASE_REPO_TARBALL = "#{Dir.pwd}/spec/fixtures/git_repo.tar.gz"
 
   before do
     PDQTest::Puppet.reset_bats_executed
@@ -252,5 +253,23 @@ describe PDQTest::Puppet do
     end
   end
 
+  it "checks out extra git modules from .fixtures.yml" do
+    # unpack testcase
+    fixture_dir = "spec/fixtures/git_repo"
+    if Dir.exists? fixture_dir
+      FileUtils.rm_rf fixture_dir
+    end
+
+    Dir.mkdir fixture_dir
+    system("cd #{fixture_dir} && tar zxvf #{TESTCASE_REPO_TARBALL}")
+
+    Dir.chdir(GIT_FIXTURES_TESTDIR) do
+      status = PDQTest::Puppet::git_fixtures()
+      expect(status.class).to be Array
+      expect(File.exists?('./spec/fixtures/modules/extra/readme.txt')).to be true
+    end
+    # cleanup the testcase git repo
+    FileUtils.rm_rf(fixture_dir)
+  end
 
 end

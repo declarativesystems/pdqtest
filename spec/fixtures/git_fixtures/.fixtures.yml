@@ -1,0 +1,4 @@
+  repositories:
+    extra:
+      repo: '../git_repo'
+      ref: 'mybranch'

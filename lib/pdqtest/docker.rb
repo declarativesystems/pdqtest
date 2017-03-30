@@ -4,7 +4,7 @@ module PDQTest
     ERR = 1
     STATUS = 2
     ENV='export TERM=xterm LC_ALL=C PATH=/usr/local/bats/bin:/opt/puppetlabs/puppet/bin:$PATH;'
-    IMAGE_NAME='geoffwilliams/pdqtest-centos:2017-01-08-0'
+    IMAGE_NAME='geoffwilliams/pdqtest-centos:2017-03-30-0'
 
 
     def self.wrap_cmd(cmd)

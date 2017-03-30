@@ -2,6 +2,7 @@ require 'pdqtest/puppet'
 require 'pdqtest/docker'
 require 'pdqtest/instance'
 require 'escort'
+require 'yaml'
 
 module PDQTest
   class Puppet
@@ -18,6 +19,7 @@ module PDQTest
     CLASS_RE          = /^class /
     @@bats_executed   = []
     @@setup_executed  = []
+    FIXTURES          = '.fixtures.yml'
 
     def self.reset_bats_executed
       @@bats_executed = []
@@ -50,7 +52,12 @@ module PDQTest
 
     def self.install_deps
       # Install dependencies for module
-      "cd #{PDQTest::Instance::TEST_DIR} && librarian-puppet install --path #{MODULE_DIR} --destructive"
+      steps = []
+      steps << "cd #{PDQTest::Instance::TEST_DIR}"
+      steps << "librarian-puppet install --path #{MODULE_DIR} --destructive"
+      steps << git_fixtures
+
+      steps.join(' && ')
     end
 
     def self.class2filename(c)
@@ -84,6 +91,33 @@ module PDQTest
       end
       Escort::Logger.output.puts "examples to run" + examples.to_s
       examples
+    end
+
+    # process fixtures->repositories->* from .fixtures.yml if present to
+    # generate an array of commands to run ON THE DOCKER VM to checkout the
+    # required modules from git
+    def self.git_fixtures()
+      refresh_cmd = []
+      if File.exists?(FIXTURES)
+        fixtures = YAML.load_file(FIXTURES)
+        if fixtures.has_key?('repositories')
+          fixtures['repositories'].each { |fixture, opts|
+            if opts.instance_of?(String)
+              source = opts
+              target = "spec/fixtures/modules/#{fixture}"
+              ref    = 'master'
+            elsif opts.instance_of?(Hash)
+              target = "spec/fixtures/modules/#{fixture}"
+              source = opts['repo']
+              ref    = opts['ref']
+            end
+
+            refresh_cmd << "git_refresh #{target} #{source} #{ref}"
+          }
+        end
+      end
+
+      refresh_cmd
     end
 
     # find the available classes in this module

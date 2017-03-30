@@ -86,5 +86,10 @@ You should use pdqtest if you find it increases your productivity and enriches y
 This software is not supported by Puppet, Inc.  Use at your own risk.
 
 ## Contributing
+Bug reports and pull requests are welcome on GitHub at https://github.com/declarativesystems/pdqtest.
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/GeoffWilliams/pdqtest.
+### Running tests
+* PDQTest includes a comprehensive tests for core library functions.  Please ensure tests pass before and after any PRs
+* Run all tests `bundle exec rake spec`
+* Run specific test file `bundle exec rspec ./spec/SPEC/FILE/TO/RUN.rb`
+* Run specific test case `bundle exec rspec ./spec/SPEC/FILE/TO/RUN.rb:99` (where 99 is the line number of the test)
