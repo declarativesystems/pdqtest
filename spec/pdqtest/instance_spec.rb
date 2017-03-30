@@ -41,4 +41,14 @@ describe PDQTest::Instance do
       expect(status).to be false
     end
   end
+
+  it "returns true when no tests present and does not start docker" do
+    Dir.chdir(REGULAR_MODULE_TESTDIR) do
+      # set to keep the container and then check there isn't one at end of tests
+      PDQTest::Instance::set_keep_container(true)
+      status = PDQTest::Instance.run
+      expect(status).to be true
+      expect(PDQTest::Instance.get_active_container). to be nil
+    end
+  end
 end

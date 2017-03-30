@@ -26,16 +26,21 @@ module PDQTest
       Excon.defaults[:write_timeout] = 10000
       Excon.defaults[:read_timeout] = 10000
 
-      @@active_container = PDQTest::Docker::new_container(TEST_DIR)
-      Escort::Logger.output.puts "alive, running tests"
-      status = PDQTest::Puppet.run(@@active_container, example)
-
-      if @@keep_container
-        Escort::Logger.output.puts "finished build, container #{@@active_container.id} left on system"
-        Escort::Logger.output.puts "  docker exec -ti #{@@active_container.id} bash "
+      if PDQTest::Puppet::find_examples().empty?
+        Escort::Logger.output.puts "No acceptance tests found, annotate examples with #{PDQTest::Puppet::MAGIC_MARKER} to make some"
+        status = true
       else
-          PDQTest::Docker.cleanup_container(@@active_container)
-          @@active_container = nil
+        @@active_container = PDQTest::Docker::new_container(TEST_DIR)
+        Escort::Logger.output.puts "alive, running tests"
+        status = PDQTest::Puppet.run(@@active_container, example)
+
+        if @@keep_container
+          Escort::Logger.output.puts "finished build, container #{@@active_container.id} left on system"
+          Escort::Logger.output.puts "  docker exec -ti #{@@active_container.id} bash "
+        else
+            PDQTest::Docker.cleanup_container(@@active_container)
+            @@active_container = nil
+        end
       end
       Escort::Logger.output.puts "...finished status=#{status}"
       status
