@@ -89,6 +89,7 @@ module PDQTest
       install_skeleton('.travis.yml', 'dot_travis.yml')
       install_skeleton('.gitignore', 'dot_gitignore')
       install_skeleton('.rspec', 'dot_rspec')
+      install_skeleton('Makefile', 'Makefile')
 
       install_example()
       install_gemfile()

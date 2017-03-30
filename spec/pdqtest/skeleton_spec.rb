@@ -56,6 +56,8 @@ describe PDQTest::Skeleton do
       Dir.chdir('/apache') do
         PDQTest::Skeleton.init
         expect(File.exists?('Rakefile')).to be true
+        expect(File.exists?('Makefile')).to be true
+        expect(File.exists?(File.join('spec', 'acceptance', 'init.bats'))).to be true
         expect(File.exists?(File.join('spec', 'spec_helper.rb'))).to be true
         expect(File.exists?('Rakefile.pdqtest_old')).to be true
         expect(File.exists?(File.join('spec', 'spec_helper.rb.pdqtest_old'))).to be true
@@ -65,6 +67,7 @@ describe PDQTest::Skeleton do
         expect(File.exists?(File.join('examples', 'init.pp'))).to be true
         expect(File.exists?('Gemfile')).to be true
         expect(File.readlines('Gemfile').grep(/pdqtest/).any?).to be true
+
       end
     end
   end
