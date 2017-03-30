@@ -4,7 +4,7 @@ describe '<%= classname %>' do
     it { should compile }
   end
 
-    context 'with default values for all parameters' do
-      it { should contain_class('<%= classname %>') }
-    end
+  context 'with default values for all parameters' do
+    it { should contain_class('<%= classname %>') }
   end
+end
