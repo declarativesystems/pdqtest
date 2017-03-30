@@ -26,6 +26,9 @@ module PDQTest
       Excon.defaults[:write_timeout] = 10000
       Excon.defaults[:read_timeout] = 10000
 
+      # remove reference to any previous test container
+      @@active_container = nil
+
       if PDQTest::Puppet::find_examples().empty?
         Escort::Logger.output.puts "No acceptance tests found, annotate examples with #{PDQTest::Puppet::MAGIC_MARKER} to make some"
         status = true
