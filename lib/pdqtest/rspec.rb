@@ -1,5 +1,7 @@
+require 'pdqtest'
 require 'pdqtest/puppet'
 require 'pdqtest/util'
+require 'pdqtest/emoji'
 require 'erb'
 module PDQTest
   module Rspec
@@ -18,6 +20,8 @@ module PDQTest
         # fail fast on test execution
         status &= system("bundle exec rake spec")
       end
+
+      PDQTest::Emoji.partial_status(status, 'RSpec-Puppet')
       status
     end
 

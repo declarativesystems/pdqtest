@@ -1,3 +1,4 @@
+require 'pdqtest/emoji'
 module PDQTest
   module Lint
     LINT_PATHS = [
@@ -22,6 +23,7 @@ module PDQTest
         end
       }
 
+      PDQTest::Emoji.partial_status(status, 'Linter')
       status
     end
 

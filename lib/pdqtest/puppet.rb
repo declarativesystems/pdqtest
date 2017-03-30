@@ -260,6 +260,8 @@ module PDQTest
         PDQTest::Docker.log_all(res)
         Escort::Logger.error.error "Error installing dependencies, see previous error, command was: #{cmd}"
       end
+
+      PDQTest::Emoji.partial_status(status, 'Puppet')
       status
     end
 

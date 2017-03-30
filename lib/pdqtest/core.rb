@@ -1,3 +1,5 @@
+require 'pdqtest'
+require 'pdqtest/emoji'
 module PDQTest
   module Core
 
@@ -7,10 +9,15 @@ module PDQTest
       functions.each { |f|
         if ! f.call
           Escort::Logger.error.error "Error encountered running #{f.to_s}"
+
+          # epic fail, exit program
+          PDQTest::Emoji.final_status(false)
           abort("ABORTED - there are test failures! :(")
         end
       }
 
+      # we passed already
+      PDQTest::Emoji.final_status(true)
       true
     end
 

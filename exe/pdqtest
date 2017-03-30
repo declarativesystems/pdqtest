@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+require 'pdqtest'
+require 'pdqtest/emoji'
 require 'pdqtest/instance'
 require 'pdqtest/rspec'
 require 'pdqtest/util'
@@ -23,12 +25,21 @@ Escort::App.create do |app|
       :type     => :boolean,
       :default  => false,
     )
+
+    opts.opt(:disable_emoji,
+      'Do not display emoji status characters',
+      :long     => '--disable-emoji',
+      :type     => :boolean,
+      :default  => false,
+    )
   end
 
   app.command :all do |command|
     command.summary "All"
     command.description "Run all tests"
     command.action do |options, arguments|
+      PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
+
       PDQTest::Instance.set_keep_container(options[:global][:options][:keep_container])
       PDQTest::Core.run([
         lambda {PDQTest::Syntax.puppet},
@@ -43,6 +54,7 @@ Escort::App.create do |app|
     command.summary "RSpec"
     command.description "Run the RSpec tests"
     command.action do |options, arguments|
+      PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
       PDQTest::Core.run(lambda {PDQTest::Rspec.run})
     end
   end
@@ -60,6 +72,7 @@ Escort::App.create do |app|
       )
     end
     command.action do |options, arguments|
+      PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
       PDQTest::Instance.set_keep_container(options[:global][:options][:keep_container])
       example = options[:global][:commands][:acceptance][:options][:example]
       PDQTest::Core.run(lambda {PDQTest::Instance.run(example)})
@@ -70,6 +83,7 @@ Escort::App.create do |app|
     command.summary "Initialise testing"
     command.description "Install skeleton testing configuration into this module"
     command.action do |options, arguments|
+      PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
       PDQTest::Skeleton.init
     end
   end
@@ -78,6 +92,7 @@ Escort::App.create do |app|
     command.summary "Generate RSpec"
     command.description "For each class in the module, generate basic RSpec tests"
     command.action do |options, arguments|
+      PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
       PDQTest::Rspec.gen_specs
     end
   end
@@ -95,6 +110,7 @@ Escort::App.create do |app|
     command.summary "Syntax"
     command.description "Check for syntax errors"
     command.action do |options, arguments|
+      PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
       PDQTest::Core.run(lambda {PDQTest::Syntax.puppet})
     end
   end
@@ -104,6 +120,7 @@ Escort::App.create do |app|
     command.description "Check for lint errors"
 
     command.action do |options, arguments|
+      PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
       PDQTest::Core.run(lambda {PDQTest::Lint.puppet})
     end
   end
