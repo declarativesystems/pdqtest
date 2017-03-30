@@ -35,6 +35,15 @@ This will install PDQTest into the `Gemfile` and will generate an example set of
 
 ## Running tests
 
+### PDQTest preparation
+PDQTest needs to download a Docker image before running tests:
+
+```
+bundle exec pdqtest setup
+```
+
+This image is updated periodically, the above command will download the appropriate image for the version of `pdqtest` being used.
+
 ### Module dependencies/.fixtures.yml
 Ordinarily, there is no need to maintain a `.fixtures.yml` file.  Dependencies on public forge modules should be specified in your module's `metadata.json` file.
 
@@ -91,6 +100,7 @@ You should use pdqtest if you find it increases your productivity and enriches y
 
 ## Troubleshooting
 * If you can't find the `pdqtest` command and your using `rbenv` be sure to run `rbenv rehash` after installing the gem to create the necessary symlinks
+* Don't forget to run `pdqtest setup` before your first `pdqtest` run to download/update the Docker image
 
 ## Support
 This software is not supported by Puppet, Inc.  Use at your own risk.

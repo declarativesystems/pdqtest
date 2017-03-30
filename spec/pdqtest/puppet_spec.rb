@@ -266,6 +266,7 @@ describe PDQTest::Puppet do
     Dir.chdir(GIT_FIXTURES_TESTDIR) do
       status = PDQTest::Puppet::git_fixtures()
       expect(status.class).to be Array
+      system("ls -lR")
       expect(File.exists?('./spec/fixtures/modules/extra/readme.txt')).to be true
     end
     # cleanup the testcase git repo
