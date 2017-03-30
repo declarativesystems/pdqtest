@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'pdqtest/instance'
 require 'pdqtest/rspec'
+require 'pdqtest/util'
 require 'pdqtest/skeleton'
 require 'pdqtest/lint'
 require 'pdqtest/syntax'
@@ -25,6 +26,8 @@ Escort::App.create do |app|
   end
 
   app.command :all do |command|
+    command.summary "All"
+    command.description "Run all tests"
     command.action do |options, arguments|
       PDQTest::Instance.set_keep_container(options[:global][:options][:keep_container])
       PDQTest::Core.run([
@@ -37,6 +40,8 @@ Escort::App.create do |app|
   end
 
   app.command :rspec do |command|
+    command.summary "RSpec"
+    command.description "Run the RSpec tests"
     command.action do |options, arguments|
       PDQTest::Core.run(lambda {PDQTest::Rspec.run})
     end
@@ -44,6 +49,8 @@ Escort::App.create do |app|
 
 
   app.command :acceptance do |command|
+    command.summary "Acceptance"
+    command.description "Run the acceptance (Docker) tests"
     command.options do |opts|
       opts.opt(:example,
         'Run only this example (eg --example examples/init.pp)',
@@ -60,30 +67,51 @@ Escort::App.create do |app|
   end
 
   app.command :init do |command|
+    command.summary "Initialise testing"
+    command.description "Install skeleton testing configuration into this module"
     command.action do |options, arguments|
       PDQTest::Skeleton.init
     end
   end
 
+  app.command :generate_rspec do |command|
+    command.summary "Generate RSpec"
+    command.description "For each class in the module, generate basic RSpec tests"
+    command.action do |options, arguments|
+      PDQTest::Rspec.gen_specs
+    end
+  end
+
+
   app.command :shell do |command|
+    command.summary "Shell"
+    command.description "Open a shell inside a docker container identical to the test environment before anything has run"
     command.action do |options, arguments|
       PDQTest::Instance.shell
     end
   end
 
   app.command :syntax do |command|
+    command.summary "Syntax"
+    command.description "Check for syntax errors"
     command.action do |options, arguments|
       PDQTest::Core.run(lambda {PDQTest::Syntax.puppet})
     end
   end
 
   app.command :lint do |command|
+    command.summary "Lint"
+    command.description "Check for lint errors"
+
     command.action do |options, arguments|
       PDQTest::Core.run(lambda {PDQTest::Lint.puppet})
     end
   end
 
   app.command :setup do |command|
+    command.summary "Setup"
+    command.description "Install the docker container required for testing"
+
     command.action do |options, arguments|
       PDQTest::Core.run(lambda {
         system("docker pull #{PDQTest::Docker::IMAGE_NAME}")
@@ -92,6 +120,8 @@ Escort::App.create do |app|
   end
 
   app.command :info do |command|
+    command.summary "Info"
+    command.description "Print info about this module"
     command.action do |options, arguments|
       PDQTest::Puppet.info
     end

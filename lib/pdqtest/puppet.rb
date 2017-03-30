@@ -14,6 +14,8 @@ module PDQTest
     BEFORE_SUFFIX     = '__before.bats'
     AFTER_SUFFIX      = '.bats'
     EXAMPLES_DIR      = './examples'
+    MANIFESTS_DIR     = './manifests'
+    CLASS_RE          = /^class /
     @@bats_executed   = []
     @@setup_executed  = []
 
@@ -51,6 +53,26 @@ module PDQTest
       "cd #{PDQTest::Instance::TEST_DIR} && librarian-puppet install --path #{MODULE_DIR} --destructive"
     end
 
+    def self.class2filename(c)
+      if c == module_name
+        f = "#{MANIFESTS_DIR}/init.pp"
+      else
+        f = c.gsub(module_name, MANIFESTS_DIR).gsub('::', File::SEPARATOR) + '.pp'
+      end
+
+      f
+    end
+
+    def self.filename2class(f)
+      if f == "#{MANIFESTS_DIR}/init.pp"
+        c = module_name
+      else
+        c = f.gsub(MANIFESTS_DIR, "#{module_name}").gsub(File::SEPARATOR, '::').gsub('.pp','')
+      end
+
+      c
+    end
+
     def self.find_examples()
       examples = []
       if Dir.exists?(EXAMPLES_DIR)
@@ -62,6 +84,27 @@ module PDQTest
       end
       Escort::Logger.output.puts "examples to run" + examples.to_s
       examples
+    end
+
+    # find the available classes in this module
+    def self.find_classes()
+      mod_name = module_name
+      classes = []
+      if Dir.exists?(MANIFESTS_DIR)
+        Find.find(MANIFESTS_DIR) do |m|
+          if m =~ /\.pp$/
+            # check the file contains a valid class
+            if ! File.readlines(m).grep(CLASS_RE).empty?
+              # Class detected, work out class name and add to list of found classes
+              classes << filename2class(m)
+            else
+              Escort::Logger.output.puts "no puppet class found in #{m}"
+            end
+          end
+        end
+      end
+
+      classes
     end
 
     def self.test_basename(t)

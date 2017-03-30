@@ -22,6 +22,7 @@ $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 
 require 'pdqtest'
 
-BLANK_MODULE_TESTDIR  = File.join('spec', 'fixtures', 'blank_module')
-FAILING_TESTS_TESTDIR = File.join('spec', 'fixtures', 'failing_tests')
-PASSING_TESTS_TESTDIR = File.join('spec', 'fixtures', 'passing_tests')
+BLANK_MODULE_TESTDIR    = File.join('spec', 'fixtures', 'blank_module')
+FAILING_TESTS_TESTDIR   = File.join('spec', 'fixtures', 'failing_tests')
+PASSING_TESTS_TESTDIR   = File.join('spec', 'fixtures', 'passing_tests')
+REGULAR_MODULE_TESTDIR  = File.join('spec', 'fixtures', 'regular_module')

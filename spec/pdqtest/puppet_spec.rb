@@ -209,4 +209,48 @@ describe PDQTest::Puppet do
     end
   end
 
+  it "finds correct list of classes" do
+    classes = [
+      'regular_module::cool',
+      'regular_module',
+      'regular_module::something::else'
+    ]
+    Dir.chdir(REGULAR_MODULE_TESTDIR) do
+      classes_found = PDQTest::Puppet::find_classes
+      expect(classes_found.size).to be 3
+      expect(classes_found.include?('regular_module')).to be true
+      expect(classes_found.include?('regular_module::cool')).to be true
+      expect(classes_found.include?('regular_module::something::else')).to be true
+    end
+  end
+
+  it "converts filename2class" do
+    Dir.chdir(REGULAR_MODULE_TESTDIR) do
+      c = PDQTest::Puppet::filename2class('./manifests/something/else.pp')
+      expect(c).to eq 'regular_module::something::else'
+    end
+  end
+
+  it "converts filename2class init.pp" do
+    Dir.chdir(REGULAR_MODULE_TESTDIR) do
+      c = PDQTest::Puppet::filename2class('./manifests/init.pp')
+      expect(c).to eq 'regular_module'
+    end
+  end
+
+  it "converts class2filename" do
+    Dir.chdir(REGULAR_MODULE_TESTDIR) do
+      f = PDQTest::Puppet::class2filename('regular_module::something::else')
+      expect(f).to eq './manifests/something/else.pp'
+    end
+  end
+
+  it "converts class2filename init.pp" do
+    Dir.chdir(REGULAR_MODULE_TESTDIR) do
+      f = PDQTest::Puppet::class2filename('regular_module')
+      expect(f).to eq './manifests/init.pp'
+    end
+  end
+
+
 end

@@ -1,0 +1,1 @@
+class regular_module {}

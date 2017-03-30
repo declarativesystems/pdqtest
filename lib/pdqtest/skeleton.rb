@@ -2,6 +2,7 @@ require 'fileutils'
 require 'digest'
 require 'pdqtest/puppet'
 require 'pdqtest/version'
+require 'pdqtest/util'
 
 module PDQTest
   module Skeleton
@@ -24,12 +25,8 @@ module PDQTest
       target_hash != skeleton_hash
     end
 
-    def self.resource_path(resource)
-      File.join(File.dirname(File.expand_path(__FILE__)), "../../res/#{resource}")
-    end
-
     def self.install_skeleton(target_file, skeleton, replace=true)
-      skeleton_file = resource_path(File.join('skeleton', skeleton))
+      skeleton_file = Util::resource_path(File.join('skeleton', skeleton))
       if File.exists?(target_file) and replace and should_replace_file(target_file, skeleton_file)
         # move existing file out of the way
         FileUtils.mv(target_file, target_file + BACKUP_EXT)
