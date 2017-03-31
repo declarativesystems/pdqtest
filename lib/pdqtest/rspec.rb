@@ -3,6 +3,7 @@ require 'pdqtest/puppet'
 require 'pdqtest/util'
 require 'pdqtest/emoji'
 require 'erb'
+require 'fileutils'
 module PDQTest
   module Rspec
     SPEC_DIR          = './spec'
@@ -47,7 +48,7 @@ module PDQTest
           # first ensure any nested directories exist
           base_dir = File.dirname(spec_file)
           if ! Dir.exists?(base_dir)
-            Dir.mkdir(base_dir)
+            FileUtils.mkdir_p(base_dir)
           end
 
           # process the rspec template into a new file
