@@ -42,7 +42,7 @@ module PDQTest
     def self.install_example
       example_file = File.join(EXAMPLES_DIR, 'init.pp')
       if ! File.exists?(example_file)
-        template = Util::resource_path(File.join('templates', 'example_init.pp'))
+        template = File.read(Util::resource_path(File.join('templates', 'examples_init.pp.erb')))
         init_pp  = ERB.new(template, nil, '-').result(binding)
         File.write(example_file, init_pp)
       end
