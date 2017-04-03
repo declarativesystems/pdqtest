@@ -52,7 +52,7 @@ module PDQTest
           end
 
           # process the rspec template into a new file
-          template = File.read(Util::resource_path(File.join('templates', 'rspec.rb')))
+          template = File.read(Util::resource_path(File.join('templates', 'rspec.rb.erb')))
           testcase = ERB.new(template, nil, '-').result(binding)
           File.write(spec_file, testcase)
         end
