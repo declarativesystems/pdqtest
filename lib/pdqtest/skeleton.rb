@@ -11,7 +11,7 @@ module PDQTest
     SPEC_DIR        = 'spec'
     ACCEPTANCE_DIR  = File.join(SPEC_DIR, 'acceptance')
     CLASSES_DIR     = File.join(SPEC_DIR, 'classes')
-    SKELETON_DIR    = File.join('res', 'skeleton')
+    SKELETON_DIR    = 'skeleton'
     EXAMPLES_DIR    = 'examples'
     GEMFILE         = 'Gemfile'
     GEMFILE_LINE    = "gem 'pdqtest', '#{PDQTest::VERSION}'"
@@ -20,13 +20,13 @@ module PDQTest
 
     def self.should_replace_file(target, skeleton)
       target_hash   = Digest::SHA256.file target
-      skeleton_hash = File.join(SKELETON_DIR, skeleton)
+      skeleton_hash = Digest::SHA256.file skeleton
 
       target_hash != skeleton_hash
     end
 
     def self.install_skeleton(target_file, skeleton, replace=true)
-      skeleton_file = Util::resource_path(File.join('skeleton', skeleton))
+      skeleton_file = Util::resource_path(File.join(SKELETON_DIR, skeleton))
       if File.exists?(target_file) and replace and should_replace_file(target_file, skeleton_file)
         # move existing file out of the way
         FileUtils.mv(target_file, target_file + BACKUP_EXT)
@@ -42,8 +42,8 @@ module PDQTest
     def self.install_example
       example_file = File.join(EXAMPLES_DIR, 'init.pp')
       if ! File.exists?(example_file)
-        init_pp = <<-END
-          #{PDQTest::Puppet::MAGIC_MARKER}
+        init_pp = <<~END
+          ##{PDQTest::Puppet::MAGIC_MARKER}
           include #{PDQTest::Puppet.module_name}
         END
         File.write(example_file, init_pp)
