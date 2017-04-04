@@ -4,7 +4,7 @@ module PDQTest
     ERR = 1
     STATUS = 2
     ENV='export TERM=xterm LC_ALL=C PATH=/usr/local/bats/bin:/opt/puppetlabs/puppet/bin:$PATH;'
-    IMAGE_NAME='geoffwilliams/pdqtest-centos:2017-03-30-0'
+    IMAGE_NAME='geoffwilliams/pdqtest-centos:2017-04-04-0'
 
 
     def self.wrap_cmd(cmd)
@@ -18,10 +18,30 @@ module PDQTest
     def self.new_container(test_dir)
       pwd = Dir.pwd
       container = ::Docker::Container.create(
-        'Image' => IMAGE_NAME,
-        'Volumes' => {test_dir => {pwd => 'ro'}},
+        'Image'   => IMAGE_NAME,
+        'Volumes' => {
+          test_dir         => {pwd               => 'rw'},
+          '/sys/fs/cgroup' => {'/sys/fs/cgroup'  => 'ro'},
+        },
+        'HostConfig' => {
+          "Binds": [
+            "/sys/fs/cgroup:/sys/fs/cgroup:ro",
+            "#{pwd}:#{test_dir}:rw",
+          ],
+        },
       )
-      container.start({'Binds' => [ pwd +':'+ test_dir]})
+      container.start(
+        {
+          #'Binds' => [ pwd +':'+ test_dir,],
+          'HostConfig' => {
+            'Tmpfs': {
+              '/run'      => '',
+              '/run/lock' => '',
+            },
+            CapAdd: [ 'SYS_ADMIN'],
+          },
+        }
+      )
 
       container
     end

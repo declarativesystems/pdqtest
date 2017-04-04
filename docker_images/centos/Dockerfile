@@ -3,8 +3,8 @@
 # and run without error in an offline environment
 FROM centos:centos7
 
-# from https://hub.docker.com/r/picoded/centos-systemd/ but switched
-# to upstream centos to keep image size down
+# Systemd in docker - state of the art:
+# https://developers.redhat.com/blog/2016/09/13/running-systemd-in-a-non-privileged-container/
 ENV container docker
 RUN yum -y swap -- remove fakesystemd -- install systemd systemd-libs
 RUN yum -y update; yum clean all; \
@@ -17,7 +17,7 @@ rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
 rm -f /lib/systemd/system/basic.target.wants/*;\
 rm -f /lib/systemd/system/anaconda.target.wants/*;
 VOLUME [ "/sys/fs/cgroup" ]
-CMD ["/usr/sbin/init"]
+CMD ["/sbin/init"]
 
 MAINTAINER Geoff Williams <geoff.williams@puppet.com>
 RUN yum install -y cronie \
@@ -64,3 +64,6 @@ RUN /opt/puppetlabs/puppet/bin/gem install git_refresh
 # code under test
 RUN mkdir /cut
 VOLUME /cut
+
+# alternate shudown for systemd
+STOPSIGNAL SIGRTMIN+3
