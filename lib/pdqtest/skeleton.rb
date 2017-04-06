@@ -27,10 +27,13 @@ module PDQTest
 
     def self.install_skeleton(target_file, skeleton, replace=true)
       skeleton_file = Util::resource_path(File.join(SKELETON_DIR, skeleton))
-      if File.exists?(target_file) and replace and should_replace_file(target_file, skeleton_file)
-        # move existing file out of the way
-        FileUtils.mv(target_file, target_file + BACKUP_EXT)
-        install = true
+      install = false
+      if File.exists?(target_file)
+        if replace and should_replace_file(target_file, skeleton_file)
+          # move existing file out of the way
+          FileUtils.mv(target_file, target_file + BACKUP_EXT)
+          install = true
+        end
       else
         install = true
       end
@@ -39,8 +42,8 @@ module PDQTest
       end
     end
 
-    def self.install_example
-      example_file = File.join(EXAMPLES_DIR, 'init.pp')
+    def self.install_example(filename)
+      example_file = File.join(EXAMPLES_DIR, filename)
       if ! File.exists?(example_file)
         template = File.read(Util::resource_path(File.join('templates', 'examples_init.pp.erb')))
         init_pp  = ERB.new(template, nil, '-').result(binding)
@@ -81,18 +84,45 @@ module PDQTest
       # skeleton files if required
       install_skeleton('Rakefile', 'Rakefile')
       install_skeleton(File.join('spec', 'spec_helper.rb'), 'spec_helper.rb')
-      install_skeleton(File.join('spec', 'acceptance', 'init.bats'), 'init.bats', false)
-      install_skeleton(File.join('spec', 'acceptance', 'init__before.bats'), 'init__before.bats', false)
-      install_skeleton(File.join('spec', 'acceptance', 'init__setup.sh'), 'init__setup.sh', false)
       install_skeleton('.travis.yml', 'dot_travis.yml')
       install_skeleton('.gitignore', 'dot_gitignore')
       install_skeleton('.rspec', 'dot_rspec')
       install_skeleton('Makefile', 'Makefile')
 
-      install_example()
+      install_acceptance()
       install_gemfile()
 
       # Make sure there is a Gemfile and we are in it
+    end
+
+    def self.install_acceptance(example_file ="init.pp")
+      install_example(File.basename(example_file))
+      example_name = File.basename(example_file).gsub(/\.pp$/, '')
+
+      install_skeleton(File.join('spec', 'acceptance', "#{example_name}.bats"), 'init.bats', false)
+      install_skeleton(File.join('spec', 'acceptance', "#{example_name}__before.bats"), 'init__before.bats', false)
+      install_skeleton(File.join('spec', 'acceptance', "#{example_name}__setup.sh"), 'init__setup.sh', false)
+    end
+
+    # Scan the examples directory and create a set of acceptance tests. If a
+    # specific file is given as `example` then only the listed example will be
+    # processed (and it will be created if missing).  If files already exist, they
+    # will not be touched
+    def self.generate_acceptance(example=nil)
+      examples = []
+      if example
+        # specific file only
+        examples << example
+      else
+        # Each .pp file in /examples (don't worry about magic markers yet, user
+        # will be told on execution if no testscases are present as a reminder to
+        # add it
+        examples += Dir["examples/*.pp"]
+      end
+
+      examples.each { |e|
+        install_acceptance(e)
+      }
     end
   end
 end

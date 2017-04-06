@@ -97,6 +97,25 @@ Escort::App.create do |app|
     end
   end
 
+  app.command :generate_rspec do |command|
+    command.summary "Generate Acceptance test"
+    command.description "Create a testcase in /examples and the corresponding files for acceptance testing"
+    command.options do |opts|
+      opts.opt(:example,
+        'Generate only this example (eg --example examples/newtest.pp)',
+        :long     => '--example',
+        :type     => :string,
+        :default  => nil,
+      )
+    end
+    command.action do |options, arguments|
+      PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
+      example = options[:global][:commands][:acceptance][:options][:example]
+
+      PDQTest::Skeleton.generate_acceptance(example)
+    end
+  end
+
 
   app.command :shell do |command|
     command.summary "Shell"

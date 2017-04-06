@@ -72,5 +72,84 @@ describe PDQTest::Skeleton do
     end
   end
 
+  it "generates acceptance tests and examples for specific new example" do
+    config = File.expand_path(BLANK_MODULE_TESTDIR)
+    FakeFS::FileSystem.clone(config, '/apache')
+
+    FakeFS do
+      Dir.chdir('/apache') do
+        PDQTest::Skeleton.generate_acceptance(File.join('examples', 'newtests.pp'))
+        expect(File.exists?(File.join('examples', 'newtests.pp'))).to be true
+
+        expect(File.exists?(File.join('spec', 'acceptance', 'newtests__setup.sh'))).to be true
+        expect(File.exists?(File.join('spec', 'acceptance', 'newtests__before.bats'))).to be true
+        expect(File.exists?(File.join('spec', 'acceptance', 'newtests.bats'))).to be true
+      end
+    end
+  end
+
+  it "generates acceptance tests and examples for specific existing example" do
+    config = File.expand_path(BLANK_MODULE_TESTDIR)
+    FakeFS::FileSystem.clone(config, '/apache')
+
+    FakeFS do
+      Dir.chdir('/apache') do
+        # test setup
+        existing = File.join('examples', 'existing.pp')
+        File.write(existing, '# preserved')
+
+        PDQTest::Skeleton.generate_acceptance(existing)
+
+        # check existing content not destroyed
+        expect(File.readlines(existing).grep(/preserved/).any?).to be true
+
+        # check new acceptance tests created
+        expect(File.exists?(File.join('spec', 'acceptance', 'existing__setup.sh'))).to be true
+        expect(File.exists?(File.join('spec', 'acceptance', 'existing__before.bats'))).to be true
+        expect(File.exists?(File.join('spec', 'acceptance', 'existing.bats'))).to be true
+      end
+    end
+  end
+
+  it "generates acceptance tests in bulk and preserves old content" do
+    config = File.expand_path(BLANK_MODULE_TESTDIR)
+    FakeFS::FileSystem.clone(config, '/apache')
+
+    FakeFS do
+      Dir.chdir('/apache') do
+        # test setup
+
+        # bunch of existing examples and tests - must not be touched
+        existing = [
+          File.join('examples', 'existing.pp'),
+          File.join('spec', 'acceptance', 'existing.bats'),
+          File.join('spec', 'acceptance', 'existing__before.bats'),
+          File.join('spec', 'acceptance', 'existing__setup.sh'),
+        ]
+        existing.each { |f|
+          File.write(f, '# preserved')
+        }
+
+        # A new example with no tests - they should be created
+        new_example = File.join('examples', 'new_example.pp')
+        File.write(new_example, '# preserved')
+
+        PDQTest::Skeleton.generate_acceptance()
+
+        # check existing tests not touched
+        existing.each { |f|
+          expect(File.readlines(f).grep(/preserved/).any?).to be true
+        }
+
+        # check new example not touched
+        expect(File.readlines(new_example).grep(/preserved/).any?).to be true
+        # check new testcases created
+        expect(File.exists?(File.join('spec', 'acceptance', 'new_example__setup.sh'))).to be true
+        expect(File.exists?(File.join('spec', 'acceptance', 'new_example__before.bats'))).to be true
+        expect(File.exists?(File.join('spec', 'acceptance', 'new_example.bats'))).to be true
+      end
+    end
+
+  end
 
 end
