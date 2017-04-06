@@ -152,7 +152,7 @@ Here, we have done exactly what it looks like we have done - checked for the val
 #### Worked Example
 Lets say you have two examples, `foo.pp` and `init.pp`.  In this case, the full range of files to create for acceptance testing would look like this:
 ```
-/home/geoff/github/ssh/
+mycoolmodule
 ├── examples
 │   ├── foo.pp
 │   └── init.pp
