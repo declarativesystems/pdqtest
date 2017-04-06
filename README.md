@@ -109,10 +109,10 @@ pdqtest --keep-container all
 1. Scan for all example files under `/examples`.  Files must end in `.pp` and contain the magic marker `#@PDQTest` to be processed
 2. If example files are present, start the docker container
 3. For each example file:
-  3.1. Check for a file at `/spec/acceptance/EXAMPLE_NAME__setup.sh`,   If it exists, run it inside the container.  This is a useful place to install preqrequisites, edit files, install mock services, clean up after other tests, etc.
-  3.2. Check for a file at `/spec/acceptance/EXAMPLE_NAME__before.bats`, If it exists run BATS against it.  This is normally used to check the system state is clean or that any test prerequisites have been setup correctly
-  3.3. Run `puppet apply` on the example file twice
-  3.4. Check for a file at `/spec/acceptance/EXAMPLE_NAME.bats`, If it exists run BATS against it.  This is normally used to check the state of the system after running puppet.  You can do things like check services are running, check files edited correctly, or basically anything that you can write in bash!
+  * Check for a file at `/spec/acceptance/EXAMPLE_NAME__setup.sh`,   If it exists, run it inside the container.  This is a useful place to install preqrequisites, edit files, install mock services, clean up after other tests, etc.
+  * Check for a file at `/spec/acceptance/EXAMPLE_NAME__before.bats`, If it exists run BATS against it.  This is normally used to check the system state is clean or that any test prerequisites have been setup correctly
+  * Run `puppet apply` on the example file twice
+  * Check for a file at `/spec/acceptance/EXAMPLE_NAME.bats`, If it exists run BATS against it.  This is normally used to check the state of the system after running puppet.  You can do things like check services are running, check files edited correctly, or basically anything that you can write in bash!
 4. Destroy the container unless we were asked to keep it with `--keep-container`
 
 Note: `EXAMPLE_NAME` is the example filename minus the directory and `.pp`, eg the `EXAMPLE_NAME` for `examples/foo.pp` would just be `foo`.
