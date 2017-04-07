@@ -230,6 +230,7 @@ You should use pdqtest if you find it increases your productivity and enriches y
 * If you need to access private git repositories, make sure to use `fixtures.yml` not `.fixtures.yml`
 * If you need a private key to access private repositories, set this up for your regular git command/ssh and `pdqtest` will reuse the settings
 * Be sure to annotate the examples you wish to acceptance test with the magic marker comment `#@PDQTest`
+* Sometimes you might get an error: `Could not resolve the dependencies.` when executing tests.  This message is from librarian puppet and usually indicates a conflict between the `metadata.json` files somewhere in the set of modules you are attempting to use.  Running the command `librarian-puppet install --path spec/fixtures/ --destructive --verbose` should give you enough information to resolve the error
 
 ## Support
 This software is not supported by Puppet, Inc.  Use at your own risk.
