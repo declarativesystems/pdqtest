@@ -4,7 +4,7 @@ module PDQTest
     ERR = 1
     STATUS = 2
     ENV='export TERM=xterm LC_ALL=C PATH=/usr/local/bats/bin:/opt/puppetlabs/puppet/bin:$PATH;'
-    IMAGE_NAME='geoffwilliams/pdqtest-centos:2017-04-04-0'
+    IMAGE_NAME='geoffwilliams/pdqtest-centos:2017-05-04-0'
 
 
     def self.wrap_cmd(cmd)
@@ -21,11 +21,13 @@ module PDQTest
         'Image'   => IMAGE_NAME,
         'Volumes' => {
           test_dir         => {pwd               => 'rw'},
+          '/cut'           => {pwd               => 'rw'}, # DEPRECATED -FOR REMOVAL
           '/sys/fs/cgroup' => {'/sys/fs/cgroup'  => 'ro'},
         },
         'HostConfig' => {
           "Binds": [
             "/sys/fs/cgroup:/sys/fs/cgroup:ro",
+            "#{pwd}:/cut:rw",                               # DEPRECATED -FOR REMOVAL
             "#{pwd}:#{test_dir}:rw",
           ],
         },

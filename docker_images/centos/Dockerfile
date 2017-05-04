@@ -61,9 +61,14 @@ RUN /opt/puppetlabs/puppet/bin/gem install librarian-puppet
 # git refresh (for processing .fixtures.yml git modules)
 RUN /opt/puppetlabs/puppet/bin/gem install git_refresh
 
-# code under test
+# testcase (our module)
+RUN mkdir /testcase
+VOLUME /testcase
+
+# code under test (deprecated)
 RUN mkdir /cut
 VOLUME /cut
+
 
 # alternate shudown for systemd
 STOPSIGNAL SIGRTMIN+3

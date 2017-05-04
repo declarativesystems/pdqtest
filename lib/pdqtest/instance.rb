@@ -5,7 +5,7 @@ require 'escort'
 
 module PDQTest
   module Instance
-    TEST_DIR='/cut'
+    TEST_DIR='/testcase'
     @@keep_container = false
     @@active_container = nil
 

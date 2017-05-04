@@ -1,6 +1,7 @@
 require 'pdqtest/puppet'
 require 'pdqtest/docker'
 require 'pdqtest/instance'
+require 'pdqtest/emoji'
 require 'escort'
 require 'yaml'
 
@@ -47,7 +48,20 @@ module PDQTest
     end
 
     def self.link_module
-      "mkdir -p #{MODULE_DIR} && ln -s #{PDQTest::Instance::TEST_DIR} #{MODULE_DIR}/#{module_name}"
+      "test -e #{MODULE_DIR} || mkdir -p #{MODULE_DIR} && ln -s #{PDQTest::Instance::TEST_DIR} #{MODULE_DIR}/#{module_name}"
+    end
+
+    # Link all modules - this also saves re-downloading in the acceptance test
+    # environment.  Of course it means that you must have already run `make` to
+    # download the modules on your host computer
+    def self.link_deps
+      "test -e #{MODULE_DIR} || mkdir -p #{MODULE_DIR} && ln -s #{PDQTest::Instance::TEST_DIR}/spec/fixtures/modules/* #{MODULE_DIR}"
+    end
+
+    # link /etc/facter/facts.d to /testcase/spec/merge_facts to allow additional
+    # facts supplied by user to work automatically
+    def self.link_merge_facts
+      "mkdir -p /etc/facter/ && ln -s #{PDQTest::Instance::TEST_DIR}/spec/merge_facts /etc/facter/facts.d"
     end
 
     def self.install_deps
@@ -228,40 +242,59 @@ module PDQTest
     end
 
     def self.run(container, example=nil)
+      # we must always have ./spec/fixtures/modules because we need to create a
+      # symlink back to the main module inside here...
+      # (spec/fixtures/modules/foo -> /testcase)
+      if ! Dir.exists?('spec/fixtures/modules')
+        Escort::Logger.output.puts
+          "creating empty spec/fixtures/modules, if you module fails to run due "
+          "to missing dependencies run `make` or `pdqtest all` to retrieve them"
+        FileUtils.mkdir_p('spec/fixtures/modules')
+      end
+
       status = true
-      Escort::Logger.output.puts "...fetch deps"
-      cmd = install_deps
+      Escort::Logger.output.puts "...linking dependencies"
+      cmd = link_deps
       res = PDQTest::Docker.exec(container, cmd)
       status &= PDQTest::Docker.exec_status(res)
       if status
-        Escort::Logger.output.puts "...linking"
+        Escort::Logger.output.puts "...linking testcase (this module)"
         cmd = link_module
         res = PDQTest::Docker.exec(container, cmd)
         status &= PDQTest::Docker.exec_status(res)
         if status
-          Escort::Logger.output.puts "...run tests"
-          if example
-            status &= run_example(container, example)
-            if ! status
-              Escort::Logger.error.error "Example #{example} failed!"
+          Escort::Logger.output.puts "...linking spec/merge_facts"
+          cmd = link_merge_facts
+          res = PDQTest::Docker.exec(container, cmd)
+          status &= PDQTest::Docker.exec_status(res)
+          if status
+            Escort::Logger.output.puts "...run tests"
+            if example
+              status &= run_example(container, example)
+              if ! status
+                Escort::Logger.error.error "Example #{example} failed!"
+              end
+            else
+              find_examples.each { |e|
+                if status
+                  status &= run_example(container, e)
+                  if ! status
+                    Escort::Logger.error.error "Example #{e} failed! - skipping rest of tests"
+                  end
+                end
+              }
             end
           else
-            find_examples.each { |e|
-              if status
-                status &= run_example(container, e)
-                if ! status
-                  Escort::Logger.error.error "Example #{e} failed! - skipping rest of tests"
-                end
-              end
-            }
+            PDQTest::Docker.log_all(res)
+            Escort::Logger.error.error "Error linking ./spec/merge_facts directory, see previous error, command was: #{cmd}"
           end
         else
           PDQTest::Docker.log_all(res)
-          Escort::Logger.error.error "Error linking module, see previous error, command was: #{cmd}"
+          Escort::Logger.error.error "Error linking testcase (this) module, see previous error, command was: #{cmd}"
         end
       else
         PDQTest::Docker.log_all(res)
-        Escort::Logger.error.error "Error installing dependencies, see previous error, command was: #{cmd}"
+        Escort::Logger.error.error "Error linking module, see previous error, command was: #{cmd}"
       end
 
       PDQTest::Emoji.partial_status(status, 'Puppet')
