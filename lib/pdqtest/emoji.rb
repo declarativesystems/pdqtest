@@ -6,6 +6,14 @@ module PDQTest
       @@disable = disable
     end
 
+    # Print a message prefixed with optional emoji to the STDOUT logger
+    def self.emoji_message(emoji, message)
+      if ! @@disabled
+        message = emoji + message
+      end
+      Escort::Logger.output.puts message
+    end
+
     # print cool emoji based on status
     def self.emoji_status(status, emoji_pass, emoji_fail, label)
       lable_string = "#{label}: "

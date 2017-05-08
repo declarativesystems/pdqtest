@@ -10,6 +10,8 @@ module PDQTest
     SPEC_CLASSES_DIR  = "#{SPEC_DIR}/classes"
 
     def self.run
+      Escort::Logger.output.puts
+      PDQTest::Emoji.emoji_message("🐌", "I'm downloading The Internet, please hold...")
       cmd = "bundle exec librarian-puppet install --path ./spec/fixtures/modules --destructive"
       status = system(cmd)
       if status

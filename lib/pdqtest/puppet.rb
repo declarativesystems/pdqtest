@@ -64,16 +64,6 @@ module PDQTest
       "mkdir -p /etc/facter/ && ln -s #{PDQTest::Instance::TEST_DIR}/spec/merge_facts /etc/facter/facts.d"
     end
 
-    def self.install_deps
-      # Install dependencies for module
-      steps = []
-      steps << "cd #{PDQTest::Instance::TEST_DIR}"
-      steps << "librarian-puppet install --path #{MODULE_DIR} --destructive"
-      steps + git_fixtures
-
-      steps.join(' && ')
-    end
-
     def self.class2filename(c)
       if c == module_name
         f = "#{MANIFESTS_DIR}/init.pp"
