@@ -15,7 +15,9 @@ module PDQTest
     EXAMPLES_DIR    = 'examples'
     GEMFILE         = 'Gemfile'
     GEMFILE_LINE    = "gem 'pdqtest', '#{PDQTest::VERSION}'"
-
+    HIERA_DIR       =  File.join(SPEC_DIR, 'fixtures', 'hieradata')
+    HIERA_YAML      = 'hiera.yaml'
+    HIERA_TEST      = 'test.yaml'
 
 
     def self.should_replace_file(target, skeleton)
@@ -88,6 +90,8 @@ module PDQTest
       install_skeleton('.gitignore', 'dot_gitignore')
       install_skeleton('.rspec', 'dot_rspec')
       install_skeleton('Makefile', 'Makefile')
+      install_skeleton(File.join(SPEC_DIR, 'fixtures', HIERA_YAML), HIERA_YAML)
+      install_skeleton(File.join(HIERA_DIR, HIERA_TEST), HIERA_TEST)
 
       install_acceptance()
       install_gemfile()

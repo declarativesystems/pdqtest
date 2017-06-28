@@ -5,7 +5,9 @@ module PDQTest
     STATUS = 2
     ENV='export TERM=xterm LC_ALL=C PATH=/usr/local/bats/bin:/opt/puppetlabs/puppet/bin:$PATH;'
     IMAGE_NAME='geoffwilliams/pdqtest-centos:2017-05-04-0'
-
+    HIERA_YAML_CONTAINER = '/etc/puppetlabs/puppet/hiera.yaml'
+    HIERA_YAML_HOST = '/spec/fixtures/hiera.yaml'
+    HIERA_DIR  = '/spec/fixtures/hieradata'
 
     def self.wrap_cmd(cmd)
       ['bash',  '-c', "#{ENV} #{cmd}"]
@@ -17,18 +19,29 @@ module PDQTest
 
     def self.new_container(test_dir)
       pwd = Dir.pwd
+      hiera_yaml_host = File.join(pwd, HIERA_YAML_HOST)
+      hiera_dir = File.join(pwd, HIERA_DIR)
+
+      # hiera.yaml *must* exist on the host or we will get errors from Docker
+      if ! File.exists?(hiera_yaml_host)
+        File.write(hiera_yaml_host, '# hiera configuration for testing')
+      end
       container = ::Docker::Container.create(
         'Image'   => IMAGE_NAME,
         'Volumes' => {
-          test_dir         => {pwd               => 'rw'},
-          '/cut'           => {pwd               => 'rw'}, # DEPRECATED -FOR REMOVAL
-          '/sys/fs/cgroup' => {'/sys/fs/cgroup'  => 'ro'},
+          test_dir              => {pwd               => 'rw'},
+          HIERA_YAML_CONTAINER  => {hiera_yaml_host   => 'ro'},
+          HIERA_DIR             => {hiera_dir         => 'ro'},
+          '/cut'                => {pwd               => 'rw'}, # DEPRECATED -FOR REMOVAL
+          '/sys/fs/cgroup'      => {'/sys/fs/cgroup'  => 'ro'},
         },
         'HostConfig' => {
           "Binds": [
             "/sys/fs/cgroup:/sys/fs/cgroup:ro",
             "#{pwd}:/cut:rw",                               # DEPRECATED -FOR REMOVAL
             "#{pwd}:#{test_dir}:rw",
+            "#{hiera_yaml_host}:#{HIERA_YAML_CONTAINER}:rw",
+            "#{hiera_dir}:#{HIERA_DIR}:rw",
           ],
         },
       )
