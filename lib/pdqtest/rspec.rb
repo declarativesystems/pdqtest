@@ -4,15 +4,23 @@ require 'pdqtest/util'
 require 'pdqtest/emoji'
 require 'erb'
 require 'fileutils'
+require 'pdqtest/util'
+
+
 module PDQTest
   module Rspec
     SPEC_DIR          = './spec'
     SPEC_CLASSES_DIR  = "#{SPEC_DIR}/classes"
+    MODULE_CACHE_DIR  = "#{Util::app_dir}/cache/modules"
+
 
     def self.run
-      Escort::Logger.output.puts
+      if ! Dir.exists?(MODULE_CACHE_DIR)
+        FileUtils.mkdir_p(MODULE_CACHE_DIR)
+      end
+
       PDQTest::Emoji.emoji_message("🐌", "I'm downloading The Internet, please hold...")
-      cmd = "bundle exec librarian-puppet install --path ./spec/fixtures/modules --destructive"
+      cmd = "LIBRARIAN_PUPPET_TMP=#{MODULE_CACHE_DIR} bundle exec librarian-puppet install --path ./spec/fixtures/modules --destructive"
       status = system(cmd)
       if status
         PDQTest::Puppet.git_fixtures.each { |extra_mod_install_cmd|

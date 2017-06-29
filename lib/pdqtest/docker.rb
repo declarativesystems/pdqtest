@@ -1,3 +1,5 @@
+require 'pdqtest/util'
+
 module PDQTest
   module Docker
     OUT = 0
@@ -8,9 +10,8 @@ module PDQTest
     HIERA_YAML_CONTAINER = '/etc/puppetlabs/puppet/hiera.yaml'
     HIERA_YAML_HOST = '/spec/fixtures/hiera.yaml'
     HIERA_DIR  = '/spec/fixtures/hieradata'
-    HOST_CACHE_DIR = "#{Dir.home}/.pdqtest"
-    YUM_CACHE_HOST = "#{HOST_CACHE_DIR}/yum"
     YUM_CACHE_CONTAINER = "/var/cache/yum"
+    YUM_CACHE_HOST    = "#{Util::app_dir}/cache/yum"
 
     def self.wrap_cmd(cmd)
       ['bash',  '-c', "#{ENV} #{cmd}"]
