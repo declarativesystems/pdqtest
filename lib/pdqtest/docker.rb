@@ -22,6 +22,17 @@ module PDQTest
       hiera_yaml_host = File.join(pwd, HIERA_YAML_HOST)
       hiera_dir = File.join(pwd, HIERA_DIR)
 
+      # security options seem required on OSX to allow SYS_ADMIN capability to
+      # work - without this container starts fine with no errors but the CAP is
+      # missing from the inspect output and all systemd commands fail with errors
+      # about dbus
+      security_opt =
+        if (/darwin/ =~ RUBY_PLATFORM) != nil
+          ["seccomp:unconfined"]
+        else
+          []
+        end
+
       # hiera.yaml *must* exist on the host or we will get errors from Docker
       if ! File.exists?(hiera_yaml_host)
         File.write(hiera_yaml_host, '# hiera configuration for testing')
@@ -36,6 +47,7 @@ module PDQTest
           '/sys/fs/cgroup'      => {'/sys/fs/cgroup'  => 'ro'},
         },
         'HostConfig' => {
+          "SecurityOpt" => security_opt,
           "Binds": [
             "/sys/fs/cgroup:/sys/fs/cgroup:ro",
             "#{pwd}:/cut:rw",                               # DEPRECATED -FOR REMOVAL
