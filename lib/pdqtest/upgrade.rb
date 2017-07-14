@@ -25,7 +25,6 @@ module PDQTest
           if line =~ GEM_REGEXP
             # a gem stanza
             processing_gem = $2
-            puts "found #{processing_gem}"
             if GEMS.keys.include?(processing_gem)
               # fixup one of our monitored gems as needed, mark
               # this as being a gem that is being updated so
@@ -58,7 +57,6 @@ module PDQTest
 
       t_file.close
       FileUtils.mv(t_file.path, GEMFILE)
-      puts File.readlines(GEMFILE)
     end
 
   end
