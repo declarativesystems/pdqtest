@@ -3,6 +3,7 @@ require 'digest'
 require 'pdqtest/puppet'
 require 'pdqtest/version'
 require 'pdqtest/util'
+require 'pdqtest/upgrade'
 
 module PDQTest
   module Skeleton
@@ -14,7 +15,6 @@ module PDQTest
     SKELETON_DIR    = 'skeleton'
     EXAMPLES_DIR    = 'examples'
     GEMFILE         = 'Gemfile'
-    GEMFILE_LINE    = "gem 'pdqtest', '#{PDQTest::VERSION}'"
     HIERA_DIR       =  File.join(SPEC_DIR, 'fixtures', 'hieradata')
     HIERA_YAML      = 'hiera.yaml'
     HIERA_TEST      = 'test.yaml'
@@ -54,20 +54,10 @@ module PDQTest
     end
 
     def self.install_gemfile
-      insert_gem = false
-      if File.exists?(GEMFILE)
-        if ! File.readlines(GEMFILE).grep(/pdqtest/).any?
-          insert_gem = true
-        end
-      else
-        install_skeleton(GEMFILE, GEMFILE)
-        insert_gem = true
-      end
-      if insert_gem
-        open(GEMFILE, 'a') { |f|
-          f.puts GEMFILE_LINE
-        }
-      end
+      install_skeleton(GEMFILE, GEMFILE)
+
+      # upgrade the gemfile to *this* version of pdqtest + puppet-strings
+      Upgrade.upgrade()
     end
 
     def self.init
@@ -81,6 +71,7 @@ module PDQTest
       FileUtils.mkdir_p(ACCEPTANCE_DIR)
       FileUtils.mkdir_p(CLASSES_DIR)
       FileUtils.mkdir_p(EXAMPLES_DIR)
+      FileUtils.mkdir_p(HIERA_DIR)
 
 
       # skeleton files if required

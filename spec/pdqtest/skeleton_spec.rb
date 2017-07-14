@@ -2,7 +2,6 @@ require "spec_helper"
 require "pdqtest/skeleton"
 require "fileutils"
 require "pp"
-require 'simplecov'
 require 'fakefs/safe'
 
 describe PDQTest::Skeleton do
@@ -67,7 +66,7 @@ describe PDQTest::Skeleton do
         expect(File.exists?(File.join('examples', 'init.pp'))).to be true
         expect(File.exists?('Gemfile')).to be true
         expect(File.readlines('Gemfile').grep(/pdqtest/).any?).to be true
-
+        expect(File.readlines('Gemfile').grep(/puppet-strings/).any?).to be true
       end
     end
   end

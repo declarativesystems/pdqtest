@@ -14,10 +14,8 @@
 # limitations under the License.
 
 # code-coverage not requires new escort: https://github.com/skorks/escort/issues/13
-#require 'simplecov'
-#SimpleCov.start do
-#  add_filter '/spec/'
-#end
+#require 'coveralls'
+#Coveralls.wear!
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 
 require 'pdqtest'
@@ -27,3 +25,4 @@ FAILING_TESTS_TESTDIR   = File.join('spec', 'fixtures', 'failing_tests')
 PASSING_TESTS_TESTDIR   = File.join('spec', 'fixtures', 'passing_tests')
 REGULAR_MODULE_TESTDIR  = File.join('spec', 'fixtures', 'regular_module')
 GIT_FIXTURES_TESTDIR    = File.join('spec', 'fixtures', 'git_fixtures')
+UPGRADE_MODULE_TESTDIR  = File.join('spec', 'fixtures', 'upgrade_module')

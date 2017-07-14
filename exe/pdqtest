@@ -1,4 +1,13 @@
 #!/usr/bin/env ruby
+require 'rubygems'
+ruby_have = Gem::Version.new(RUBY_VERSION)
+ruby_need = Gem::Version.new('2.2.0')
+
+if (ruby_have <=> ruby_need) == -1
+  raise "Please upgrade Ruby to at least #{ruby_need.version}"
+end
+
+
 require 'pdqtest'
 require 'pdqtest/emoji'
 require 'pdqtest/instance'
@@ -8,6 +17,7 @@ require 'pdqtest/skeleton'
 require 'pdqtest/lint'
 require 'pdqtest/syntax'
 require 'pdqtest/core'
+require 'pdqtest/upgrade'
 require 'escort'
 
 # display help if nothing specified
@@ -163,4 +173,12 @@ Escort::App.create do |app|
     end
   end
 
+
+  app.command :upgrade do |command|
+    command.summary "Upgrade"
+    command.description "Upgrade the current module to use this version of PDQTest"
+    command.action do |options, arguments|
+      PDQTest::Upgrade.upgrade
+    end
+  end
 end
