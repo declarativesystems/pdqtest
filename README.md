@@ -12,6 +12,9 @@ And can generate code to retrofit testing to a new or existing module, along wit
 
 PDQTest runs linting, syntax and RSpec tests within the machine it is running from and then loads a docker container to perform acceptance testing, sharing the puppet module and cached dependencies from your host.
 
+![demo](doc/demo.gif)
+_Adding PDQTest to a project and running acceptance tests in Docker_
+
 ## PDQTest Manual
 1. [Installation](doc/installation.md)
 2. [Enabling testing](doc/enableing_testing.md)
