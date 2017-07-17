@@ -31,8 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "rspec", "3.5.0"
   spec.add_runtime_dependency "thor", "0.19.4"
   spec.add_runtime_dependency "minitar", "0.6.1"
-
-
+  spec.add_runtime_dependency "hiera", "3.4.0"
   spec.add_runtime_dependency "escort", "0.4.0"
   spec.add_runtime_dependency "docker-api", "1.33.1"
   spec.add_runtime_dependency "puppet-lint", "2.1.0"
