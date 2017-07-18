@@ -17,7 +17,7 @@ _Adding PDQTest to a project and running acceptance tests in Docker_
 
 ## PDQTest Manual
 1. [Installation](doc/installation.md)
-2. [Enabling testing](doc/enableing_testing.md)
+2. [Enabling testing](doc/enabling_testing.md)
 3. [Running tests](doc/running_tests.md)
 4. [Test generation](doc/test_generation.md)
 5. [Puppet module dependencies](doc/puppet_module_dependencies.md)
