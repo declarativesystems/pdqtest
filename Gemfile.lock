@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    pdqtest (0.7.3)
+    pdqtest (0.8.0)
       docker-api (= 1.33.1)
       escort (= 0.4.0)
       git_refresh (= 0.1.1)
