@@ -22,7 +22,7 @@ CMD ["/sbin/init"]
 
 # leave the apt metadata in place to allow apt-get install... to work (puppet
 # package resource)
-RUN apt-get install -y cron \
+RUN apt-get update && apt-get install -y cron \
     initscripts \
     git \
     zlib1g-dev \
@@ -31,6 +31,8 @@ RUN apt-get install -y cron \
     policycoreutils \
     curl \
     locales \
+    iputils-ping \
+    dnsutils \
     locales-all && dpkg-reconfigure locales
 
 # fix locale
