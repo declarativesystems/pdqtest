@@ -26,7 +26,7 @@ module PDQTest
 
     # detect the image to use based on metadata.json
     def self.acceptance_test_images()
-      supported_images = [IMAGES[:DEFAULT]]
+      supported_images = []
       os_hash = Puppet::module_metadata['operatingsystem_support'] || {}
       # returns a hash that looks like this (if non-empty):
       # [
@@ -46,6 +46,8 @@ module PDQTest
             supported_images << IMAGES[:UBUNTU]
           when "windows"
             Escort::Logger.output.puts "Windows acceptance testing not supported yet... any ideas?"
+          else
+            supported_images << IMAGES[:DEFAULT]
           end
         }
       supported_images.uniq
