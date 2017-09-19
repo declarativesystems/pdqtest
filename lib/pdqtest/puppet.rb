@@ -47,6 +47,10 @@ module PDQTest
       module_metadata['name'].split(/[\/-]/)[1]
     end
 
+    def self.os_support
+      module_metadata['operatingsystem_support'] || []
+    end
+
     def self.link_module
       "test -e #{MODULE_DIR} || mkdir -p #{MODULE_DIR} && ln -s #{PDQTest::Instance::TEST_DIR} #{MODULE_DIR}/#{module_name}"
     end

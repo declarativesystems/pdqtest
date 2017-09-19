@@ -29,6 +29,13 @@ Escort::App.create do |app|
   app.description "test puppet code quickly"
 
   app.options do |opts|
+    opts.opt(:image_name,
+      'Specify docker image name(s) to use (docker store name) default is to autodetect',
+      :long     => '--image-name',
+      :type     => :string,
+      :default  => nil,
+    )
+
     opts.opt(:keep_container,
       'Leave container running?',
       :long     => '--keep-container',
@@ -51,6 +58,8 @@ Escort::App.create do |app|
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
 
       PDQTest::Instance.set_keep_container(options[:global][:options][:keep_container])
+      PDQTest::Instance.set_docker_image(options[:global][:options][:image_name])
+
       PDQTest::Core.run([
         lambda {PDQTest::Syntax.puppet},
         lambda {PDQTest::Lint.puppet},
@@ -83,6 +92,7 @@ Escort::App.create do |app|
     end
     command.action do |options, arguments|
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
+      PDQTest::Instance.set_docker_image(options[:global][:options][:image_name])
       PDQTest::Instance.set_keep_container(options[:global][:options][:keep_container])
       example = options[:global][:commands][:acceptance][:options][:example]
       PDQTest::Core.run(lambda {PDQTest::Instance.run(example)})
@@ -131,6 +141,7 @@ Escort::App.create do |app|
     command.summary "Shell"
     command.description "Open a shell inside a docker container identical to the test environment before anything has run"
     command.action do |options, arguments|
+      PDQTest::Instance.set_docker_image(options[:global][:options][:image_name])
       PDQTest::Instance.shell
     end
   end
@@ -160,7 +171,9 @@ Escort::App.create do |app|
 
     command.action do |options, arguments|
       PDQTest::Core.run(lambda {
-        system("docker pull #{PDQTest::Docker::IMAGE_NAME}")
+        PDQTest::Docker::IMAGES.each { |key, image|
+          system("docker pull #{image}")
+        }
       })
     end
   end

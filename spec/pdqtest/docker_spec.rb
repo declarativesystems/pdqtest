@@ -29,12 +29,12 @@ describe PDQTest::Docker do
   end
 
   it "starts a container correctly" do
-    c = PDQTest::Docker.new_container('/testcase')
+    c = PDQTest::Docker.new_container('/testcase', PDQTest::Docker::IMAGES[:DEFAULT])
     expect(c.id.empty?).to be false
   end
 
   it "stop a container correctly" do
-    c = PDQTest::Docker.new_container('/testcase')
+    c = PDQTest::Docker.new_container('/testcase', PDQTest::Docker::IMAGES[:DEFAULT])
     id = c.id
     PDQTest::Docker.cleanup_container(c)
     # must use braces with inspect to stop exception escaping

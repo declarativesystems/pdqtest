@@ -6,7 +6,10 @@ module PDQTest
     ERR = 1
     STATUS = 2
     ENV='export TERM=xterm LC_ALL=C PATH=/usr/local/bats/bin:/opt/puppetlabs/puppet/bin:$PATH;'
-    IMAGE_NAME='geoffwilliams/pdqtest-centos:2017-05-04-0'
+    IMAGES = {
+     :DEFAULT => 'geoffwilliams/pdqtest-centos:2017-09-19-0',
+     :UBUNTU  => 'geoffwilliams/pdqtest-ubuntu:2017-09-18-0',
+    }
     HIERA_YAML_CONTAINER = '/etc/puppetlabs/puppet/hiera.yaml'
     HIERA_YAML_HOST = '/spec/fixtures/hiera.yaml'
     HIERA_DIR  = '/spec/fixtures/hieradata'
@@ -21,7 +24,34 @@ module PDQTest
       container.exec(wrap_cmd(cmd), tty: true)
     end
 
-    def self.new_container(test_dir)
+    # detect the image to use based on metadata.json
+    def self.acceptance_test_images()
+      supported_images = [IMAGES[:DEFAULT]]
+      os_hash = Puppet::module_metadata['operatingsystem_support'] || {}
+      # returns a hash that looks like this (if non-empty):
+      # [
+      #   {
+      #     "operatingsystem": "RedHat",
+      #     "operatingsystemrelease": [
+      #         "6",
+      #         "7"
+      #     ]
+      #   },
+      # ]
+      # We will map this list of OSs to the simple list of docker images we
+      # supply
+      os_hash.each { |os|
+        case os["operatingsystem"].downcase
+          when "ubuntu"
+            supported_images << IMAGES[:UBUNTU]
+          when "windows"
+            Escort::Logger.output.puts "Windows acceptance testing not supported yet... any ideas?"
+          end
+        }
+      supported_images.uniq
+    end
+
+    def self.new_container(test_dir, image_name)
       pwd = Dir.pwd
       hiera_yaml_host = File.join(pwd, HIERA_YAML_HOST)
       hiera_dir = File.join(pwd, HIERA_DIR)
@@ -46,7 +76,7 @@ module PDQTest
         File.write(hiera_yaml_host, '# hiera configuration for testing')
       end
       container = ::Docker::Container.create(
-        'Image'   => IMAGE_NAME,
+        'Image'   => image_name,
         'Volumes' => {
           test_dir              => {pwd               => 'rw'},
           HIERA_YAML_CONTAINER  => {hiera_yaml_host   => 'rw'},

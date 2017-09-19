@@ -1,6 +1,5 @@
 /.bundle/
 /.yardoc
-/Gemfile.lock
 /_yardoc/
 /coverage/
 /pkg/
@@ -11,3 +10,4 @@
 Puppetfile.lock
 *.gem
 /fixtures/passing_tests/spec/fixtures
+/.idea

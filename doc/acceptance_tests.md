@@ -1,9 +1,15 @@
 # Acceptance tests
 * Acceptance tests run within a Docker container managed by PDQTest
 * The Docker container breaks all the rules of Docker and runs a full version of Systemd to allow complete testing of Puppet code in the most portable way (basically treat docker as a high speed VM)... This is deliberate - PDQTest exists to get results, not be a perfect Docker app.
-* The test container uses a minimal version of Centos 7, there's no option to change this at present
+* There are two supported docker images - Centos 7 and Ubuntu 16.04
+* Centos is used by default
+* Ubuntu will be used if your `metadata.json` declares compatibility with Ubuntu
+* Centos is great for mocking systems like AIX... if you replace OS binaries as required in the `__setup.sh` scripts
+* No idea what to do to test windows on linux :/ containers seem out of the question and VMs would involve licensing
+* If you have a specific container you want to use, pass `--image-name` on the command line, it accepts a comma delimited list of image names to test on
 * The container will only be started if at least one example file is present **and contains the correct magic marker**
 * You can get a shell on the docker container if needed, see [Debugging failed builds](#debugging-failed-builds)
+* See the [docker_images](../docker_images) folder for examples
 
 ### Test workflow
 1. Scan for all example files under `/examples`.  Files must end in `.pp` and contain the magic marker `#@PDQTest` to be processed

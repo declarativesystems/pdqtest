@@ -1,12 +1,13 @@
 # Install all the RPM packages that puppet will install and disable
 # metadata updates so that the environment can be joined to puppet
 # and run without error in an offline environment
-FROM centos:centos7
+FROM ubuntu:16.04
 
-# Systemd in docker - state of the art:
-# https://developers.redhat.com/blog/2016/09/13/running-systemd-in-a-non-privileged-container/
 ENV container docker
-RUN yum -y swap -- remove fakesystemd -- install systemd systemd-libs && \
+ENV LC_ALL C 
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-get update && apt-get install systemd && apt-get clean && \
 (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done); \
 rm -f /lib/systemd/system/multi-user.target.wants/*;\
 rm -f /etc/systemd/system/*.wants/*;\
@@ -18,37 +19,34 @@ rm -f /lib/systemd/system/anaconda.target.wants/*;
 VOLUME [ "/sys/fs/cgroup" ]
 CMD ["/sbin/init"]
 
-RUN yum install -y cronie \
+
+# leave the apt metadata in place to allow apt-get install... to work (puppet
+# package resource)
+RUN apt-get install -y cron \
     initscripts \
     git \
-    zlib-devel \
-    which \
-    gpm-libs \
+    zlib1g-dev \
+    debianutils \
+    libgpm-dev \
     policycoreutils \
-    policycoreutils-restorecond && yum clean all
-RUN echo "metadata_expire=never" >> /etc/yum.conf
+    curl \
+    locales \
+    locales-all && dpkg-reconfigure locales
 
 # fix locale
 RUN echo 'LANG=en_US.UTF-8' > /etc/locale.conf
-RUN yum -y install glibc-common
-# swallow errors
-RUN localedef --quiet -v -c -i en_US -f UTF-8 en_US.UTF-8 || true
-
-
 ENV LANG en_US.UTF-8
-# && \
-#  echo "LANG=C" >> /etc/environment && \
 ENV LC_ALL en_US.UTF-8
-#  echo "LC_ALL=C" >> /etc/environment && \
 ENV PATH /usr/local/bats/bin:/opt/puppetlabs/puppet/bin/:/usr/sbin:/sbin:/usr/bin:/bin
-#  echo "export PATH=/usr/local/bats/bin:/opt/puppetlabs/puppet/bin/:${PATH}" >> /etc/environment && \
 ENV TERM xterm
-#  echo "export TERM=xterm"  >> /etc/environment
 
-# puppet
-RUN yum -y install https://pm.puppetlabs.com/puppet-agent/2017.2.3/1.10.5/repos/el/7/PC1/x86_64/puppet-agent-1.10.5-1.el7.x86_64.rpm && \
+# puppet (and dont run the daemons)
+RUN curl -Lo /tmp/puppet-agent.deb https://pm.puppetlabs.com/puppet-agent/2017.2.3/1.10.5/repos/deb/xenial/PC1/puppet-agent_1.10.5-1xenial_amd64.deb && \
+    dpkg -i /tmp/puppet-agent.deb && rm /tmp/puppet-agent.deb && \
   /opt/puppetlabs/puppet/bin/puppet --version && \
-  /opt/puppetlabs/puppet/bin/facter --version
+  /opt/puppetlabs/puppet/bin/facter --version && \
+  systemctl disable puppet && \
+  systemctl disable mcollective
 
 # bats
 RUN git clone https://github.com/sstephenson/bats /usr/local/bats
@@ -66,7 +64,6 @@ VOLUME /testcase
 # code under test (deprecated)
 RUN mkdir /cut
 VOLUME /cut
-
 
 # alternate shudown for systemd
 STOPSIGNAL SIGRTMIN+3
