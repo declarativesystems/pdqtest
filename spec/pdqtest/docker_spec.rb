@@ -45,9 +45,6 @@ describe PDQTest::Docker do
   it "fallback to testing on centos (default) when no os specified in metadata" do
     Dir.chdir(BLANK_MODULE_TESTDIR) do
       images = PDQTest::Docker.acceptance_test_images
-      puts images
-      puts "**********"
-
       expect(images.size).to eq 1
       expect(images[0]).to eq PDQTest::Docker::IMAGES[:DEFAULT]
     end
