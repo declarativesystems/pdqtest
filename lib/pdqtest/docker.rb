@@ -1,4 +1,5 @@
 require 'pdqtest/util'
+require 'pdqtest/puppet'
 
 module PDQTest
   module Docker
@@ -40,16 +41,22 @@ module PDQTest
       # ]
       # We will map this list of OSs to the simple list of docker images we
       # supply
-      os_hash.each { |os|
-        case os["operatingsystem"].downcase
-          when "ubuntu"
-            supported_images << IMAGES[:UBUNTU]
-          when "windows"
-            Escort::Logger.output.puts "Windows acceptance testing not supported yet... any ideas?"
-          else
-            supported_images << IMAGES[:DEFAULT]
+      if os_hash.size == 0
+        # Always support the default test system if no metadata present
+        supported_images << IMAGES[:DEFAULT]
+      else
+        os_hash.each { |os|
+          case os["operatingsystem"].downcase
+            when "ubuntu"
+              supported_images << IMAGES[:UBUNTU]
+            when "windows"
+              Escort::Logger.output.puts "Windows acceptance testing not supported yet... any ideas?"
+            else
+              supported_images << IMAGES[:DEFAULT]
           end
         }
+      end
+
       supported_images.uniq
     end
 

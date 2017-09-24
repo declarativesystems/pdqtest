@@ -41,4 +41,34 @@ describe PDQTest::Docker do
     # http://stackoverflow.com/a/4946723
     expect{::Docker::Container.get(id)}.to raise_error(Docker::Error::NotFoundError)
   end
+
+  it "fallback to testing on centos (default) when no os specified in metadata" do
+    Dir.chdir(BLANK_MODULE_TESTDIR) do
+      images = PDQTest::Docker.acceptance_test_images
+      puts images
+      puts "**********"
+
+      expect(images.size).to eq 1
+      expect(images[0]).to eq PDQTest::Docker::IMAGES[:DEFAULT]
+    end
+  end
+
+  it "test only on ubuntu when specified in metadata" do
+    Dir.chdir(UBUNTU_MODULE_TESTDIR) do
+      images = PDQTest::Docker.acceptance_test_images
+      expect(images.size).to eq 1
+      expect(images[0]).to eq PDQTest::Docker::IMAGES[:UBUNTU]
+    end
+  end
+
+
+  it "test on ubuntu and centos (default) when specified in metadata" do
+    Dir.chdir(MULTIOS_MODULE_TESTDIR) do
+      images = PDQTest::Docker.acceptance_test_images
+      expect(images.size).to eq 2
+      expect(images.include?(PDQTest::Docker::IMAGES[:UBUNTU])).to be true
+      expect(images.include?(PDQTest::Docker::IMAGES[:DEFAULT])).to be true
+    end
+  end
+
 end

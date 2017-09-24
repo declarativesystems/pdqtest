@@ -18,5 +18,14 @@
       "version_requirement": ">= 3.0.0 < 5.0.0"
     }
   ],
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "Ubuntu",
+      "operatingsystemrelease": [
+        "16.04",
+        "16.10"
+      ]
+    }
+  ],
   "description": "Module for Apache configuration"
 }
