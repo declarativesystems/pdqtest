@@ -11,3 +11,4 @@ Puppetfile.lock
 *.gem
 /fixtures/passing_tests/spec/fixtures
 /.idea
+/Gemfile.lock
