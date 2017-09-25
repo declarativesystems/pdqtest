@@ -49,6 +49,14 @@ Escort::App.create do |app|
       :type     => :boolean,
       :default  => false,
     )
+
+    opts.opt(:skip_idempotency,
+      'Dont check idempotency (run only once)',
+      :long     => '--skip-idempotency',
+      :type     => :boolean,
+      :default  => false,
+    )
+
   end
 
   app.command :all do |command|
@@ -56,6 +64,7 @@ Escort::App.create do |app|
     command.description "Run all tests"
     command.action do |options, arguments|
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
+      PDQTest::Puppet.skip_second_run(options[:global][:options][:skip_idempotency])
 
       PDQTest::Instance.set_keep_container(options[:global][:options][:keep_container])
       PDQTest::Instance.set_docker_image(options[:global][:options][:image_name])
@@ -92,6 +101,7 @@ Escort::App.create do |app|
     end
     command.action do |options, arguments|
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
+      PDQTest::Puppet.skip_second_run(options[:global][:options][:skip_idempotency])
       PDQTest::Instance.set_docker_image(options[:global][:options][:image_name])
       PDQTest::Instance.set_keep_container(options[:global][:options][:keep_container])
       example = options[:global][:commands][:acceptance][:options][:example]

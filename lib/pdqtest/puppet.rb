@@ -20,7 +20,12 @@ module PDQTest
     CLASS_RE          = /^class /
     @@bats_executed   = []
     @@setup_executed  = []
+    @@skip_second_run = false
     FIXTURES          = 'fixtures.yml'
+
+    def self.skip_second_run(skip_second_run)
+      @@skip_second_run = skip_second_run
+    end
 
     def self.reset_bats_executed
       @@bats_executed = []
@@ -212,15 +217,22 @@ module PDQTest
           PDQTest::Docker.log_out(res)
           if PDQTest::Docker.exec_status(res, true) # allow 2 as exit status
 
-            # run puppet apply - 2nd run (check for idempotencey/no more changes)
-            res = PDQTest::Docker.exec(container, puppet_apply(example))
-            PDQTest::Docker.log_out(res)
+            if @@skip_second_run
+              Escort::Logger.output.puts "Skipping idempotency check as you requested..."
 
-            # run the bats test if nothing failed yet
-            if PDQTest::Docker.exec_status(res) # only allow 0 as exit status
+              # check the system right now since puppet ran OK once
               status = bats_test(container, example, AFTER_SUFFIX)
             else
-              Escort::Logger.error.error "Not idempotent: #{example}"
+              # run puppet apply - 2nd run (check for idempotencey/no more changes)
+              res = PDQTest::Docker.exec(container, puppet_apply(example))
+              PDQTest::Docker.log_out(res)
+
+              # run the bats test if nothing failed yet
+              if PDQTest::Docker.exec_status(res) # only allow 0 as exit status
+                status = bats_test(container, example, AFTER_SUFFIX)
+              else
+                Escort::Logger.error.error "Not idempotent: #{example}"
+              end
             end
           else
             Escort::Logger.error.error "First puppet run of #{example} failed"
