@@ -78,6 +78,7 @@ module PDQTest
       install_skeleton('Rakefile', 'Rakefile')
       install_skeleton(File.join('spec', 'spec_helper.rb'), 'spec_helper.rb')
       install_skeleton('.travis.yml', 'dot_travis.yml')
+      install_skeleton('.bitbucket-pipelines.yml', 'bitbucket-pipelines.yml')
       install_skeleton('.gitignore', 'dot_gitignore')
       install_skeleton('.rspec', 'dot_rspec')
       install_skeleton('Makefile', 'Makefile')

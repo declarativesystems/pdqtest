@@ -1,0 +1,18 @@
+image: geoffwilliams/ruby:2.3.4
+
+pipelines:
+  default:
+    - step:
+        caches:
+          - bundler
+        script:
+          - ruby --version
+          - bundler --version
+          - bundle install
+          - bundle exec pdqtest syntax
+          - bundle exec pdqtest lint
+          - bundle exec pdqtest rspec
+
+definitions:
+  caches:
+    bundler: vendor/bundle
