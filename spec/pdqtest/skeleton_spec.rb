@@ -26,7 +26,6 @@ describe PDQTest::Skeleton do
         PDQTest::Skeleton.init
         # ..to be_an_existing_file doesn't work with fakefs...
         expect(File.exists?('.fixtures.yml')).to be false
-        expect(File.exists?('.fixtures.yml.pdqtest_old')).to be true
       end
     end
   end
@@ -58,8 +57,6 @@ describe PDQTest::Skeleton do
         expect(File.exists?('Makefile')).to be true
         expect(File.exists?(File.join('spec', 'acceptance', 'init.bats'))).to be true
         expect(File.exists?(File.join('spec', 'spec_helper.rb'))).to be true
-        expect(File.exists?('Rakefile.pdqtest_old')).to be true
-        expect(File.exists?(File.join('spec', 'spec_helper.rb.pdqtest_old'))).to be true
         expect(File.exists?(File.join('spec', 'acceptance', 'init__setup.sh'))).to be true
         expect(File.exists?(File.join('spec', 'acceptance', 'init__before.bats'))).to be true
         expect(File.exists?(File.join('spec', 'acceptance', 'init.bats'))).to be true

@@ -8,7 +8,6 @@ require 'pdqtest/upgrade'
 module PDQTest
   module Skeleton
     FIXTURES        = '.fixtures.yml'
-    BACKUP_EXT      = '.pdqtest_old'
     SPEC_DIR        = 'spec'
     ACCEPTANCE_DIR  = File.join(SPEC_DIR, 'acceptance')
     CLASSES_DIR     = File.join(SPEC_DIR, 'classes')
@@ -32,8 +31,6 @@ module PDQTest
       install = false
       if File.exists?(target_file)
         if replace and should_replace_file(target_file, skeleton_file)
-          # move existing file out of the way
-          FileUtils.mv(target_file, target_file + BACKUP_EXT)
           install = true
         end
       else
@@ -64,7 +61,7 @@ module PDQTest
 
       # move .fixtures.yml out of the way
       if File.exists?(FIXTURES)
-        FileUtils.mv(FIXTURES, FIXTURES + BACKUP_EXT)
+        File.delete(FIXTURES)
       end
 
       # make directory structure for testcases
@@ -77,18 +74,22 @@ module PDQTest
       # skeleton files if required
       install_skeleton('Rakefile', 'Rakefile')
       install_skeleton(File.join('spec', 'spec_helper.rb'), 'spec_helper.rb')
-      install_skeleton('.travis.yml', 'dot_travis.yml')
-      install_skeleton('.bitbucket-pipelines.yml', 'bitbucket-pipelines.yml')
       install_skeleton('.gitignore', 'dot_gitignore')
       install_skeleton('.rspec', 'dot_rspec')
-      install_skeleton('Makefile', 'Makefile')
       install_skeleton(File.join(SPEC_DIR, 'fixtures', HIERA_YAML), HIERA_YAML)
       install_skeleton(File.join(HIERA_DIR, HIERA_TEST), HIERA_TEST)
 
       install_acceptance()
       install_gemfile()
+      install_integrations()
 
       # Make sure there is a Gemfile and we are in it
+    end
+
+    def self.install_integrations()
+      install_skeleton('Makefile', 'Makefile')
+      install_skeleton('bitbucket-pipelines.yml', 'bitbucket-pipelines.yml')
+      install_skeleton('.travis.yml', 'dot_travis.yml')
     end
 
     def self.install_acceptance(example_file ="init.pp")

@@ -1,4 +1,4 @@
-image: geoffwilliams/ruby:2.3.4
+image: ruby:2.3.5
 
 pipelines:
   default:
@@ -9,9 +9,7 @@ pipelines:
           - ruby --version
           - bundler --version
           - bundle install
-          - bundle exec pdqtest syntax
-          - bundle exec pdqtest lint
-          - bundle exec pdqtest rspec
+          - make logical
 
 definitions:
   caches:
