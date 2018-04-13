@@ -1,10 +1,7 @@
-# Install all the RPM packages that puppet will install and disable
-# metadata updates so that the environment can be joined to puppet
-# and run without error in an offline environment
-FROM ubuntu:16.04
+FROM ubuntu:xenial-20180228
 
 ENV container docker
-ENV LC_ALL C 
+ENV LC_ALL C
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && apt-get install systemd && apt-get clean && \
@@ -43,7 +40,7 @@ ENV PATH /usr/local/bats/bin:/opt/puppetlabs/puppet/bin/:/usr/sbin:/sbin:/usr/bi
 ENV TERM xterm
 
 # puppet (and dont run the daemons)
-RUN curl -Lo /tmp/puppet-agent.deb https://pm.puppetlabs.com/puppet-agent/2017.2.3/1.10.5/repos/deb/xenial/PC1/puppet-agent_1.10.5-1xenial_amd64.deb && \
+RUN curl -Lo /tmp/puppet-agent.deb https://pm.puppet.com/puppet-agent/2017.3.5/5.3.5/repos/deb/xenial/PC1/puppet-agent_5.3.5-1xenial_amd64.deb && \
     dpkg -i /tmp/puppet-agent.deb && rm /tmp/puppet-agent.deb && \
   /opt/puppetlabs/puppet/bin/puppet --version && \
   /opt/puppetlabs/puppet/bin/facter --version && \
@@ -51,7 +48,7 @@ RUN curl -Lo /tmp/puppet-agent.deb https://pm.puppetlabs.com/puppet-agent/2017.2
   systemctl disable mcollective
 
 # bats
-RUN git clone https://github.com/sstephenson/bats /usr/local/bats
+RUN git clone https://github.com/bats-core/bats-core /usr/local/bats
 
 # librarian
 RUN /opt/puppetlabs/puppet/bin/gem install librarian-puppet
@@ -62,10 +59,6 @@ RUN /opt/puppetlabs/puppet/bin/gem install git_refresh
 # testcase (our module)
 RUN mkdir /testcase
 VOLUME /testcase
-
-# code under test (deprecated)
-RUN mkdir /cut
-VOLUME /cut
 
 # alternate shudown for systemd
 STOPSIGNAL SIGRTMIN+3

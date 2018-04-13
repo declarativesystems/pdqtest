@@ -25,4 +25,4 @@ pdqtest setup
 To obtain the latest version.
 
 ## `/cut`
-Previous versions of PDQTest mounted code at `/cut` (Code Under Test), this will still work for a few versions but the preferred mountpoint is now the more obvious `/testcase`
+Previous versions of PDQTest mounted code at `/cut` (Code Under Test), the new mountpoint is the more obvious `/testcase`

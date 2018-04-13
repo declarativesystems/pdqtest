@@ -8,8 +8,8 @@ module PDQTest
     STATUS = 2
     ENV='export TERM=xterm LC_ALL=C PATH=/usr/local/bats/bin:/opt/puppetlabs/puppet/bin:$PATH;'
     IMAGES = {
-     :DEFAULT => 'geoffwilliams/pdqtest-centos:2017-09-19-0',
-     :UBUNTU  => 'geoffwilliams/pdqtest-ubuntu:2017-09-20-0',
+     :DEFAULT => 'declarativesystems/pdqtest-centos:2018-04-13-0',
+     :UBUNTU  => 'declarativesystems/pdqtest-ubuntu:2018-04-13-0',
     }
     HIERA_YAML_CONTAINER = '/etc/puppetlabs/puppet/hiera.yaml'
     HIERA_YAML_HOST = '/spec/fixtures/hiera.yaml'
@@ -90,7 +90,6 @@ module PDQTest
           test_dir              => {pwd               => 'rw'},
           HIERA_YAML_CONTAINER  => {hiera_yaml_host   => 'rw'},
           HIERA_DIR             => {hiera_dir         => 'rw'},
-          '/cut'                => {pwd               => 'rw'}, # DEPRECATED -FOR REMOVAL
           '/sys/fs/cgroup'      => {'/sys/fs/cgroup'  => 'ro'},
           YUM_CACHE_CONTAINER   => {YUM_CACHE_HOST    => 'rw'},
         },
@@ -98,7 +97,6 @@ module PDQTest
           "SecurityOpt" => security_opt,
           "Binds": [
             "/sys/fs/cgroup:/sys/fs/cgroup:ro",
-            "#{pwd}:/cut:rw",                               # DEPRECATED -FOR REMOVAL
             "#{pwd}:#{test_dir}:rw",
             "#{hiera_yaml_host}:#{HIERA_YAML_CONTAINER}:rw",
             "#{hiera_dir}:#{HIERA_DIR}:rw",

@@ -1,13 +1,11 @@
-# Install all the RPM packages that puppet will install and disable
-# metadata updates so that the environment can be joined to puppet
-# and run without error in an offline environment
-FROM centos:centos7
+FROM centos:centos7.4.1708
 
 # Systemd in docker - state of the art:
-# https://developers.redhat.com/blog/2016/09/13/running-systemd-in-a-non-privileged-container/
+# https://hub.docker.com/_/centos/
 ENV container docker
-RUN yum -y swap -- remove fakesystemd -- install systemd systemd-libs && \
-(cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done); \
+
+RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == \
+systemd-tmpfiles-setup.service ] || rm -f $i; done); \
 rm -f /lib/systemd/system/multi-user.target.wants/*;\
 rm -f /etc/systemd/system/*.wants/*;\
 rm -f /lib/systemd/system/local-fs.target.wants/*; \
@@ -16,7 +14,7 @@ rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
 rm -f /lib/systemd/system/basic.target.wants/*;\
 rm -f /lib/systemd/system/anaconda.target.wants/*;
 VOLUME [ "/sys/fs/cgroup" ]
-CMD ["/sbin/init"]
+CMD ["/usr/sbin/init"]
 
 RUN yum install -y cronie \
     initscripts \
@@ -46,12 +44,12 @@ ENV TERM xterm
 #  echo "export TERM=xterm"  >> /etc/environment
 
 # puppet
-RUN yum -y install https://pm.puppetlabs.com/puppet-agent/2017.2.3/1.10.5/repos/el/7/PC1/x86_64/puppet-agent-1.10.5-1.el7.x86_64.rpm && \
+RUN yum -y install https://pm.puppet.com/puppet-agent/2017.3.5/5.3.5/repos/el/7/PC1/x86_64/puppet-agent-5.3.5-1.el7.x86_64.rpm && \
   /opt/puppetlabs/puppet/bin/puppet --version && \
   /opt/puppetlabs/puppet/bin/facter --version
 
 # bats
-RUN git clone https://github.com/sstephenson/bats /usr/local/bats
+RUN git clone https://github.com/bats-core/bats-core /usr/local/bats
 
 # librarian
 RUN /opt/puppetlabs/puppet/bin/gem install librarian-puppet
@@ -62,11 +60,6 @@ RUN /opt/puppetlabs/puppet/bin/gem install git_refresh
 # testcase (our module)
 RUN mkdir /testcase
 VOLUME /testcase
-
-# code under test (deprecated)
-RUN mkdir /cut
-VOLUME /cut
-
 
 # alternate shudown for systemd
 STOPSIGNAL SIGRTMIN+3

@@ -6,7 +6,7 @@ PDQTest - Puppet Docker Quick-test - is the quickest and easiest way to test you
 * Linting
 * Syntax
 * RSpec
-* Acceptance ([BATS](https://github.com/sstephenson/bats))
+* Acceptance ([BATS-core](https://github.com/bats-core/bats-core))
 
 And can generate code to retrofit testing to a new or existing module, along with skeleton RSpec and acceptance tests to get you started.
 
