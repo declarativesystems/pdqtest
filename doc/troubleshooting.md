@@ -1,5 +1,6 @@
 # Troubleshooting
 * If you can't find the `pdqtest` command and your using `rbenv` be sure to run `rbenv rehash` after installing the gem to create the necessary symlinks
+* If your `pdqtest` command changes version randomly depending which directory your in and you are using `rvm` its probably because `rvm` overrides `cd` and does strange things. You can probably turn this off. Alternatively, use `rbenv`
 * Don't forget to run `pdqtest setup` before your first `pdqtest` run to download/update the Docker image
 * If you need to access private git repositories, make sure to use `fixtures.yml` not `.fixtures.yml`
 * If you need a private key to access private repositories, set this up for your regular git command/ssh and `pdqtest` will reuse the settings
