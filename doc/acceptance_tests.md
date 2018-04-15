@@ -91,3 +91,8 @@ pdqtest --keep-container all
 * Keeps the container Running
 * After testing, the container used to run tests will be left running and a message will be printed showing how to enter the container used for testing.  Your code is avaiable at `/testcase`
 * User is responsible for cleaning up the containers created in this mode
+
+### Docker privileged mode
+Sometimes you need to run in Docker privileged mode to enable tests to work - not ideal and if anyone else has a better idea please open a ticket with the details. When privileged mode is required, run `pdqtest --privileged` and you will have access.
+
+WARNING: This grants the container access to the host

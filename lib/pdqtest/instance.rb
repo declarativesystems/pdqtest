@@ -9,6 +9,7 @@ module PDQTest
     @@keep_container = false
     @@active_container = nil
     @@image_name = false
+    @@privileged = false
 
     def self.get_active_container
       @@active_container
@@ -31,6 +32,14 @@ module PDQTest
           end
     end
 
+    def self.set_privileged(privileged)
+      @@privileged = privileged
+    end
+
+    def self.get_privileged
+      @@privileged
+    end
+
     def self.run(example=nil)
       # needed to prevent timeouts from container.exec()
       Excon.defaults[:write_timeout] = 10000
@@ -48,7 +57,7 @@ module PDQTest
         Escort::Logger.output.puts "Acceptance test on #{test_platforms}..."
         test_platforms.each { |image_name|
           Escort::Logger.output.puts "--- start test with #{image_name} ---"
-          @@active_container = PDQTest::Docker::new_container(TEST_DIR, image_name)
+          @@active_container = PDQTest::Docker::new_container(TEST_DIR, image_name, @@privileged)
           Escort::Logger.output.puts "alive, running tests"
           status &= PDQTest::Puppet.run(@@active_container, example)
 
@@ -72,7 +81,7 @@ module PDQTest
       # just list it with --image-name
       image_name = (@@image_name || Docker::acceptance_test_images).first
       Escort::Logger.output.puts "Opening a shell in #{image_name}"
-      @@active_container = PDQTest::Docker::new_container(TEST_DIR, image_name)
+      @@active_container = PDQTest::Docker::new_container(TEST_DIR, image_name, @@privileged)
 
       # In theory I should be able to get something like the code below to
       # redirect all input streams and give a makeshift interactive shell, howeve

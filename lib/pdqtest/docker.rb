@@ -60,7 +60,7 @@ module PDQTest
       supported_images.uniq
     end
 
-    def self.new_container(test_dir, image_name)
+    def self.new_container(test_dir, image_name, privileged)
       pwd = Dir.pwd
       hiera_yaml_host = File.join(pwd, HIERA_YAML_HOST)
       hiera_dir = File.join(pwd, HIERA_DIR)
@@ -113,6 +113,7 @@ module PDQTest
               '/run/lock' => '',
             },
             CapAdd: [ 'SYS_ADMIN'],
+            Privileged: privileged,
           },
         }
       )
