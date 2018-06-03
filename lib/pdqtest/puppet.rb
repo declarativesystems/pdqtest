@@ -22,6 +22,8 @@ module PDQTest
     @@setup_executed  = []
     @@skip_second_run = false
     FIXTURES          = 'fixtures.yml'
+    TMP_PUPPETFILE    = '.Puppetfile.pdqtest'
+
 
     def self.skip_second_run(skip_second_run)
       @@skip_second_run = skip_second_run
@@ -314,6 +316,36 @@ module PDQTest
     def self.info
       Escort::Logger.output.puts "Parsed module name: #{module_name}"
       Escort::Logger.output.puts "Link module command: #{link_module}"
+    end
+
+    # extract a Puppetfile from metadata.json and install modules using r10k
+    def self.install_modules()
+      json = JSON.parse(File.read(METADATA))
+      puppetfile = []
+      if json.has_key?("dependencies")
+        json["dependencies"].each { |dependency|
+          line = "mod '#{dependency['name']}'"
+          if dependency.has_key?("version_requirement")
+            # R10K supports specifc named version or 'latest', not the rich versions defined in metadata. To make this
+            # work we will drop any version that specifies a range and just install the latest
+            if dependency['version_requirement'].start_with?(/\d/)
+              line += ", '#{dependency['version_requirement']}'"
+            end
+          end
+          puppetfile << line
+        }
+      end
+
+      File.open(TMP_PUPPETFILE, "w") do |f|
+        f.puts(puppetfile)
+      end
+
+      PDQTest::Emoji.emoji_message("🐌", "I'm downloading The Internet, please hold...")
+
+      cmd = "bundle exec r10k puppetfile install --verbose --moduledir ./spec/fixtures/modules --config .r10k.yaml --puppetfile #{TMP_PUPPETFILE}"
+      status = system(cmd)
+
+      status
     end
   end
 end

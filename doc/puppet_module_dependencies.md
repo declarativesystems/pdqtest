@@ -18,9 +18,10 @@ repositories:
 
 
 ## .fixtures.yml
-There is no need to maintain a `.fixtures.yml` file and the presence of this file when using `pdqtest` is an error.
+There is no need to maintain a `.fixtures.yml` file and the presence of this file when using `pdqtest` is an error (note the leading period)
 
 ## Notes:
 * The filename is for private modules is `fixtures.yml` NOT `.fixtures.yml`.  The leading dot had to be removed to avoid `puppetlabs_spec_helper` also detecting the file and trying to use it.
 * The file format of `.fixtures.yml` and `fixtures.yml` for specifing git repositories is identical
 * Only the repositories section of the file will be processed as we do not use `puppetlabs_spec_helper` to do this for us.
+* We convert the dependencies from `metadata.json` to a temporary puppetfile store at `.Puppetfile.pdqtes` which is then installed using r10k

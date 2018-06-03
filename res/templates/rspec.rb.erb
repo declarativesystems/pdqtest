@@ -1,6 +1,6 @@
 require 'spec_helper'
 require 'puppet_factset'
-describe '<%= classname %>' do
+describe '<%= vars[:classname] %>' do
   # Uncomment only the factset you would like to use for these tests
 <%
 require 'puppet_factset'
@@ -18,6 +18,6 @@ PuppetFactset.factsets.each { |factset|
   end
 
   context 'with default values for all parameters' do
-    it { should contain_class('<%= classname %>') }
+    it { should contain_class('<%= vars[:classname] %>') }
   end
 end

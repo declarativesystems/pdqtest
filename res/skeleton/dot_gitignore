@@ -5,3 +5,4 @@ Puppetfile.lock
 .tmp
 .yardoc
 /pkg
+.Puppetfile.pdqtest

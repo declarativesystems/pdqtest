@@ -23,7 +23,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "bundler", "~> 1.16"
   spec.add_development_dependency "coveralls", "0.8.21"
-  spec.add_development_dependency "fakefs", "0.13.3"
+  spec.add_development_dependency "fakefs", "0.14.2"
   spec.add_development_dependency "puppet", "5.3.5"
 
   spec.add_runtime_dependency "rake", "12.3.1"
@@ -35,8 +35,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "docker-api", "1.34.2"
   spec.add_runtime_dependency "puppet-lint", "2.3.5"
   spec.add_runtime_dependency "puppet-syntax", "2.4.1"
-  spec.add_runtime_dependency "puppetlabs_spec_helper", "2.6.2"
-  spec.add_runtime_dependency "librarian-puppet", "3.0.0"
+  spec.add_runtime_dependency "puppetlabs_spec_helper", "2.7.0"
+  spec.add_runtime_dependency "r10k", "2.6.2"
   spec.add_runtime_dependency "git_refresh", "0.1.1"
   spec.add_runtime_dependency "puppet_factset", "0.5.0"
 end

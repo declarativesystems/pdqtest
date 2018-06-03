@@ -41,12 +41,13 @@ module PDQTest
       end
     end
 
-    def self.install_example(filename)
-      example_file = File.join(EXAMPLES_DIR, filename)
-      if ! File.exists?(example_file)
-        template = File.read(Util::resource_path(File.join('templates', 'examples_init.pp.erb')))
-        init_pp  = ERB.new(template, nil, '-').result(binding)
-        File.write(example_file, init_pp)
+    # vars is a hash of variables that can be accessed in template
+    def self.install_template(target, template_file, vars)
+      example_file = File.join(EXAMPLES_DIR, template_file)
+      if ! File.exists?(target)
+        template = File.read(Util::resource_path(File.join('templates', template_file)))
+        content  = ERB.new(template, nil, '-').result(binding)
+        File.write(target, content)
       end
     end
 
@@ -90,11 +91,12 @@ module PDQTest
       install_skeleton('Makefile', 'Makefile')
       install_skeleton('bitbucket-pipelines.yml', 'bitbucket-pipelines.yml')
       install_skeleton('.travis.yml', 'dot_travis.yml')
+      install_template('.r10k.yaml', 'r10k.yaml.erb', {})
     end
 
     def self.install_acceptance(example_file ="init.pp")
-      install_example(File.basename(example_file))
       example_name = File.basename(example_file).gsub(/\.pp$/, '')
+      install_template("#{EXAMPLES_DIR}/#{File.basename(example_file)}",'examples_init.pp.erb', {})
 
       install_skeleton(File.join('spec', 'acceptance', "#{example_name}.bats"), 'init.bats', false)
       install_skeleton(File.join('spec', 'acceptance', "#{example_name}__before.bats"), 'init__before.bats', false)

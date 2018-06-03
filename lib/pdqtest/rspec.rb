@@ -5,6 +5,7 @@ require 'pdqtest/emoji'
 require 'erb'
 require 'fileutils'
 require 'pdqtest/util'
+require 'json'
 
 
 module PDQTest
@@ -19,9 +20,8 @@ module PDQTest
         FileUtils.mkdir_p(MODULE_CACHE_DIR)
       end
 
-      PDQTest::Emoji.emoji_message("🐌", "I'm downloading The Internet, please hold...")
-      cmd = "LIBRARIAN_PUPPET_TMP=#{MODULE_CACHE_DIR} bundle exec librarian-puppet install --path ./spec/fixtures/modules --destructive"
-      status = system(cmd)
+      status = PDQTest::Puppet.install_modules()
+
       if status
         PDQTest::Puppet.git_fixtures.each { |extra_mod_install_cmd|
           if status
@@ -62,9 +62,7 @@ module PDQTest
           end
 
           # process the rspec template into a new file
-          template = File.read(Util::resource_path(File.join('templates', 'rspec.rb.erb')))
-          testcase = ERB.new(template, nil, '-').result(binding)
-          File.write(spec_file, testcase)
+          PDQTest::Skeleton.install_template(spec_file, 'rspec.rb.erb', {:classname=>classname})
         end
       }
     end
