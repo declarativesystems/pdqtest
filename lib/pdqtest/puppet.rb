@@ -328,7 +328,7 @@ module PDQTest
           if dependency.has_key?("version_requirement")
             # R10K supports specifc named version or 'latest', not the rich versions defined in metadata. To make this
             # work we will drop any version that specifies a range and just install the latest
-            if dependency['version_requirement'].start_with?(/\d/)
+            if dependency['version_requirement'].match?(/^\d/)
               line += ", '#{dependency['version_requirement']}'"
             end
           end

@@ -1,3 +1,7 @@
+# .travis.yml
+#
+# To debug travis locally:
+# https://docs.travis-ci.com/user/common-build-problems/#Running-a-Container-Based-Docker-Image-Locally
 ---
 sudo: false
 language: ruby
@@ -9,4 +13,4 @@ before_install:
   - bundle exec pdqtest setup
 script: "make"
 rvm:
-  - 2.3.5
+  - 2.5.1
