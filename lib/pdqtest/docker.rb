@@ -15,7 +15,7 @@ module PDQTest
     HIERA_YAML_HOST = '/spec/fixtures/hiera.yaml'
     HIERA_DIR  = '/spec/fixtures/hieradata'
     YUM_CACHE_CONTAINER = "/var/cache/yum"
-    YUM_CACHE_HOST    = "#{Util::app_dir}/cache/yum"
+    YUM_CACHE_HOST    = "#{Util::app_dir_expanded}/cache/yum"
 
     def self.wrap_cmd(cmd)
       ['bash',  '-c', "#{ENV} #{cmd}"]
@@ -149,7 +149,7 @@ module PDQTest
       exec_out(res).each { |l|
         # Output comes back as an array and needs to be iterated or we lose our
         # ansi formatting
-        Escort::Logger.output.puts l
+        Escort::Logger.output << l
       }
     end
 
@@ -162,7 +162,7 @@ module PDQTest
       exec_err(res).each { |l|
         # Output comes back as an array and needs to be iterated or we lose our
         # ansi formatting
-        Escort::Logger.error.error l
+        Escort::Logger.error << l
       }
     end
 

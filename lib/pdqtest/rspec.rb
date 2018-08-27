@@ -12,7 +12,7 @@ module PDQTest
   module Rspec
     SPEC_DIR          = './spec'
     SPEC_CLASSES_DIR  = "#{SPEC_DIR}/classes"
-    MODULE_CACHE_DIR  = "#{Util::app_dir}/cache/modules"
+    MODULE_CACHE_DIR  = "#{Util::app_dir_expanded}/cache/modules"
 
 
     def self.run
@@ -35,8 +35,6 @@ module PDQTest
         if status
           status &= system("bundle exec rake spec")
         end
-      else
-        Escort::Logger.error.error "Librarian command failed: #{cmd}"
       end
       PDQTest::Emoji.partial_status(status, 'RSpec-Puppet')
       status

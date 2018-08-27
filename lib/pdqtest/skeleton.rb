@@ -91,7 +91,6 @@ module PDQTest
       install_skeleton('Makefile', 'Makefile')
       install_skeleton('bitbucket-pipelines.yml', 'bitbucket-pipelines.yml')
       install_skeleton('.travis.yml', 'dot_travis.yml')
-      install_template('.r10k.yaml', 'r10k.yaml.erb', {})
     end
 
     def self.install_acceptance(example_file ="init.pp")

@@ -342,8 +342,12 @@ module PDQTest
 
       PDQTest::Emoji.emoji_message("🐌", "I'm downloading The Internet, please hold...")
 
-      cmd = "bundle exec r10k puppetfile install --verbose --moduledir ./spec/fixtures/modules --config .r10k.yaml --puppetfile #{TMP_PUPPETFILE}"
+      cmd = "bundle exec r10k puppetfile install --verbose --moduledir ./spec/fixtures/modules --puppetfile #{TMP_PUPPETFILE}"
       status = system(cmd)
+
+      if ! status
+        Escort::Logger.error.error "Failed to run the R10K command: #{cmd}"
+      end
 
       status
     end
