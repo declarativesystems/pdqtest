@@ -34,17 +34,12 @@ RUN localedef --quiet -v -c -i en_US -f UTF-8 en_US.UTF-8 || true
 
 
 ENV LANG en_US.UTF-8
-# && \
-#  echo "LANG=C" >> /etc/environment && \
 ENV LC_ALL en_US.UTF-8
-#  echo "LC_ALL=C" >> /etc/environment && \
 ENV PATH /usr/local/bats/bin:/opt/puppetlabs/puppet/bin/:/usr/sbin:/sbin:/usr/bin:/bin
-#  echo "export PATH=/usr/local/bats/bin:/opt/puppetlabs/puppet/bin/:${PATH}" >> /etc/environment && \
 ENV TERM xterm
-#  echo "export TERM=xterm"  >> /etc/environment
 
 # puppet
-RUN yum -y install https://pm.puppet.com/puppet-agent/2017.3.5/5.3.5/repos/el/7/PC1/x86_64/puppet-agent-5.3.5-1.el7.x86_64.rpm && \
+RUN yum -y install https://pm.puppet.com/puppet-agent/2018.1.4/5.5.6/repos/el/7/puppet5/x86_64/puppet-agent-5.5.6-1.el7.x86_64.rpm && \
   /opt/puppetlabs/puppet/bin/puppet --version && \
   /opt/puppetlabs/puppet/bin/facter --version
 
