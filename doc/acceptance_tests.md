@@ -78,11 +78,17 @@ mycoolmodule
 PDQTest makes it easy to debug failed builds:
 
 ```shell
+# Centos
 pdqtest shell
+
+# Ubuntu
+pdqtest --image-name declarativesystems/pdqtest-ubuntu:2018-08-29-0 shell
 ```
 
-* Opens a shell inside the docker container that would be used to run tests
+* Opens a shell inside the default docker container that would be used to run tests
 * Your code is available at `/testcase`
+* Use `--image-name` to use a different image (Ubuntu)
+
 
 ```shell
 pdqtest --keep-container all
@@ -91,6 +97,7 @@ pdqtest --keep-container all
 * Keeps the container Running
 * After testing, the container used to run tests will be left running and a message will be printed showing how to enter the container used for testing.  Your code is avaiable at `/testcase`
 * User is responsible for cleaning up the containers created in this mode
+* Shortcut: `make shell`
 
 ### Docker privileged mode
 Sometimes you need to run in Docker privileged mode to enable tests to work - not ideal and if anyone else has a better idea please open a ticket with the details. When privileged mode is required, run `pdqtest --privileged` and you will have access.
