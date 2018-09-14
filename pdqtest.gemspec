@@ -36,7 +36,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "puppet-lint", "2.3.5"
   spec.add_runtime_dependency "puppet-syntax", "2.4.1"
   spec.add_runtime_dependency "puppetlabs_spec_helper", "2.7.0"
-  spec.add_runtime_dependency "r10k", "2.6.2"
+  spec.add_runtime_dependency "r10k", "2.6.4"
   spec.add_runtime_dependency "git_refresh", "0.1.1"
   spec.add_runtime_dependency "puppet_factset", "0.5.0"
 end

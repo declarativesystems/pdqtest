@@ -60,5 +60,8 @@ RUN /opt/puppetlabs/puppet/bin/gem install git_refresh
 RUN mkdir /testcase
 VOLUME /testcase
 
+# hiera
+RUN mkdir -p /spec/fixtures/
+
 # alternate shudown for systemd
 STOPSIGNAL SIGRTMIN+3

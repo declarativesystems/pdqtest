@@ -4,26 +4,100 @@ require 'pdqtest/instance'
 require 'pdqtest/emoji'
 require 'escort'
 require 'yaml'
+require 'json'
 
 module PDQTest
   class Puppet
-    METADATA          = 'metadata.json'
-    MODULE_DIR        = '/etc/puppetlabs/code/modules'
-    MAGIC_MARKER      = '@PDQTest'
-    MAGIC_MARKER_RE   = /#\s*#{MAGIC_MARKER}/
-    BATS_TESTS        = './spec/acceptance'
-    SETUP_SUFFIX      = '__setup.sh'
-    BEFORE_SUFFIX     = '__before.bats'
-    AFTER_SUFFIX      = '.bats'
-    EXAMPLES_DIR      = './examples'
-    MANIFESTS_DIR     = './manifests'
+
+    #
+    # platform paths
+    #
+    CONTAINER_PATHS = {
+        :windows => {
+            :hiera_yaml => 'C:\\ProgramData\\PuppetLabs\\puppet\\etc\\hiera.yaml',
+            :hiera_dir  => 'C:\\spec\\fixtures\\hieradata',
+            :module_dir => 'C:\\ProgramData\\PuppetLabs\\code\\modules',
+            :facts_dir  => 'C:\\ProgramData\\PuppetLabs\\facter\\facts.d',
+        },
+        :linux => {
+            :hiera_yaml => '/etc/puppetlabs/puppet/hiera.yaml',
+            :yum_cache  => "/var/cache/yum",
+            :hiera_dir  => '/spec/fixtures/hieradata',
+            :module_dir => '/etc/puppetlabs/code/modules',
+            :facts_dir  => '/etc/facts',
+        }
+    }
+
+    # path for common things on the *host* computer running pdqtest (vm, laptop, etc)
+    HOST_PATHS = {
+        :windows => {
+            :hiera_yaml => 'spec\\fixtures\\hiera.yaml',
+            :hiera_dir  => 'spec\\fixtures\\hieradata',
+            :facts_dir  => 'spec\\merge_facts',
+        },
+        :linux => {
+            :hiera_yaml => 'spec/fixtures/hiera.yaml',
+            :hiera_dir  => 'spec/fixtures/hieradata',
+            :facts_dir  => 'spec/merge_facts',
+        }
+    }
+
+
+    SETTINGS = {
+        :windows => {
+            :magic_marker    => '@PDQTestWin',
+            :setup_suffix    => '__setup.ps1',
+            :before_suffix   => '__before.pats',
+            :after_suffix    => '.pats',
+            :magic_marker_re => /#\s@PDQTestWin\s$*/,
+            :name            => "pats",
+            :test_cmd        => "pats.ps1",
+            :puppet          => "puppet.bat",
+        },
+        :linux => {
+            :magic_marker    => '@PDQTest',
+            :setup_suffix    => '__setup.sh',
+            :before_suffix   =>'__before.bats',
+            :after_suffix    => '.bats',
+            :magic_marker_re => /#\s@PDQTest\s$*/,
+            :name            => "bats",
+            :test_cmd        => "bats",
+            :puppet          => "puppet",
+        },
+    }
+
+    #
+    # statics
+    #
+    XATS_TESTS        = Util.joinp('spec', 'acceptance')
+    EXAMPLES_DIR      = 'examples'
+    MANIFESTS_DIR     = 'manifests'
     CLASS_RE          = /^class /
+    FIXTURES          = 'fixtures.yml'
+    TMP_PUPPETFILE    = '.Puppetfile.pdqtest'
+    METADATA          = 'metadata.json'
+
+    #
+    # state
+    #
     @@bats_executed   = []
     @@setup_executed  = []
     @@skip_second_run = false
-    FIXTURES          = 'fixtures.yml'
-    TMP_PUPPETFILE    = '.Puppetfile.pdqtest'
 
+    def self.cp(key)
+      CONTAINER_PATHS[Util.host_platform][key] ||
+          raise("missing variable CONTAINER_PATHS[#{Util.host_platform}][#{key}]")
+    end
+
+    def self.hp(key)
+      HOST_PATHS[Util.host_platform][key] ||
+          raise("missing variable HOST_PATHS[#{Util.host_platform}][#{key}]")
+    end
+
+    def self.setting(key)
+      SETTINGS[Util.host_platform][key] ||
+          raise("missing variable SETTINGS[#{Util.host_platform}][#{key}]")
+    end
 
     def self.skip_second_run(skip_second_run)
       @@skip_second_run = skip_second_run
@@ -46,7 +120,7 @@ module PDQTest
     end
 
     def self.module_metadata
-      file = File.read(Dir.pwd + File::SEPARATOR + METADATA)
+      file = File.read(Util.joinp(Dir.pwd, METADATA))
       JSON.parse(file)
     end
 
@@ -58,38 +132,25 @@ module PDQTest
       module_metadata['operatingsystem_support'] || []
     end
 
-    def self.link_module
-      "test -e #{MODULE_DIR} || mkdir -p #{MODULE_DIR} && ln -s #{PDQTest::Instance::TEST_DIR} #{MODULE_DIR}/#{module_name}"
-    end
-
-    # Link all modules - this also saves re-downloading in the acceptance test
-    # environment.  Of course it means that you must have already run `make` to
-    # download the modules on your host computer
-    def self.link_deps
-      "test -e #{MODULE_DIR} || mkdir -p #{MODULE_DIR} && ln -s #{PDQTest::Instance::TEST_DIR}/spec/fixtures/modules/* #{MODULE_DIR}"
-    end
-
-    # link /etc/facter/facts.d to /testcase/spec/merge_facts to allow additional
-    # facts supplied by user to work automatically
-    def self.link_merge_facts
-      "mkdir -p /etc/facter/ && ln -s #{PDQTest::Instance::TEST_DIR}/spec/merge_facts /etc/facter/facts.d"
-    end
 
     def self.class2filename(c)
       if c == module_name
-        f = "#{MANIFESTS_DIR}/init.pp"
+        f = "#{MANIFESTS_DIR}#{File::ALT_SEPARATOR||File::SEPARATOR}init.pp"
       else
-        f = c.gsub(module_name, MANIFESTS_DIR).gsub('::', File::SEPARATOR) + '.pp'
+        f = c.gsub(module_name, MANIFESTS_DIR).gsub('::', (File::ALT_SEPARATOR||File::SEPARATOR)) + '.pp'
       end
 
       f
     end
 
     def self.filename2class(f)
-      if f == "#{MANIFESTS_DIR}/init.pp"
+      # strip any leading `./`
+      f.sub!(/^\.\//,'')
+
+      if f == "#{MANIFESTS_DIR}#{File::ALT_SEPARATOR||File::SEPARATOR}init.pp"
         c = module_name
       else
-        c = f.gsub(MANIFESTS_DIR, "#{module_name}").gsub(File::SEPARATOR, '::').gsub('.pp','')
+        c = f.gsub(MANIFESTS_DIR, "#{module_name}").gsub(File::ALT_SEPARATOR||File::SEPARATOR, '::').gsub('.pp','')
       end
 
       c
@@ -99,7 +160,7 @@ module PDQTest
       examples = []
       if Dir.exists?(EXAMPLES_DIR)
         Find.find(EXAMPLES_DIR) do |e|
-          if ! File.directory?(e) and ! File.readlines(e).grep(MAGIC_MARKER_RE).empty?
+          if ! File.directory?(e) && ! File.readlines(e).grep(setting(:magic_marker_re)).empty?
             examples << e
           end
         end
@@ -160,17 +221,18 @@ module PDQTest
     end
 
     def self.test_basename(t)
+      # remove any leading `./`
+      t.sub!(/^\.\//, '')
       # remove examples/ and .pp
       # eg ./examples/apache/mod/mod_php.pp --> apache/mod/mod_php
-
       t.gsub(EXAMPLES_DIR + '/','').gsub('.pp','')
     end
 
-    def self.bats_test(container, example, suffix)
-      testcase = BATS_TESTS + '/' + test_basename(example) + suffix
+    def self.xats_test(container, example, suffix)
+      testcase = Util.joinp(XATS_TESTS, test_basename(example) + suffix)
       if File.exists?(testcase)
-        Escort::Logger.output.puts "*** bats test **** bats #{PDQTest::Instance::TEST_DIR}/#{testcase}"
-        res = PDQTest::Docker.exec(container, "bats #{PDQTest::Instance::TEST_DIR}/#{testcase}")
+        Escort::Logger.output.puts "*** #{setting(:name)} test **** #{setting(:test_cmd)} #{testcase}"
+        res = PDQTest::Docker.exec(container, "cd #{Docker.test_dir} ; #{setting(:test_cmd)} #{testcase}")
         status = PDQTest::Docker.exec_status(res)
         PDQTest::Docker.log_out(res)
         @@bats_executed << testcase
@@ -183,17 +245,22 @@ module PDQTest
     end
 
     def self.setup_test(container, example)
-      setup = BATS_TESTS + '/' + test_basename(example) + SETUP_SUFFIX
-      if File.exists?(setup)
-        Escort::Logger.output.puts "Setting up test for #{example}"
-        script = File.read(setup)
-        res = PDQTest::Docker.exec(container, script)
-        status = PDQTest::Docker.exec_status(res)
-        PDQTest::Docker.log_out(res)
+      setup_script = Util.joinp(XATS_TESTS, test_basename(example)) + setting(:setup_suffix)
+      if File.exists?(setup_script)
+        script = File.read(setup_script)
 
-        @@setup_executed << setup
+        if script =~ /^\s*$/
+          Escort::Logger.output.puts "skipping empty setup script at #{setup_script}"
+        else
+          Escort::Logger.output.puts "Setting up test for #{example}"
+
+          res = PDQTest::Docker.exec(container, script)
+          status = PDQTest::Docker.exec_status(res)
+          PDQTest::Docker.log_out(res)
+        end
+        @@setup_executed << setup_script
       else
-        Escort::Logger.output.puts "no setup file for #{example} (should be in #{setup})"
+        Escort::Logger.output.puts "no setup file for #{example} (should be in #{setup_script})"
         status = true
       end
 
@@ -201,18 +268,13 @@ module PDQTest
     end
 
     def self.run_example(container, example)
-      if ! example.start_with?('./')
-        # must prepend ./ to the example or we will not match the correct regexp
-        # in test_basename
-        example = "./#{example}"
-      end
       Escort::Logger.output.puts "testing #{example}"
       status = false
 
       if setup_test(container, example)
 
         # see if we should run a bats test before running puppet
-        if bats_test(container, example, BEFORE_SUFFIX)
+        if xats_test(container, example, setting(:before_suffix))
 
           # run puppet apply - 1st run
           res = PDQTest::Docker.exec(container, puppet_apply(example))
@@ -223,7 +285,7 @@ module PDQTest
               Escort::Logger.output.puts "Skipping idempotency check as you requested..."
 
               # check the system right now since puppet ran OK once
-              status = bats_test(container, example, AFTER_SUFFIX)
+              status = xats_test(container, example, setting(:after_suffix))
             else
               # run puppet apply - 2nd run (check for idempotencey/no more changes)
               res = PDQTest::Docker.exec(container, puppet_apply(example))
@@ -231,19 +293,19 @@ module PDQTest
 
               # run the bats test if nothing failed yet
               if PDQTest::Docker.exec_status(res) # only allow 0 as exit status
-                status = bats_test(container, example, AFTER_SUFFIX)
+                status = xats_test(container, example, setting(:after_suffix))
               else
                 Escort::Logger.error.error "Not idempotent: #{example}"
               end
             end
           else
-            Escort::Logger.error.error "First puppet run of #{example} failed"
+            Escort::Logger.error.error "First puppet run of #{example} failed (status: #{res[Docker::STATUS]})"
           end
         else
-          Escort::Logger.error.error "Bats tests to run before #{example} failed"
+          Escort::Logger.error.error "#{setting(:name)} tests to run before #{example} failed (status: #{res[Docker::STATUS]})"
         end
       else
-        Escort::Logger.error.error "Setup script for #{example} failed"
+        Escort::Logger.error.error "Setup script for #{example} failed (see previous error)"
       end
 
       status
@@ -261,61 +323,54 @@ module PDQTest
       end
 
       status = true
-      Escort::Logger.output.puts "...linking dependencies"
-      cmd = link_deps
-      res = PDQTest::Docker.exec(container, cmd)
+      Escort::Logger.output.puts "...running container setup"
+      setup_start = Time.now
+      res = PDQTest::Docker.exec(container, setup)
+      setup_end = Time.now
       status &= PDQTest::Docker.exec_status(res)
+      if Util.is_windows
+        # write a script to allow user to update modules
+        Escort::Logger.output.puts "wasted #{((setup_end - setup_start)/1000)} seconds of your life on windows tax"
+        File.open("refresh.ps1", 'w') do |file|
+          res[Docker::REAL_CMD].each do |c|
+            file.puts("#{c[0]} #{c[1]} \"#{c[2]}\"")
+          end
+        end
+        Escort::Logger.output.puts "🤮 IMPORTANT - run refresh.ps1 to update your container after changing files on the host!"
+      end
       if status
-        Escort::Logger.output.puts "...linking testcase (this module)"
-        cmd = link_module
-        res = PDQTest::Docker.exec(container, cmd)
-        status &= PDQTest::Docker.exec_status(res)
-        if status
-          Escort::Logger.output.puts "...linking spec/merge_facts"
-          cmd = link_merge_facts
-          res = PDQTest::Docker.exec(container, cmd)
-          status &= PDQTest::Docker.exec_status(res)
-          if status
-            Escort::Logger.output.puts "...run tests"
-            if example
-              status &= run_example(container, example)
-              if ! status
-                Escort::Logger.error.error "Example #{example} failed!"
-              end
-            else
-              find_examples.each { |e|
-                if status
-                  status &= run_example(container, e)
-                  if ! status
-                    Escort::Logger.error.error "Example #{e} failed! - skipping rest of tests"
-                  end
-                end
-              }
+          Escort::Logger.output.puts "...run tests"
+          if example
+            status &= run_example(container, example)
+            if ! status
+              Escort::Logger.error.error "Example #{example} failed!"
             end
           else
-            PDQTest::Docker.log_all(res)
-            Escort::Logger.error.error "Error linking ./spec/merge_facts directory, see previous error, command was: #{cmd}"
+            find_examples.each { |e|
+              if status
+                status &= run_example(container, e)
+                if ! status
+                  Escort::Logger.error.error "Example #{e} failed! - skipping rest of tests"
+                end
+              end
+            }
           end
-        else
-          PDQTest::Docker.log_all(res)
-          Escort::Logger.error.error "Error linking testcase (this) module, see previous error, command was: #{cmd}"
-        end
       else
         PDQTest::Docker.log_all(res)
-        Escort::Logger.error.error "Error linking module, see previous error, command was: #{cmd}"
+        Escort::Logger.error.error "Error running puppet setup, see previous error, command was: #{res[Docker::REAL_CMD]}"
       end
 
       PDQTest::Emoji.partial_status(status, 'Puppet')
       status
     end
 
+
     def self.puppet_apply(example)
-      "cd #{PDQTest::Instance::TEST_DIR} && puppet apply --detailed-exitcodes #{example}"
+      "cd #{Docker.test_dir} ; #{setting(:puppet)} apply --detailed-exitcodes #{example}"
     end
 
     def self.info
       Escort::Logger.output.puts "Parsed module name: #{module_name}"
-      Escort::Logger.output.puts "Link module command: #{link_module}"
     end
 
     # extract a Puppetfile from metadata.json and install modules using r10k
@@ -350,6 +405,56 @@ module PDQTest
       end
 
       status
+    end
+
+    def self.setup
+      commands = []
+
+      # link testcase module
+      commands << Util.mk_link(
+          Util.joinp(cp(:module_dir), module_name),
+          PDQTest::Docker.test_dir
+      )
+
+
+      # link dependency modules
+      sfm = Util.joinp("spec", "fixtures", "modules")
+
+      Dir.entries(sfm).select { |entry|
+        File.directory?(Util.joinp(sfm, entry)) && !(entry =='.' || entry == '..')
+      }.each { |entry|
+        commands << Util.mk_link(
+            Util.joinp(cp(:module_dir), entry),
+            Util.joinp(PDQTest::Docker.test_dir, sfm, entry)
+        )
+      }
+
+
+      # link hieradata
+      if Dir.exist? hp(:hiera_dir)
+        commands << Util.mk_link(
+            cp(:hiera_dir),
+            Util.joinp(Docker.test_dir, hp(:hiera_dir))
+        )
+      end
+
+      # link hiera.yaml
+      if File.exist? hp(:hiera_yaml)
+        commands << Util.mk_link(
+            cp(:hiera_yaml),
+            Util.joinp(Docker.test_dir, hp(:hiera_yaml))
+        )
+      end
+
+      # link external facts
+      if Dir.exist? hp(:facts_dir)
+        commands << Util.mk_link(
+            cp(:facts_dir),
+            Util.joinp(Docker.test_dir, hp(:facts_dir))
+        )
+      end
+      commands
+
     end
   end
 end

@@ -6,23 +6,101 @@ module PDQTest
     OUT = 0
     ERR = 1
     STATUS = 2
-    ENV='export TERM=xterm LC_ALL=C PATH=/usr/local/bats/bin:/opt/puppetlabs/puppet/bin:$PATH;'
+    REAL_CMD = 3
     IMAGES = {
-     :DEFAULT => 'declarativesystems/pdqtest-centos:2018-08-29-0',
-     :UBUNTU  => 'declarativesystems/pdqtest-ubuntu:2018-08-29-0',
+     :DEFAULT => 'declarativesystems/pdqtest-centos:2018-09-15-0',
+     :UBUNTU  => 'declarativesystems/pdqtest-ubuntu:2018-09-15-0',
+     :WINDOWS => 'declarativesystems/pdqtest-windows-0',
     }
-    HIERA_YAML_CONTAINER = '/etc/puppetlabs/puppet/hiera.yaml'
-    HIERA_YAML_HOST = '/spec/fixtures/hiera.yaml'
-    HIERA_DIR  = '/spec/fixtures/hieradata'
-    YUM_CACHE_CONTAINER = "/var/cache/yum"
-    YUM_CACHE_HOST    = "#{Util::app_dir_expanded}/cache/yum"
 
-    def self.wrap_cmd(cmd)
-      ['bash',  '-c', "#{ENV} #{cmd}"]
+    # volume paths are different for windows containers
+    # https://superuser.com/questions/1051520/docker-windows-container-how-to-mount-a-host-folder-as-data-volume-on-windows
+    # path for common things *inside* the container
+    #
+    # Also... bind mounting _files_ is impossible on windows in docker right now:
+    # * https://github.com/docker/for-win/issues/376
+    # * https://github.com/moby/moby/issues/30555
+    # * https://github.com/opctl/opctl/issues/207
+    # * https://docs.docker.com/engine/reference/commandline/run/#capture-container-id---cidfile
+    CONTAINER_PATHS = {
+        :windows => {
+            :testcase   => 'C:\\testcase',
+        },
+        :linux => {
+            :yum_cache => "/var/cache/yum",
+            :testcase  => '/testcase',
+        }
+    }
+
+    # path for common things on the *host* computer running pdqtest (vm, laptop, etc)
+    HOST_PATHS = {
+        :windows => {
+        },
+        :linux => {
+            :yum_cache  => "#{Util::app_dir_expanded}/cache/yum",
+        }
+    }
+
+    # convenience lookup for container testcase dir since its used all over the
+    # place
+    def self.test_dir
+      CONTAINER_PATHS[Util.host_platform][:testcase]
     end
 
+    # Map the testcase and any OS specific volumes we would always want, eg
+    # yum cache, random crap for systemd, etc
+    def self.supporting_volumes
+      pwd = Dir.pwd
+      platform = Util.host_platform
+      if Util.is_windows
+        # normalise output for windows
+        pwd = pwd.gsub(/\//, '\\')
+      end
+      test_dir = CONTAINER_PATHS[platform][:testcase]
+      volumes = {test_dir => {pwd => 'rw'}}
+
+      if ! Util.is_windows
+        volumes['/sys/fs/cgroup']                      = {'/sys/fs/cgroup'                 => 'ro'}
+        volumes[CONTAINER_PATHS[platform][:yum_cache]] = {HOST_PATHS[platform][:yum_cache] => 'rw'}
+      end
+
+      volumes
+    end
+
+
     def self.exec(container, cmd)
-      container.exec(wrap_cmd(cmd), tty: true)
+      status = 0
+      res = []
+
+      res[OUT]=[]
+      res[ERR]=[]
+      res[STATUS]=0
+      res[REAL_CMD]=[]
+
+      Array(cmd).each do |c|
+        real_c = Util.wrap_cmd(c)
+        res[REAL_CMD] << real_c
+        Escort::Logger.output.puts "Executing: #{real_c}"
+        _res = container.exec(real_c, tty: true)
+
+        if real_c[2] =~ /robocopy/
+          # robocopy exit codes break the status check we do later on - we have
+          # to manually 'fix' them here
+          if _res[STATUS] < 4
+            _res[STATUS] = 0
+          end
+        end
+        res[STATUS] += _res[STATUS]
+        res[OUT]    += _res[OUT]
+        res[ERR]    += _res[ERR]
+
+        # non zero status from something thats not puppet apply is probably an error
+        if _res[STATUS] != 0 && !(c[2] =~ /pupet apply/)
+          Escort::Logger.output.puts "non-zero exit status: #{_res[STATUS]} from #{real_c}: #{_res[OUT]} #{_res[ERR]}"
+        end
+      end
+
+      res
     end
 
     # detect the image to use based on metadata.json
@@ -50,7 +128,7 @@ module PDQTest
             when "ubuntu"
               supported_images << IMAGES[:UBUNTU]
             when "windows"
-              Escort::Logger.output.puts "Windows acceptance testing not supported yet... any ideas?"
+              supported_images << IMAGES[:WINDOWS]
             else
               supported_images << IMAGES[:DEFAULT]
           end
@@ -60,10 +138,15 @@ module PDQTest
       supported_images.uniq
     end
 
-    def self.new_container(test_dir, image_name, privileged)
-      pwd = Dir.pwd
-      hiera_yaml_host = File.join(pwd, HIERA_YAML_HOST)
-      hiera_dir = File.join(pwd, HIERA_DIR)
+
+    def self.new_container(image_name, privileged)
+
+      if Util.is_windows
+        ::Docker.url = "tcp://127.0.0.1:2375"
+        # nasty hack for https://github.com/swipely/docker-api/issues/441
+        ::Docker.send(:remove_const, 'API_VERSION')
+        ::Docker.const_set('API_VERSION', '1.24')
+      end
 
       # security options seem required on OSX to allow SYS_ADMIN capability to
       # work - without this container starts fine with no errors but the CAP is
@@ -76,47 +159,56 @@ module PDQTest
           []
         end
 
-      if ! Dir.exists?(YUM_CACHE_HOST)
-        FileUtils.mkdir_p(YUM_CACHE_HOST)
+      if ! Util.is_windows
+        if ! Dir.exists?(HOST_PATHS[Util.host_platform][:yum_cache])
+          FileUtils.mkdir_p(YUM_CACHE_HOST)
+        end
       end
 
-      # hiera.yaml *must* exist on the host or we will get errors from Docker
-      if ! File.exists?(hiera_yaml_host)
-        File.write(hiera_yaml_host, '# hiera configuration for testing')
+      #
+      #  volumes (container -> host)
+      #
+      volumes = supporting_volumes
+
+      #
+      # binds (host -> container)
+      #
+      binds = Util.volumes2binds(volumes)
+
+      #
+      # hostconfig->tmpfs (linux)
+      #
+      if Util.is_windows
+        start_body = {}
+        if privileged
+          Escort::Logger.error.error "--privileged has no effect on windows"
+        end
+      else
+        start_body = {
+            'HostConfig' => {
+                'Tmpfs': {
+                    '/run'      => '',
+                    '/run/lock' => '',
+                },
+                CapAdd: [ 'SYS_ADMIN'],
+                Privileged: privileged,
+            }
+        }
       end
+
+      #
+      # container
+      #
+
       container = ::Docker::Container.create(
         'Image'   => image_name,
-        'Volumes' => {
-          test_dir              => {pwd               => 'rw'},
-          HIERA_YAML_CONTAINER  => {hiera_yaml_host   => 'rw'},
-          HIERA_DIR             => {hiera_dir         => 'rw'},
-          '/sys/fs/cgroup'      => {'/sys/fs/cgroup'  => 'ro'},
-          YUM_CACHE_CONTAINER   => {YUM_CACHE_HOST    => 'rw'},
-        },
+        'Volumes' => volumes,
         'HostConfig' => {
           "SecurityOpt" => security_opt,
-          "Binds": [
-            "/sys/fs/cgroup:/sys/fs/cgroup:ro",
-            "#{pwd}:#{test_dir}:rw",
-            "#{hiera_yaml_host}:#{HIERA_YAML_CONTAINER}:rw",
-            "#{hiera_dir}:#{HIERA_DIR}:rw",
-            "#{YUM_CACHE_HOST}:#{YUM_CACHE_CONTAINER}:rw",
-          ],
+          "Binds": binds,
         },
       )
-      container.start(
-        {
-          #'Binds' => [ pwd +':'+ test_dir,],
-          'HostConfig' => {
-            'Tmpfs': {
-              '/run'      => '',
-              '/run/lock' => '',
-            },
-            CapAdd: [ 'SYS_ADMIN'],
-            Privileged: privileged,
-          },
-        }
-      )
+      container.start(start_body)
 
       container
     end
