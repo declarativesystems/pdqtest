@@ -11,13 +11,11 @@ end
 require 'pdqtest'
 require 'pdqtest/emoji'
 require 'pdqtest/instance'
-require 'pdqtest/rspec'
 require 'pdqtest/util'
 require 'pdqtest/skeleton'
-require 'pdqtest/lint'
-require 'pdqtest/syntax'
 require 'pdqtest/core'
 require 'pdqtest/upgrade'
+require 'pdqtest/pdk'
 require 'escort'
 
 # display help if nothing specified
@@ -78,20 +76,21 @@ Escort::App.create do |app|
       PDQTest::Instance.set_docker_image(options[:global][:options][:image_name])
 
       PDQTest::Core.run([
-        lambda {PDQTest::Syntax.puppet},
-        lambda {PDQTest::Lint.puppet},
-        lambda {PDQTest::Rspec.run},
+        lambda {PDQTest::Pdk.run("validate metadata,puppet")},
+        lambda {PDQTest::Pdk.run("test unit")},
         lambda {PDQTest::Instance.run},
+        lambda {system("bundle exec puppet strings generate --format=markdown")},
+        lambda {PDQTest::Pdk.run("build --force")},
       ])
     end
   end
 
   app.command :rspec do |command|
     command.summary "RSpec"
-    command.description "Run the RSpec tests"
+    command.description "Run the RSpec tests (`pdk test unit` with emojis)"
     command.action do |options, arguments|
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
-      PDQTest::Core.run(lambda {PDQTest::Rspec.run})
+      PDQTest::Core.run(lambda {PDQTest::Pdk.run("test unit")})
     end
   end
 
@@ -127,15 +126,6 @@ Escort::App.create do |app|
     end
   end
 
-  app.command :generate_rspec do |command|
-    command.summary "Generate RSpec"
-    command.description "For each class in the module, generate basic RSpec tests"
-    command.action do |options, arguments|
-      PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
-      PDQTest::Rspec.gen_specs
-    end
-  end
-
   app.command :generate_acceptance do |command|
     command.summary "Generate Acceptance test"
     command.description "Create a testcase in /examples and the corresponding files for acceptance testing"
@@ -167,20 +157,10 @@ Escort::App.create do |app|
 
   app.command :syntax do |command|
     command.summary "Syntax"
-    command.description "Check for syntax errors"
+    command.description "Check for syntax errors (`pdk validate metadata,puppet` with emojis)"
     command.action do |options, arguments|
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
-      PDQTest::Core.run(lambda {PDQTest::Syntax.puppet})
-    end
-  end
-
-  app.command :lint do |command|
-    command.summary "Lint"
-    command.description "Check for lint errors"
-
-    command.action do |options, arguments|
-      PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
-      PDQTest::Core.run(lambda {PDQTest::Lint.puppet})
+      lambda {PDQTest::Pdk.run("validate metadata,puppet")}
     end
   end
 

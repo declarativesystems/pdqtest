@@ -5,4 +5,4 @@ services:
 rvm:
   - 2.3.3
 before_install: gem install bundler
-script: "bundle exec pdqtest setup && bundle exec rake spec"
+#script: "bundle exec pdqtest setup && bundle exec rake spec"

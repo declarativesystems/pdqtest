@@ -10,14 +10,12 @@ module PDQTest
     FIXTURES        = '.fixtures.yml'
     SPEC_DIR        = 'spec'
     ACCEPTANCE_DIR  = File.join(SPEC_DIR, 'acceptance')
-    CLASSES_DIR     = File.join(SPEC_DIR, 'classes')
     SKELETON_DIR    = 'skeleton'
     EXAMPLES_DIR    = 'examples'
     GEMFILE         = 'Gemfile'
     HIERA_DIR       =  File.join(SPEC_DIR, 'fixtures', 'hieradata')
     HIERA_YAML      = 'hiera.yaml'
     HIERA_TEST      = 'test.yaml'
-
 
     def self.should_replace_file(target, skeleton)
       target_hash   = Digest::SHA256.file target
@@ -26,11 +24,16 @@ module PDQTest
       target_hash != skeleton_hash
     end
 
+    def self.install_skeletons
+      FileUtils.cp_r(Util.resource_path(File.join(SKELETON_DIR) + "/."), ".")
+    end
+
+
     def self.install_skeleton(target_file, skeleton, replace=true)
-      skeleton_file = Util::resource_path(File.join(SKELETON_DIR, skeleton))
+      skeleton_file = Util.resource_path(File.join(SKELETON_DIR, skeleton))
       install = false
       if File.exists?(target_file)
-        if replace and should_replace_file(target_file, skeleton_file)
+        if replace && should_replace_file(target_file, skeleton_file)
           install = true
         end
       else
@@ -58,48 +61,37 @@ module PDQTest
       Upgrade.upgrade()
     end
 
-    def self.init
-
-      # move .fixtures.yml out of the way
-      if File.exists?(FIXTURES)
-        File.delete(FIXTURES)
-      end
-
-      # make directory structure for testcases
+    def self.directory_structure
       FileUtils.mkdir_p(ACCEPTANCE_DIR)
-      FileUtils.mkdir_p(CLASSES_DIR)
       FileUtils.mkdir_p(EXAMPLES_DIR)
       FileUtils.mkdir_p(HIERA_DIR)
-
-
-      # skeleton files if required
-      install_skeleton('Rakefile', 'Rakefile')
-      install_skeleton(File.join('spec', 'spec_helper.rb'), 'spec_helper.rb')
-      install_skeleton('.gitignore', 'dot_gitignore')
-      install_skeleton('.rspec', 'dot_rspec')
-      install_skeleton(File.join(SPEC_DIR, 'fixtures', HIERA_YAML), HIERA_YAML)
-      install_skeleton(File.join(HIERA_DIR, HIERA_TEST), HIERA_TEST)
-
-      install_acceptance()
-      install_gemfile()
-      install_integrations()
-
-      # Make sure there is a Gemfile and we are in it
     end
 
-    def self.install_integrations()
+    def self.init
+      directory_structure
+
+      install_skeletons
+      install_acceptance
+      install_gemfile
+    end
+
+    # on upgrade, do a more limited skeleton copy - just our own integration
+    # points
+    def self.upgrade
       install_skeleton('Makefile', 'Makefile')
       install_skeleton('bitbucket-pipelines.yml', 'bitbucket-pipelines.yml')
-      install_skeleton('.travis.yml', 'dot_travis.yml')
+      install_skeleton('.travis.yml', '.travis.yml')
     end
 
     def self.install_acceptance(example_file ="init.pp")
+      directory_structure
+
       example_name = File.basename(example_file).gsub(/\.pp$/, '')
       install_template("#{EXAMPLES_DIR}/#{File.basename(example_file)}",'examples_init.pp.erb', {})
 
-      install_skeleton(File.join('spec', 'acceptance', "#{example_name}.bats"), 'init.bats', false)
-      install_skeleton(File.join('spec', 'acceptance', "#{example_name}__before.bats"), 'init__before.bats', false)
-      install_skeleton(File.join('spec', 'acceptance', "#{example_name}__setup.sh"), 'init__setup.sh', false)
+      install_skeleton(File.join('spec', 'acceptance', "#{example_name}.bats"), '../acceptance/init.bats', false)
+      install_skeleton(File.join('spec', 'acceptance', "#{example_name}__before.bats"), '../acceptance/init__before.bats', false)
+      install_skeleton(File.join('spec', 'acceptance', "#{example_name}__setup.sh"), '../acceptance/init__setup.sh', false)
     end
 
     # Scan the examples directory and create a set of acceptance tests. If a

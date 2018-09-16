@@ -1,7 +1,5 @@
 require "spec_helper"
 require "pdqtest/core"
-require "pdqtest/lint"
-require "pdqtest/syntax"
 
 describe PDQTest::Core do
   module FunctionFixtures

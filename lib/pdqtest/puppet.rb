@@ -73,9 +73,10 @@ module PDQTest
     EXAMPLES_DIR      = 'examples'
     MANIFESTS_DIR     = 'manifests'
     CLASS_RE          = /^class /
-    FIXTURES          = 'fixtures.yml'
+    FIXTURES          = '.fixtures.yml'
     TMP_PUPPETFILE    = '.Puppetfile.pdqtest'
     METADATA          = 'metadata.json'
+    PDK_VERSION       = "1.7.0"
 
     #
     # state
@@ -124,6 +125,12 @@ module PDQTest
       JSON.parse(file)
     end
 
+    def self.save_module_metadata(metadata)
+      File.open(Util.joinp(Dir.pwd, METADATA),"w") do |f|
+        f.write(JSON.pretty_generate(metadata))
+      end
+    end
+
     def self.module_name
       module_metadata['name'].split(/[\/-]/)[1]
     end
@@ -132,6 +139,46 @@ module PDQTest
       module_metadata['operatingsystem_support'] || []
     end
 
+    def self.enable_pdk
+      metadata = module_metadata
+      metadata["pdk-version"] = PDK_VERSION
+      save_module_metadata(metadata)
+    end
+
+    # Regenerate .fixtures.yml from metadata
+    # https://github.com/puppetlabs/puppetlabs_spec_helper#using-fixtures
+    # The format looks like this:
+    #
+    # ```
+    #   fixtures:
+    #     forge_modules:
+    #       stdlib:
+    #         repo: "puppetlabs/stdlib"
+    #         ref: "2.6.0"
+    #
+    # Note that ref doesn't accept a range like metadata.json does, but then
+    # r10k doesn't follow dependencies anyway so may as well just code a static
+    # known good working version in it and not worry ---> use a known good
+    # version for testing, not a range `metadata.json`
+    def self.fixtures_yml
+      fixtures = {
+          "fixtures" => {
+              "forge_modules" => {}
+          }
+      }
+      module_metadata["dependencies"].each do |dep|
+          forge_name  = dep["name"]
+          puppet_name = dep["name"].split("-")[1]
+          ref         = dep["version_requirement"]
+
+          fixtures["fixtures"]["forge_modules"][puppet_name] = {
+            "repo" => forge_name,
+            "ref"  => ref,
+          }
+      end
+
+      File.open(FIXTURES, 'w') { |f| YAML.dump(fixtures, f) }
+    end
 
     def self.class2filename(c)
       if c == module_name
@@ -422,6 +469,9 @@ module PDQTest
 
       Dir.entries(sfm).select { |entry|
         File.directory?(Util.joinp(sfm, entry)) && !(entry =='.' || entry == '..')
+      }.reject { |entry|
+        # do not copy the symlink of ourself (pdk creates it)
+        entry == module_name
       }.each { |entry|
         commands << Util.mk_link(
             Util.joinp(cp(:module_dir), entry),

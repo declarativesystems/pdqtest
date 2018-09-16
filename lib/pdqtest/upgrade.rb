@@ -15,10 +15,6 @@ module PDQTest
         'line'  => "gem 'puppet-strings', :git => 'https://github.com/puppetlabs/puppet-strings'",
         'added' => false,
       },
-      'puppet'          => {
-        'line'  => "gem 'puppet', '#{PDQTest::PUPPET_VERSION}'",
-        'added' => false,
-      }
     }
 
 
@@ -66,8 +62,8 @@ module PDQTest
         t_file.close
         FileUtils.mv(t_file.path, GEMFILE)
 
-        # miscellanious file updates
-        PDQTest::Skeleton::install_integrations()
+        PDQTest::Skeleton.upgrade
+        PDQTest::Puppet.enable_pdk
       else
         Escort::Logger.error.error "Gemfile not found in #{Dir.pwd}"
       end
