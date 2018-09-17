@@ -16,10 +16,11 @@ ENV PATH="C:\Program Files\Puppet Labs\Puppet\puppet\bin;C:\Program Files\Puppet
 # install chocolatey
 RUN @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
 
-# install a text editor 
-RUN choco install vim /y
+RUN choco install vim git /y
+RUN git clone https://github.com/declarativesystems/pats c:\pats
+RUN copy c:\pats\pats.ps1 c:\windows
 
-ADD pats.ps1 c:\\windows\\pats.ps1
 
-# we dont have systemd/sysvinit on windows so just use notepad to keep the container open
+# we dont have systemd/sysvinit on windows so just use notepad to keep the
+# container open (nasty hack)
 ENTRYPOINT notepad

@@ -4,6 +4,7 @@ require 'pdqtest/puppet'
 require 'pdqtest/version'
 require 'pdqtest/util'
 require 'pdqtest/upgrade'
+require 'erb'
 
 module PDQTest
   module Skeleton
@@ -79,6 +80,7 @@ module PDQTest
     # points
     def self.upgrade
       install_skeleton('Makefile', 'Makefile')
+      install_skeleton('make.ps1', 'make.ps1')
       install_skeleton('bitbucket-pipelines.yml', 'bitbucket-pipelines.yml')
       install_skeleton('.travis.yml', '.travis.yml')
     end

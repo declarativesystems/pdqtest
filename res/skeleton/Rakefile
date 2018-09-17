@@ -41,18 +41,18 @@ if Bundler.rubygems.find_name('github_changelog_generator').any?
     config.issues = false
     config.merge_prefix = "### UNCATEGORIZED PRS; GO LABEL THEM"
     config.configure_sections = {
-        "Changed" => {
-            "prefix" => "### Changed",
-            "labels" => ["backwards-incompatible"],
-        },
-        "Added" => {
-            "prefix" => "### Added",
-            "labels" => ["feature", "enhancement"],
-        },
-        "Fixed" => {
-            "prefix" => "### Fixed",
-            "labels" => ["bugfix"],
-        },
+      "Changed" => {
+        "prefix" => "### Changed",
+        "labels" => ["backwards-incompatible"],
+      },
+      "Added" => {
+        "prefix" => "### Added",
+        "labels" => ["feature", "enhancement"],
+      },
+      "Fixed" => {
+        "prefix" => "### Fixed",
+        "labels" => ["bugfix"],
+      },
     }
   end
 else
@@ -72,3 +72,4 @@ Gemfile:
 EOM
   end
 end
+

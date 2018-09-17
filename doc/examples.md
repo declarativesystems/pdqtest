@@ -7,4 +7,5 @@ Here are some projects that use PDQTest:
 * https://github.com/declarativesystems/ssh
 * https://github.com/declarativesystems/puppet-chown_r/tree/master/spec/acceptance
 
-Do you use PDQTest on your own projects?  If you have a good public example let me know!
+Do you use PDQTest on your own projects?  If you have a good public example let
+me know!

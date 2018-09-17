@@ -35,7 +35,7 @@ module PDQTest
       end
 
       if is_windows
-        wrapped = [shell, "-command", "#{cmd} ; exit $lastexitcode"]
+        wrapped = [shell, "-command", "#{cmd} ; exit $LastExitCode"]
       else
         wrapped = [shell, "-c", "#{ENV} #{cmd}"]
       end
@@ -60,9 +60,11 @@ module PDQTest
     # @param link the symlink file
     # @param target the real file
     def self.mk_link(link, target)
-      Escort::Logger.output.puts "symlink: #{link} <==> #{target}"
+      $logger.debug "symlink: #{link} <==> #{target}"
       if Util.is_windows
-        Escort::Logger.output.puts "🤮 symlinks not supported by ruby/puppet on windows doing COPY instead"
+        Emoji.emoji_message(
+            :shame,
+            "symlinks not supported by ruby/puppet on windows doing COPY instead")
         # broken until ruby/puppet fixed cmd = "#{rm(link)} ; cmd /C mklink /D '#{link}' '#{target}'"
 
         # for regular files use `copy-time`, for trees use `robocopy` - since
@@ -74,7 +76,7 @@ module PDQTest
           cmd = "robocopy '#{target}' '#{link}' /NFL /NDL /NJH /NJS /nc /ns /np /MIR /XD .git fixtures"
         end
       else
-        cmd = "#{rm(link)} && ln -s #{target} #{link}"
+        cmd = "#{rm(link)} && mkdir -p #{File.dirname(link)} && ln -s #{target} #{link}"
       end
 
       cmd

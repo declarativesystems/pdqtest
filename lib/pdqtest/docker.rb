@@ -10,7 +10,7 @@ module PDQTest
     IMAGES = {
      :DEFAULT => 'declarativesystems/pdqtest-centos:2018-09-15-0',
      :UBUNTU  => 'declarativesystems/pdqtest-ubuntu:2018-09-15-0',
-     :WINDOWS => 'declarativesystems/pdqtest-windows-0',
+     :WINDOWS => 'declarativesystems/pdqtest-windows:2018-09-18-0',
     }
 
     # volume paths are different for windows containers
@@ -80,7 +80,7 @@ module PDQTest
       Array(cmd).each do |c|
         real_c = Util.wrap_cmd(c)
         res[REAL_CMD] << real_c
-        Escort::Logger.output.puts "Executing: #{real_c}"
+        $logger.debug "Executing: #{real_c}"
         _res = container.exec(real_c, tty: true)
 
         if real_c[2] =~ /robocopy/
@@ -96,7 +96,7 @@ module PDQTest
 
         # non zero status from something thats not puppet apply is probably an error
         if _res[STATUS] != 0 && !(c[2] =~ /pupet apply/)
-          Escort::Logger.output.puts "non-zero exit status: #{_res[STATUS]} from #{real_c}: #{_res[OUT]} #{_res[ERR]}"
+          $logger.warn "non-zero exit status: #{_res[STATUS]} from #{real_c}: #{_res[OUT]} #{_res[ERR]}"
         end
       end
 
@@ -181,7 +181,7 @@ module PDQTest
       if Util.is_windows
         start_body = {}
         if privileged
-          Escort::Logger.error.error "--privileged has no effect on windows"
+          $logger.error "--privileged has no effect on windows"
         end
       else
         start_body = {
@@ -241,7 +241,7 @@ module PDQTest
       exec_out(res).each { |l|
         # Output comes back as an array and needs to be iterated or we lose our
         # ansi formatting
-        Escort::Logger.output << l
+        $logger.info l.chomp
       }
     end
 
@@ -254,7 +254,7 @@ module PDQTest
       exec_err(res).each { |l|
         # Output comes back as an array and needs to be iterated or we lose our
         # ansi formatting
-        Escort::Logger.error << l
+        $logger.error l.chomp
       }
     end
 

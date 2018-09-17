@@ -23,3 +23,4 @@ https://github.com/declarativesystems/pdqtest.
 * Run specific test file `bundle exec rspec ./spec/SPEC/FILE/TO/RUN.rb`
 * Run specific test case `bundle exec rspec ./spec/SPEC/FILE/TO/RUN.rb:99` 
   (where 99 is the line number of the test)
+* If your using RubyMine, you can just right-click -> debug

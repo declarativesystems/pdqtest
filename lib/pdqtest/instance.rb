@@ -49,29 +49,29 @@ module PDQTest
       @@active_container = nil
 
       if PDQTest::Puppet::find_examples().empty?
-        Escort::Logger.output.puts "No acceptance tests found, annotate examples with #{PDQTest::Puppet.setting(:magic_marker)} to make some"
+        $logger.info "No acceptance tests found, annotate examples with #{PDQTest::Puppet.setting(:magic_marker)} to make some"
       else
         # process each supported OS
         test_platforms = @@image_name || Docker::acceptance_test_images
-        Escort::Logger.output.puts "Acceptance test on #{test_platforms}..."
+        $logger.info "Acceptance test on #{test_platforms}..."
         test_platforms.each { |image_name|
-          Escort::Logger.output.puts "--- start test with #{image_name} ---"
+          $logger.info "--- start test with #{image_name} ---"
           @@active_container = PDQTest::Docker::new_container(image_name, @@privileged)
-          Escort::Logger.output.puts "alive, running tests"
+          $logger.info "alive, running tests"
           status &= PDQTest::Puppet.run(@@active_container, example)
 
           if @@keep_container
-            Escort::Logger.output.puts "finished build, container #{@@active_container.id} left on system"
-            Escort::Logger.output.puts "  docker exec -ti #{@@active_container.id} #{Util.shell} "
+            $logger.info "finished build, container #{@@active_container.id} left on system"
+            $logger.info "  docker exec -ti #{@@active_container.id} #{Util.shell} "
           else
             PDQTest::Docker.cleanup_container(@@active_container)
             @@active_container = nil
           end
 
-          Escort::Logger.output.puts "--- end test with #{image_name} (status: #{status})---"
+          $logger.info "--- end test with #{image_name} (status: #{status})---"
         }
       end
-      Escort::Logger.output.puts "overall acceptance test status=#{status}"
+      $logger.info "overall acceptance test status=#{status}"
       status
     end
 
@@ -79,7 +79,7 @@ module PDQTest
       # pick the first test platform to test on as our shell - want to do a specific one
       # just list it with --image-name
       image_name = (@@image_name || Docker::acceptance_test_images).first
-      Escort::Logger.output.puts "Opening a shell in #{image_name}"
+      $logger.info "Opening a shell in #{image_name}"
       @@active_container = PDQTest::Docker::new_container(image_name, @@privileged)
 
       PDQTest::Docker.exec(@@active_container, PDQTest::Puppet.setup)
@@ -96,8 +96,8 @@ module PDQTest
       # }
       system("docker exec -ti #{@@active_container.id} #{Util.shell}")
       if @@keep_container
-        Escort::Logger.output.puts "finished build, container #{@@active_container.id} left on system"
-        Escort::Logger.output.puts "  docker exec -ti #{@@active_container.id} #{Util.shell} "
+        $logger.info "finished build, container #{@@active_container.id} left on system"
+        $logger.info "  docker exec -ti #{@@active_container.id} #{Util.shell} "
       else
           PDQTest::Docker.cleanup_container(@@active_container)
           @@active_container = nil

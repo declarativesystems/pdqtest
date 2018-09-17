@@ -19,7 +19,12 @@
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 
 require 'pdqtest'
+require 'pdqtest/logger'
 
+PDQTest::Logger.logger
+$logger.level = :debug
+
+GEMFILE = "Gemfile.project"
 BLANK_MODULE_TESTDIR    = File.join('spec', 'fixtures', 'blank_module')
 FAILING_TESTS_TESTDIR   = File.join('spec', 'fixtures', 'failing_tests')
 PASSING_TESTS_TESTDIR   = File.join('spec', 'fixtures', 'passing_tests')

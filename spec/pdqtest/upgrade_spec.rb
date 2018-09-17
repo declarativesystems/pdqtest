@@ -10,12 +10,12 @@ describe PDQTest::Upgrade do
       Dir.chdir(tmpdir) do
         FileUtils.cp_r(Dir.glob("#{config}/*"), '.')
         PDQTest::Upgrade.upgrade
-        expect(File.readlines('Gemfile').grep(/pdqtest/).first).to match PDQTest::VERSION
-        expect(File.readlines('Gemfile').grep(/puppet-strings/).first).to match /github.com/
+        expect(File.readlines(GEMFILE).grep(/pdqtest/).first).to match PDQTest::VERSION
+        expect(File.readlines(GEMFILE).grep(/puppet-strings/).first).to match /github.com/
 
         # make sure we dont mess up things we're not supposed to touch
-        expect(File.readlines('Gemfile').grep(/gem 'no_touch',/).any?).to be true
-        expect(File.readlines('Gemfile').grep(/:path => "\/foo\/bar"/).any?).to be true
+        expect(File.readlines(GEMFILE).grep(/gem 'no_touch',/).any?).to be true
+        expect(File.readlines(GEMFILE).grep(/:path => "\/foo\/bar"/).any?).to be true
 
       end
     end

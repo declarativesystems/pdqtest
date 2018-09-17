@@ -8,7 +8,7 @@ module PDQTest
       functions = Array(functions)
       functions.each { |f|
         if ! f.call
-          Escort::Logger.error.error "Error encountered running #{f.to_s}"
+          $logger.error "Error encountered running #{f.to_s}"
 
           # epic fail, exit program
           PDQTest::Emoji.final_status(false)

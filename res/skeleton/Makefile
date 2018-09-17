@@ -1,6 +1,9 @@
 all:
 	bundle exec pdqtest all
 
+fast:
+	bundle exec pdqtest fast
+
 shell:
 	bundle exec pdqtest --keep-container acceptance
 

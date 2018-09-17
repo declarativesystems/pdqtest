@@ -17,9 +17,14 @@ require 'pdqtest/core'
 require 'pdqtest/upgrade'
 require 'pdqtest/pdk'
 require 'escort'
+require 'pdqtest/logger'
+require 'pdqtest/fastcheck'
 
 # display help if nothing specified
 ARGV.push('-h') if ARGV.empty?
+
+# Setup our own hacky logger
+
 
 Escort::App.create do |app|
   app.version PDQTest::VERSION
@@ -62,12 +67,21 @@ Escort::App.create do |app|
       :default  => false,
     )
 
+    opts.opt(:debug,
+      'Extra debug messages (also needs --verbosity debug for stack traces)',
+      :long     => '--debug',
+      :type     => :boolean,
+      :default  => false,
+    )
   end
 
   app.command :all do |command|
     command.summary "All"
     command.description "Run all tests"
     command.action do |options, arguments|
+      PDQTest::Logger.logger
+      $logger.level = :debug if options[:global][:options][:debug]
+
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
       PDQTest::Puppet.skip_second_run(options[:global][:options][:skip_idempotency])
 
@@ -76,7 +90,8 @@ Escort::App.create do |app|
       PDQTest::Instance.set_docker_image(options[:global][:options][:image_name])
 
       PDQTest::Core.run([
-        lambda {PDQTest::Pdk.run("validate metadata,puppet")},
+        lambda {PDQTest::Pdk.run("validate 'metadata,puppet'")},
+        lambda {PDQTest::Puppet.install_modules},
         lambda {PDQTest::Pdk.run("test unit")},
         lambda {PDQTest::Instance.run},
         lambda {system("bundle exec puppet strings generate --format=markdown")},
@@ -85,10 +100,36 @@ Escort::App.create do |app|
     end
   end
 
+  app.command :fast do |command|
+    command.summary "Fast"
+    command.description "Run basic lint/syntax and acceptance tests (skips rspec)"
+    command.action do |options, arguments|
+      PDQTest::Logger.logger
+      $logger.level = :debug if options[:global][:options][:debug]
+
+      PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
+      PDQTest::Puppet.skip_second_run(options[:global][:options][:skip_idempotency])
+
+      PDQTest::Instance.set_privileged(options[:global][:options][:privileged])
+      PDQTest::Instance.set_keep_container(options[:global][:options][:keep_container])
+      PDQTest::Instance.set_docker_image(options[:global][:options][:image_name])
+
+      PDQTest::Core.run([
+        lambda {PDQTest::Fastcheck.run},
+        lambda {PDQTest::Puppet.install_modules},
+        lambda {PDQTest::Instance.run},
+        lambda {system("bundle exec puppet strings generate --format=markdown")},
+      ])
+    end
+  end
+
   app.command :rspec do |command|
     command.summary "RSpec"
     command.description "Run the RSpec tests (`pdk test unit` with emojis)"
     command.action do |options, arguments|
+      PDQTest::Logger.logger
+      $logger.level = :debug if options[:global][:options][:debug]
+
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
       PDQTest::Core.run(lambda {PDQTest::Pdk.run("test unit")})
     end
@@ -107,6 +148,9 @@ Escort::App.create do |app|
       )
     end
     command.action do |options, arguments|
+      PDQTest::Logger.logger
+      $logger.level = :debug if options[:global][:options][:debug]
+
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
       PDQTest::Puppet.skip_second_run(options[:global][:options][:skip_idempotency])
       PDQTest::Instance.set_privileged(options[:global][:options][:privileged])
@@ -121,6 +165,9 @@ Escort::App.create do |app|
     command.summary "Initialise testing"
     command.description "Install skeleton testing configuration into this module"
     command.action do |options, arguments|
+      PDQTest::Logger.logger
+      $logger.level = :debug if options[:global][:options][:debug]
+
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
       PDQTest::Skeleton.init
     end
@@ -138,6 +185,9 @@ Escort::App.create do |app|
       )
     end
     command.action do |options, arguments|
+      PDQTest::Logger.logger
+      $logger.level = :debug if options[:global][:options][:debug]
+
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
       example = options[:global][:commands][:generate_acceptance][:options][:example]
 
@@ -150,6 +200,9 @@ Escort::App.create do |app|
     command.summary "Shell"
     command.description "Open a shell inside a docker container identical to the test environment before anything has run"
     command.action do |options, arguments|
+      PDQTest::Logger.logger
+      $logger.level = :debug if options[:global][:options][:debug]
+
       PDQTest::Instance.set_docker_image(options[:global][:options][:image_name])
       PDQTest::Instance.shell
     end
@@ -159,8 +212,11 @@ Escort::App.create do |app|
     command.summary "Syntax"
     command.description "Check for syntax errors (`pdk validate metadata,puppet` with emojis)"
     command.action do |options, arguments|
+      PDQTest::Logger.logger
+      $logger.level = :debug if options[:global][:options][:debug]
+
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
-      lambda {PDQTest::Pdk.run("validate metadata,puppet")}
+      PDQTest::Core.run(lambda {PDQTest::Pdk.run("validate 'metadata,puppet'")})
     end
   end
 
@@ -169,6 +225,9 @@ Escort::App.create do |app|
     command.description "Install the docker container required for testing"
 
     command.action do |options, arguments|
+      PDQTest::Logger.logger
+      $logger.level = :debug if options[:global][:options][:debug]
+
       PDQTest::Core.run(lambda {
         PDQTest::Docker::IMAGES.each { |key, image|
           system("docker pull #{image}")
@@ -181,6 +240,9 @@ Escort::App.create do |app|
     command.summary "Info"
     command.description "Print info about this module"
     command.action do |options, arguments|
+      PDQTest::Logger.logger
+      $logger.level = :debug if options[:global][:options][:debug]
+
       PDQTest::Puppet.info
     end
   end
@@ -190,6 +252,9 @@ Escort::App.create do |app|
     command.summary "Upgrade"
     command.description "Upgrade the current module to use this version of PDQTest"
     command.action do |options, arguments|
+      PDQTest::Logger.logger
+      $logger.level = :debug if options[:global][:options][:debug]
+
       PDQTest::Upgrade.upgrade
     end
   end
