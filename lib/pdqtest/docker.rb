@@ -161,7 +161,7 @@ module PDQTest
 
       if ! Util.is_windows
         if ! Dir.exists?(HOST_PATHS[Util.host_platform][:yum_cache])
-          FileUtils.mkdir_p(YUM_CACHE_HOST)
+          FileUtils.mkdir_p(HOST_PATHS[Util.host_platform][:yum_cache])
         end
       end
 
