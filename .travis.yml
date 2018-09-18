@@ -5,7 +5,7 @@ services:
 rvm:
   - 2.3.3
 before_install: gem install bundler
-script: >
+script:
   - wget "https://pm.puppet.com/cgi-bin/pdk_download.cgi?arch=x86_64&dist=el&rel=7&ver=latest" -O pdk.rpm  yum install -y pdk.rpm
   - yum install -u pdk.rpm
   - bundle exec pdqtest setup && bundle exec rake spec
