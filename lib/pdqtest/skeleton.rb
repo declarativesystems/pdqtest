@@ -4,19 +4,42 @@ require 'pdqtest/puppet'
 require 'pdqtest/version'
 require 'pdqtest/util'
 require 'pdqtest/upgrade'
+require 'pdqtest/pdqtest1x'
+require 'pdqtest/pdk'
 require 'erb'
 
 module PDQTest
   module Skeleton
-    FIXTURES        = '.fixtures.yml'
-    SPEC_DIR        = 'spec'
-    ACCEPTANCE_DIR  = File.join(SPEC_DIR, 'acceptance')
-    SKELETON_DIR    = 'skeleton'
-    EXAMPLES_DIR    = 'examples'
-    GEMFILE         = 'Gemfile'
-    HIERA_DIR       =  File.join(SPEC_DIR, 'fixtures', 'hieradata')
-    HIERA_YAML      = 'hiera.yaml'
-    HIERA_TEST      = 'test.yaml'
+
+    TEMP_PDK_MODULE  = "x"
+    FIXTURES         = '.fixtures.yml'
+    SPEC_DIR         = 'spec'
+    ACCEPTANCE_DIR   = File.join(SPEC_DIR, 'acceptance')
+    SKELETON_DIR     = 'skeleton'
+    EXAMPLES_DIR     = 'examples'
+    HIERA_DIR        =  File.join(SPEC_DIR, 'fixtures', 'hieradata')
+    HIERA_YAML       = 'hiera.yaml'
+    HIERA_TEST       = 'test.yaml'
+    PDK_FILES        = [
+        "spec/spec_helper.rb",
+        "spec/default_facts.yml",
+        ".pdkignore",
+        "Gemfile",
+        "Rakefile",
+        ".gitignore",
+    ]
+
+    # PDK adds custom metadata fields which we can ONLY get by creating a new
+    # module. We already do this so stash the details here when we have them
+    @@pdk_metadata = {}
+
+    # Every time we `pdqtest upgrade`, update .sync.yml (merges)
+    SYNC_YML_CONTENT = {
+        ".travis.yml" => {
+            "unmanaged": true
+        }
+    }
+
 
     def self.should_replace_file(target, skeleton)
       target_hash   = Digest::SHA256.file target
@@ -55,7 +78,7 @@ module PDQTest
       end
     end
 
-    def self.install_gemfile
+    def self.install_gemfile_project
       install_skeleton(GEMFILE, GEMFILE)
 
       # upgrade the gemfile to *this* version of pdqtest + puppet-strings
@@ -71,9 +94,14 @@ module PDQTest
     def self.init
       directory_structure
 
+      install_pdk_skeletons
       install_skeletons
       install_acceptance
-      install_gemfile
+      Upgrade.upgrade()
+
+      # the very _last_ thing we do is enable PDK in metadata. Once this switch
+      # is set, we never touch the files in PDK_FILES again
+      PDQTest::Pdk.enable_pdk(@@pdk_metadata)
     end
 
     # on upgrade, do a more limited skeleton copy - just our own integration
@@ -83,6 +111,7 @@ module PDQTest
       install_skeleton('make.ps1', 'make.ps1')
       install_skeleton('bitbucket-pipelines.yml', 'bitbucket-pipelines.yml')
       install_skeleton('.travis.yml', '.travis.yml')
+      Pdk.amend_sync_yml(SYNC_YML_CONTENT)
     end
 
     def self.install_acceptance(example_file ="init.pp")
@@ -116,5 +145,59 @@ module PDQTest
         install_acceptance(e)
       }
     end
+
+
+    def self.install_pdk_skeletons
+
+      if ! PDQTest::Pdk.is_pdk_enabled
+        $logger.info "Doing one-time upgrade to PDK - Generating fresh set of files..."
+        project_dir = Dir.pwd
+        Dir.mktmpdir do |tmpdir|
+          status = false
+          Dir.chdir(tmpdir) do
+            status = PDQTest::Pdk.run("new module #{TEMP_PDK_MODULE} --skip-interview")
+          end
+          if status
+            # snag generated metadata now we are in the temporary module dir
+            @@pdk_metadata = PDQTest::Puppet.module_metadata
+
+            PDK_FILES.each do |pdk_file|
+              upstream_file = File.join(tmpdir, TEMP_PDK_MODULE, pdk_file)
+
+              # check if we are trying to install a file from PDQTest or have
+              # some random/customised file in place
+              if PDQTest1x.was_pdqtest_file(pdk_file)
+                if ! File.exists?(pdk_file) || PDQTest1x.is_pdqtest_file(pdk_file)
+                  # overwrite missing or PDQTest 1x files
+                  install = true
+                else
+                  raise(<<-END)
+                    Detected an unknown/customised file at
+                      #{pdk_file}
+                    Please see the PDQTest 1x->2x upgrade guide at
+                    https://github.com/declarativesystems/pdqtest/blob/master/doc/upgrading.md
+
+                    If your sure you don't want this file any more, move it out
+                    of the way and re-run the previous command
+                  END
+                end
+              else
+                install = true
+              end
+
+              if install
+                $logger.info("Detected PDQTest 1.x file at #{pdk_file} (will upgrade to PDK)")
+                FileUtils.cp(upstream_file, pdk_file)
+              end
+            end
+          else
+            raise("error running PDK - unable to init")
+          end
+        end
+      else
+        $logger.debug "PDK already enabled, no skeletons needed"
+      end
+    end
+
   end
 end

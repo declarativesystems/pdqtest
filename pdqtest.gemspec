@@ -35,4 +35,5 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "r10k", "2.6.4"
   spec.add_runtime_dependency "git_refresh", "0.1.1"
   spec.add_runtime_dependency "logging", "~> 2.2"
+  spec.add_runtime_dependency 'deep_merge', '~> 1.2'
 end

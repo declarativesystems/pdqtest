@@ -6,36 +6,42 @@ code being tested depends on.
 
 ### Public modules (PuppetForge)
 Dependencies on public forge modules must be specified in your module's 
-`metadata.json` file.
+`metadata.json` file. When tests are run, we will use this to generate a 
+temporary `Puppetfile` at `Puppetfile.pdqtest` which we will then install into
+`spec/fixtures/modules` using R10K.
+
+When RSpec tests are run using PDQtest a `.fixtures.yml` file will be generated
+for you based on the module metadata (with PDK standalone you must update this
+file manually). We will then execute `pdk test unit` on your behalf which will
+install any additional modules from git that can't be specified in 
+`metadata.json`.
+
+This means you get a complete set of modules in `/spec/fixtures/modules` by the
+time you come to run acceptance tests.
 
 ### Private modules (from git)
 If you need to download modules from git, then you must populate the `fixtures`
-section of `fixtures.yml`, eg:
+section of `.fixtures.yml`, eg:
 
 ```
-repositories:
-  corporatestuff:
-    repo: 'https://nonpublicgit.megacorp.com/corporatestuff.git'
-    ref: 'mybranch'
+fixtures:
+  repositories:
+    camera_shy:
+      repo: "git://git.megacorp.com/puppet/camera_shy"
+      ref: "2.6.0"
 ```
 
-
-## .fixtures.yml
-There is no need to maintain a `.fixtures.yml` file and the presence of this 
-file when using `pdqtest` is an error (note the leading period)
+It is an error to define the same module in both `metadata.json` and 
+`.fixtures.yml` and the results of doing this are undefined:
+* Always use `metadata.json` for public forge modules and we will update 
+  `.fixtures.yml` based on it
+* Modules from git should _only_ be defined in `.fixtures.yml`
 
 ## Notes:
-* The filename is for private modules is `fixtures.yml` NOT `.fixtures.yml`.  
-  The leading dot had to be removed to avoid `puppetlabs_spec_helper` also 
-  detecting the file and trying to use it.
 * The file format of `.fixtures.yml` and `fixtures.yml` for specifing git 
   repositories is identical
-* Only the repositories section of the file will be processed as we do not use
-  `puppetlabs_spec_helper` to do this for us.
-* We convert the dependencies from `metadata.json` to a temporary puppetfile 
-  store at `.Puppetfile.pdqtest` which is then installed using r10k
 * Previous versions of pdqtest configured the r10k cache via `.r10k.yaml` which
-  caused #44. To fix this, we now use the default r10k cache dir at 
-  `~/.r10k/cache` and don't write `.r10k.yaml` any more. You should remove any 
-  `.r10k.yaml` files from your project unless you need it for something 
-  specific.
+  caused [#44](https://github.com/declarativesystems/pdqtest/issues/44). To fix
+  this, we now use the default r10k cache dir at `~/.r10k/cache` and don't write
+  `.r10k.yaml` any more. You should remove any `.r10k.yaml` files from your 
+  project unless you need it for something specific.

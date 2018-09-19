@@ -25,11 +25,14 @@ PDQTest::Logger.logger
 $logger.level = :debug
 
 GEMFILE = "Gemfile.project"
-BLANK_MODULE_TESTDIR    = File.join('spec', 'fixtures', 'blank_module')
-FAILING_TESTS_TESTDIR   = File.join('spec', 'fixtures', 'failing_tests')
-PASSING_TESTS_TESTDIR   = File.join('spec', 'fixtures', 'passing_tests')
-REGULAR_MODULE_TESTDIR  = File.join('spec', 'fixtures', 'regular_module')
-GIT_FIXTURES_TESTDIR    = File.join('spec', 'fixtures', 'git_fixtures')
-UPGRADE_MODULE_TESTDIR  = File.join('spec', 'fixtures', 'upgrade_module')
-UBUNTU_MODULE_TESTDIR  = File.join('spec', 'fixtures', 'ubuntu_module')
-MULTIOS_MODULE_TESTDIR  = File.join('spec', 'fixtures', 'multios_module')
+BLANK_MODULE_TESTDIR              = File.join('spec', 'fixtures', 'blank_module')
+FAILING_TESTS_TESTDIR             = File.join('spec', 'fixtures', 'failing_tests')
+PASSING_TESTS_TESTDIR             = File.join('spec', 'fixtures', 'passing_tests')
+REGULAR_MODULE_TESTDIR            = File.join('spec', 'fixtures', 'regular_module')
+GIT_FIXTURES_TESTDIR              = File.join('spec', 'fixtures', 'git_fixtures')
+UPGRADE_MODULE_TESTDIR            = File.join('spec', 'fixtures', 'upgrade_module')
+UBUNTU_MODULE_TESTDIR             = File.join('spec', 'fixtures', 'ubuntu_module')
+MULTIOS_MODULE_TESTDIR            = File.join('spec', 'fixtures', 'multios_module')
+PDQTEST1X_MODULE_TESTDIR          = File.join('spec', 'fixtures', 'pdqtest1x_module')
+PDQTEST1X_CUSTOM_MODULE_TESTDIR   = File.join('spec', 'fixtures', 'pdqtest1x_custom_module')
+PDK_SNIFF_MODULE_TESTDIR          = File.join('spec', 'fixtures', 'pdk_sniff_module')

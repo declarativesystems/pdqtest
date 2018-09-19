@@ -23,6 +23,8 @@ module PDQTest
       t_file = File.open("#{GEMFILE}.tmp","w")
       updating_gem = false
 
+      # Step 1 - enable gem
+
       if ! File.exists?(GEMFILE)
         FileUtils.touch(GEMFILE)
       end
@@ -69,7 +71,6 @@ module PDQTest
       FileUtils.rm(t_file.path)
 
       PDQTest::Skeleton.upgrade
-      PDQTest::Puppet.enable_pdk
     end
 
   end

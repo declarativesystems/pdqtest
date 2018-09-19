@@ -77,7 +77,7 @@ module PDQTest
     FIXTURES          = '.fixtures.yml'
     TMP_PUPPETFILE    = '.Puppetfile.pdqtest'
     METADATA          = 'metadata.json'
-    PDK_VERSION       = "1.7.0"
+
 
     #
     # state
@@ -122,12 +122,16 @@ module PDQTest
     end
 
     def self.module_metadata
-      file = File.read(Util.joinp(Dir.pwd, METADATA))
-      JSON.parse(file)
+      if File.exist? METADATA
+        file = File.read(METADATA)
+        JSON.parse(file)
+      else
+        raise("Puppet metadata not found at #{METADATA} - not a valid puppet module")
+      end
     end
 
     def self.save_module_metadata(metadata)
-      File.open(Util.joinp(Dir.pwd, METADATA),"w") do |f|
+      File.open(METADATA,"w") do |f|
         f.write(JSON.pretty_generate(metadata))
       end
     end
@@ -140,13 +144,7 @@ module PDQTest
       module_metadata['operatingsystem_support'] || []
     end
 
-    def self.enable_pdk
-      metadata = module_metadata
-      if ! metadata.include?("pdk-version")
-        metadata["pdk-version"] = PDK_VERSION
-        save_module_metadata(metadata)
-      end
-    end
+
 
     # Regenerate .fixtures.yml from metadata
     # https://github.com/puppetlabs/puppetlabs_spec_helper#using-fixtures
@@ -178,6 +176,20 @@ module PDQTest
             "repo" => forge_name,
             "ref"  => ref,
           }
+      end
+
+      # now we have our list of fixtures from `metadata.json`, merge it with any
+      # exiting .fixtures.yml content to preserve any git fixtures that may have
+      # been added manually. Clobber/update any existing content that is NOT
+      # from `metadata.json` while preserving things that are from git. If we
+      # have ended up declaring different versions of the same module then its
+      # up to user's to resolve this by removing the dependency from either
+      # `metadata.json` or `.fixtures.yml`. You shouldn't be depending on git
+      # resources in `metadata.json` anyway so this shoudln't be an issue
+      if File.exist?(FIXTURES)
+        existing_fixtures = YAML.load_file(FIXTURES)
+        existing_fixtures.deep_merge(fixtures)
+        fixtures = existing_fixtures
       end
 
       File.open(FIXTURES, 'w') { |f| YAML.dump(fixtures, f) }

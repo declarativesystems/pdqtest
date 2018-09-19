@@ -2,18 +2,8 @@ require "spec_helper"
 require "pdqtest/skeleton"
 require "fileutils"
 require "pp"
-require 'fakefs/safe'
 
 describe PDQTest::Skeleton do
-
-  before do
-    # copy in the whole project folder to a location identical to the current directory
-    # so that the skeleton files can be loaded, since fakefs prevents access to
-    # the real ones
-    pwd = Dir.pwd
-    config = File.expand_path('.')
-    FakeFS::FileSystem.clone(config, pwd)
-  end
 
   it "creates testcase directory structure correctly and copies files" do
     testcase = File.expand_path(BLANK_MODULE_TESTDIR)
@@ -145,7 +135,81 @@ describe PDQTest::Skeleton do
         end
       end
     end
-
   end
 
+  context "PDK skeleton files" do
+
+    it "upgrades PDK 1x" do
+      testcase = File.expand_path PDQTEST1X_MODULE_TESTDIR
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          FileUtils.cp_r(File.join(testcase, "/.") , ".")
+          PDQTest::Skeleton.install_pdk_skeletons
+
+          old_rakefile_md5 = Digest::MD5.file(
+              File.join(testcase,"Rakefile")
+          ).hexdigest
+          old_gemfile_md5 = Digest::MD5.file(
+              File.join(testcase,"Gemfile")
+          ).hexdigest
+          old_spec_helper_md5 = Digest::MD5.file(
+              File.join(testcase,"spec/spec_helper.rb")
+          ).hexdigest
+          # .rspec is presently identical PDK vs PDQTest
+
+          new_rakefile_md5    = Digest::MD5.file("Rakefile").hexdigest
+          new_gemfile_md5     = Digest::MD5.file("Gemfile").hexdigest
+          new_spec_helper_md5 = Digest::MD5.file("spec/spec_helper.rb").hexdigest
+
+          expect(old_rakefile_md5).not_to eq(new_rakefile_md5)
+          expect(old_gemfile_md5).not_to eq(new_gemfile_md5)
+          expect(old_spec_helper_md5).not_to eq(new_spec_helper_md5)
+        end
+      end
+    end
+
+    it "does not overwrite customised files" do
+      testcase = File.expand_path PDQTEST1X_CUSTOM_MODULE_TESTDIR
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          FileUtils.cp_r(File.join(testcase, "/.") , ".")
+          expect {
+            PDQTest::Skeleton.install_pdk_skeletons
+          }.to raise_error(/customised file/)
+        end
+      end
+    end
+
+
+    it "does not touch files when PDK already installed" do
+      testcase = File.expand_path PDK_SNIFF_MODULE_TESTDIR
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          FileUtils.cp_r(File.join(testcase, "/.") , ".")
+          PDQTest::Skeleton.install_pdk_skeletons
+
+          old_rakefile_md5 = Digest::MD5.file(
+              File.join(testcase,"Rakefile")
+          ).hexdigest
+          old_gemfile_md5 = Digest::MD5.file(
+              File.join(testcase,"Gemfile")
+          ).hexdigest
+          old_spec_helper_md5 = Digest::MD5.file(
+              File.join(testcase,"spec/spec_helper.rb")
+          ).hexdigest
+          # .rspec is presently identical PDK vs PDQTest
+
+          new_rakefile_md5    = Digest::MD5.file("Rakefile").hexdigest
+          new_gemfile_md5     = Digest::MD5.file("Gemfile").hexdigest
+          new_spec_helper_md5 = Digest::MD5.file("spec/spec_helper.rb").hexdigest
+
+          expect(old_rakefile_md5).to eq(new_rakefile_md5)
+          expect(old_gemfile_md5).to eq(new_gemfile_md5)
+          expect(old_spec_helper_md5).to eq(new_spec_helper_md5)
+        end
+      end
+
+    end
+
+  end
 end

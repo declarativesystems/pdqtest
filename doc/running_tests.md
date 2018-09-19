@@ -1,4 +1,11 @@
 # Running tests
+
+## Important
+You **must** use the provided launch scripts `Makefile` or `make.ps1` to run
+PDQTest, at least for the first time. See [PDK integration](pdk.md) for more
+information.
+
+## Quickstart
 If you just want to run all tests:
 
 **Linux**
