@@ -231,36 +231,6 @@ module PDQTest
       examples
     end
 
-    # process fixtures->repositories->* from fixtures.yml if present to
-    # generate an array of commands to run ON THE DOCKER VM to checkout the
-    # required modules from git
-    def self.git_fixtures()
-      refresh_cmd = []
-      if File.exists?(FIXTURES)
-        fixtures = YAML.load_file(FIXTURES)
-        if fixtures.has_key?('repositories')
-          fixtures['repositories'].each { |fixture, opts|
-            target = "spec/fixtures/modules/#{fixture}"
-            if opts.instance_of?(String)
-              source = opts
-              ref    = 'master'
-            elsif opts.instance_of?(Hash)
-              source = opts['repo']
-              if opts.has_key? 'ref'
-                ref = opts['ref']
-              else
-                ref = 'master'
-              end
-            end
-
-            refresh_cmd << "git_refresh refresh --target-dir #{target} --source-url #{source} --ref #{ref}"
-          }
-        end
-      end
-
-      refresh_cmd
-    end
-
     # find the available classes in this module
     def self.find_classes()
       mod_name = module_name
@@ -484,7 +454,9 @@ module PDQTest
 
       # link dependency modules
       sfm = Util.joinp("spec", "fixtures", "modules")
-
+      if ! File.exist? sfm
+        raise("Modules directory does not exist - please run unit tests first to create it")
+      end
       Dir.entries(sfm).select { |entry|
         File.directory?(Util.joinp(sfm, entry)) && !(entry =='.' || entry == '..')
       }.reject { |entry|

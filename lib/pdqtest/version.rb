@@ -1,4 +1,3 @@
 module PDQTest
-  VERSION = "1.4.0"
-  PUPPET_VERSION = "5.5.6"
+  VERSION = "1.9.9beta"
 end

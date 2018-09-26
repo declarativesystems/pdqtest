@@ -170,7 +170,59 @@ For this reason, you **must** launch PDQTest using the provided `Makefile` or
 
 For further background see: 
 * [PDK-1177](https://tickets.puppetlabs.com/browse/PDK-1177) and 
-* [#50](https://github.com/declarativesystems/pdqtest/issues/50)  
+* [#50](https://github.com/declarativesystems/pdqtest/issues/50) 
+
+## When developing PDQTest, your version number **must** match a released version
+_This should only affects PDQTest developers - for posterity..._
+
+Due to some strange hackery between `pdk bundle` and `bundle exec` you have one
+more gotcha when it comes to using developing PDQTest and thats that the version
+number of the gem you build *MUST* match a released version of the gem on 
+rubygems.org otherwise `bundle exec` will barf with errors like this:
+
+```shell
+$ bundle exec pdqtest
+Could not find hiera-3.4.5 in any of the sources
+Run `bundle install` to install missing gems.
+```
+
+There seems no other way to fix this other than building the development gem 
+with a version matching an existing release. The gem then needs to be installed
+using `gem install ...` and it will then magically start working. Using other
+gem tricks like setting `:path` will appear to work but fail when `bundle exec`
+is called. The other approach of trying to run everything with 
+`pdk bundle exec pdqtest` fails with various errors depending what platform your
+on, presumably because `pdqtest` runs `pdk` command as part of its tests.
+
+The final final caveat of this approach is that the PDQTest gem dependencies are
+pinned at whatever the _real_ release uses, so if any were changed or added they
+need to be temporarily added to `Gemfile.project`
+
+The above works on Linux... For windows there is also the situation where:
+* PDK vendors its own gems that magically appear
+* PDK can only use "published" gems(specs?) it downloads - or appears to
+* when you go to `bundle install` without using PDK you blow up the lock 
+  file
+* When you `bundle exec pdqtest` you get the above error because _something_
+  uses the old one `gemspec`
+* The answer seems to be:
+    1. use `gem 'pdqtest', :path=>'c:/vagrant/pdqtest'` in `Gemfile.local`
+    2. `pdk bundle install`
+    3. `bundle update pdqtest` - yes even though your not supposed to...
+    4. `bundle exec pdqtest` - now it should work... why is beyond me
+* If you still have errors:
+    1. `bundle install`
+    2. `rm Gemfile.lock`
+    3. `pdk bundle install` - working?
+
+Somtimes you just have to upload the whole gem file as a pre-release object:
+* Version set to x.x.xWHATEVER
+* `gem push pdqtest-x.x.xWHATEVER.gem`
+* `gem install pdqtest --pre`
+
+
+If your just want to use PDQTest, you will hopefully never have to worry about
+this... On the other hand, if this all sounds confusing... That's because it is!
 
 ## What happens when I upgrade PDQTest?
 When a new version of PDQTest is released, upgrade by running:

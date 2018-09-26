@@ -1,33 +1,26 @@
-all:
-	make symlink
+all: Gemfile.local
 	bundle exec pdqtest all
 
-fast:
-	make symlink
+fast: Gemfile.local
 	bundle exec pdqtest fast
 
-shell:
-	make symlink
+shell: Gemfile.local
 	bundle exec pdqtest --keep-container acceptance
 
-shellnopuppet:
-	make symlink
+shellnopuppet: Gemfile.local
 	bundle exec pdqtest shell
 
-logical:
-	make symlink
+logical: Gemfile.local
 	bundle exec pdqtest syntax
 	bundle exec pdqtest rspec
 
-symlink:
-	@if [ -f "Gemfile.local" ]; then \
-		echo "Gemfile.local already exists. Append it to Gemfile.project and run again" ;\
-		exit 1 ; \
-	elif [ ! -L "Gemfile.local" ] ; then\
-		echo "Creating symlink" ; \
-		ln -s "Gemfile.project" "Gemfile.local" ; \
-	else  \
-		echo "symlink exists" ;\
-	fi
+bundle:
+	pdk bundle install
+
+Gemfile.local:
+	echo "[🐌] Creating symlink and running pdk bundle..."
+	ln -s Gemfile.project Gemfile.local
+	make bundle
+
 
 

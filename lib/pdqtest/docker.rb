@@ -83,7 +83,7 @@ module PDQTest
         $logger.debug "Executing: #{real_c}"
         _res = container.exec(real_c, tty: true)
 
-        if real_c[2] =~ /robocopy/
+        if c =~ /robocopy/
           # robocopy exit codes break the status check we do later on - we have
           # to manually 'fix' them here
           if _res[STATUS] < 4
@@ -95,7 +95,7 @@ module PDQTest
         res[ERR]    += _res[ERR]
 
         # non zero status from something thats not puppet apply is probably an error
-        if _res[STATUS] != 0 && !(c[2] =~ /pupet apply/)
+        if _res[STATUS] != 0 && !(c =~ /pupet apply|bats/)
           $logger.warn "non-zero exit status: #{_res[STATUS]} from #{real_c}: #{_res[OUT]} #{_res[ERR]}"
         end
       end

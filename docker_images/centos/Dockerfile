@@ -49,9 +49,6 @@ RUN git clone https://github.com/bats-core/bats-core /usr/local/bats
 # r10k
 RUN /opt/puppetlabs/puppet/bin/gem install r10k
 
-# git refresh (for processing .fixtures.yml git modules)
-RUN /opt/puppetlabs/puppet/bin/gem install git_refresh
-
 # testcase (our module)
 RUN mkdir /testcase
 VOLUME /testcase

@@ -23,8 +23,6 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "bundler", "~> 1.16"
   spec.add_development_dependency "coveralls", "0.8.21"
-  spec.add_development_dependency "fakefs", "0.14.2"
-  spec.add_development_dependency "puppet", "5.3.5"
   spec.add_development_dependency "rspec", "3.7.0"
 
   spec.add_runtime_dependency "rake", "12.3.1"
@@ -33,7 +31,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "escort", "0.4.0"
   spec.add_runtime_dependency "docker-api", "1.34.2"
   spec.add_runtime_dependency "r10k", "2.6.4"
-  spec.add_runtime_dependency "git_refresh", "0.1.1"
   spec.add_runtime_dependency "logging", "~> 2.2"
   spec.add_runtime_dependency 'deep_merge', '~> 1.2'
 end

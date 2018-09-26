@@ -151,53 +151,56 @@ module PDQTest
 
       if ! PDQTest::Pdk.is_pdk_enabled
         $logger.info "Doing one-time upgrade to PDK - Generating fresh set of files..."
-        project_dir = Dir.pwd
+        project_dir = File.expand_path Dir.pwd
         Dir.mktmpdir do |tmpdir|
-          status = false
           Dir.chdir(tmpdir) do
             status = PDQTest::Pdk.run("new module #{TEMP_PDK_MODULE} --skip-interview")
-          end
-          if status
-            # snag generated metadata now we are in the temporary module dir
-            @@pdk_metadata = PDQTest::Puppet.module_metadata
 
-            PDK_FILES.each do |pdk_file|
-              upstream_file = File.join(tmpdir, TEMP_PDK_MODULE, pdk_file)
+            if status
+              # snag generated metadata now we are in the temporary module dir
+              Dir.chdir TEMP_PDK_MODULE do
+                @@pdk_metadata = PDQTest::Puppet.module_metadata
+              end
 
-              # check if we are trying to install a file from PDQTest or have
-              # some random/customised file in place
-              if PDQTest1x.was_pdqtest_file(pdk_file)
-                if ! File.exists?(pdk_file) || PDQTest1x.is_pdqtest_file(pdk_file)
-                  # overwrite missing or PDQTest 1x files
-                  install = true
-                else
-                  raise(<<-END)
-                    Detected an unknown/customised file at
-                      #{pdk_file}
-                    Please see the PDQTest 1x->2x upgrade guide at
-                    https://github.com/declarativesystems/pdqtest/blob/master/doc/upgrading.md
+              PDK_FILES.each do |pdk_file|
+                upstream_file = File.join(tmpdir, TEMP_PDK_MODULE, pdk_file)
 
-                    If your sure you don't want this file any more, move it out
-                    of the way and re-run the previous command
-                  END
+                # check if we are trying to install a file from PDQTest or have
+                # some random/customised file in place
+                Dir.chdir project_dir do
+                  if PDQTest1x.was_pdqtest_file(pdk_file)
+                    if ! File.exists?(pdk_file) || PDQTest1x.is_pdqtest_file(pdk_file)
+                      # overwrite missing or PDQTest 1x files
+                      install = true
+                    else
+                      raise(<<~END)
+                        Detected an unknown/customised file at
+                          #{pdk_file}
+                        Please see the PDQTest 1x->2x upgrade guide at
+                        https://github.com/declarativesystems/pdqtest/blob/master/doc/upgrading.md
+    
+                        If your sure you don't want this file any more, move it out
+                        of the way and re-run the previous command
+                      END
+                    end
+                  else
+                    install = true
+                  end
+
+                  if install
+                    $logger.info("Detected PDQTest 1.x file at #{pdk_file} (will upgrade to PDK)")
+                    FileUtils.cp(upstream_file, pdk_file)
+                  end
                 end
-              else
-                install = true
               end
-
-              if install
-                $logger.info("Detected PDQTest 1.x file at #{pdk_file} (will upgrade to PDK)")
-                FileUtils.cp(upstream_file, pdk_file)
-              end
+            else
+              raise("error running PDK - unable to init")
             end
-          else
-            raise("error running PDK - unable to init")
           end
         end
       else
         $logger.debug "PDK already enabled, no skeletons needed"
       end
     end
-
   end
 end
