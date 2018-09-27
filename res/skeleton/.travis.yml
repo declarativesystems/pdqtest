@@ -9,8 +9,13 @@ services:
   - docker
 cache: bundler
 before_install:
-  - bundle install
+  - wget https://apt.puppetlabs.com/puppet5-release-trusty.deb
+  - sudo dpkg -i puppet5-release-trusty.deb
+  - sudo apt-get update
+  - sudo apt install -y pdk
+  - make Gemfile.local
   - bundle exec pdqtest setup
-script: "make"
+script:
+  - make
 rvm:
-  - 2.5.1
+  - 2.4.1
