@@ -325,3 +325,10 @@ This runs the syntax and lint tests using the original `puppet-syntax` and
 `puppet-lint` libraries. We can't guarantee PDK identical behaviour or 
 compatibility when used this way but hey... its faster.
 
+## How do I automatically fix up my lint errors?
+
+With PDK!:
+
+```shell
+pdk validate -a
+```
