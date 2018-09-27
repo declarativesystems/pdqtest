@@ -44,8 +44,16 @@ module PDQTest
     def self.should_replace_file(target, skeleton)
       target_hash   = Digest::SHA256.file target
       skeleton_hash = Digest::SHA256.file skeleton
+      puts Dir.pwd
+puts target
+      puts skeleton
+      puts target_hash
+      puts skeleton_hash
+      puts Digest::SHA256.file "/nothere"
+      should = (target_hash != skeleton_hash)
+      $logger.debug "should replace: #{should}"
 
-      target_hash != skeleton_hash
+      should
     end
 
     def self.install_skeletons
@@ -59,11 +67,14 @@ module PDQTest
       if File.exists?(target_file)
         if replace && should_replace_file(target_file, skeleton_file)
           install = true
+        else
+          $logger.debug "#{target_file} exists and will not be replaced"
         end
       else
         install = true
       end
       if install
+        $logger.debug "Installing skeleton file at #{target_file}"
         FileUtils.cp(skeleton_file, target_file)
       end
     end

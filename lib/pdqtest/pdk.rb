@@ -61,11 +61,6 @@ module PDQTest
         ].include? e
       }
 
-      # we must run build target nastyhack before running PDK on linux
-      if ! Util.is_windows
-        $logger.warn("Running nasty hack: https://tickets.puppetlabs.com/browse/PDK-1192")
-        system("make nastyhack")
-      end
       status = system(env, pdk, :unsetenv_others=>true)
 
       PDQTest::Emoji.partial_status(status, subcommand)

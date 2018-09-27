@@ -4,6 +4,11 @@
 # https://docs.travis-ci.com/user/common-build-problems/#Running-a-Container-Based-Docker-Image-Locally
 ---
 sudo: false
+
+# Don't process the PDK Gemfile - causes big problems!
+gemfile: .pdqtest/Gemfile
+
+bundler_args: --path .pdqtest
 language: ruby
 services:
   - docker
@@ -13,9 +18,10 @@ before_install:
   - sudo dpkg -i puppet5-release-trusty.deb
   - sudo apt-get update
   - sudo apt install -y pdk
-  - make Gemfile.local
-  - bundle exec pdqtest setup
+
+# travis itself does the bundle isntall for us, so we are ready to run now
 script:
+  - make setup
   - make
 rvm:
   - 2.4.1

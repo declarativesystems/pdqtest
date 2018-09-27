@@ -280,8 +280,8 @@ module PDQTest
       setup_script = Util.joinp(XATS_TESTS, test_basename(example)) + setting(:setup_suffix)
       if File.exists?(setup_script)
         script = File.read(setup_script)
-
-        if script =~ /^\s*$/
+        $logger.debug "setup script: \n #{script}"
+        if script.strip.empty?
           $logger.info "skipping empty setup script at #{setup_script}"
         else
           $logger.info "Setting up test for #{example}"

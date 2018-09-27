@@ -2,7 +2,8 @@ require 'pdqtest/skeleton'
 
 module PDQTest
   module Upgrade
-    GEMFILE             = 'Gemfile.project'
+    GEMDIR              = '.pdqtest'
+    GEMFILE             = File.join(GEMDIR,'Gemfile')
     GEM_REGEXP          = /gem ('|")([-\w]+)('|").*$/
     GEM_ATTRIB_REGEXP   = /^\s*:\w+/
 
@@ -11,15 +12,22 @@ module PDQTest
         'line'  => "gem 'pdqtest', '#{PDQTest::VERSION}'",
         'added' => false,
       },
-      'puppet-strings'  => {
-        'line'  => "gem 'puppet-strings', :git => 'https://github.com/puppetlabs/puppet-strings'",
-        'added' => false,
+      'puppet-strings'         => {
+          'line'  => "gem 'puppet-strings'",
+          'added' => false,
+      },
+      'puppet'         => {
+          'line'  => "gem 'puppet'",
+          'added' => false,
       },
     }
 
 
     # upgrade a module to the latest version of PDQTest
     def self.upgrade()
+      if ! Dir.exist?(GEMDIR)
+        Dir.mkdir GEMDIR
+      end
       t_file = File.open("#{GEMFILE}.tmp","w")
       updating_gem = false
 

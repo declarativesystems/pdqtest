@@ -30,7 +30,7 @@ module PDQTest
     # need to wrap commands with shell to gain access to
     # shell functions like `cd` etc
     def self.wrap_cmd(cmd)
-      if cmd =~ /^\s*$/ || cmd == "bash" || cmd == "powershell"
+      if cmd.strip.empty? || cmd == "bash" || cmd == "powershell"
         raise "Missing command to wrap!"
       end
 

@@ -23,8 +23,6 @@ require 'pdqtest/fastcheck'
 # display help if nothing specified
 ARGV.push('-h') if ARGV.empty?
 
-# Setup our own hacky logger
-
 
 Escort::App.create do |app|
   app.version PDQTest::VERSION
@@ -88,15 +86,15 @@ Escort::App.create do |app|
       PDQTest::Instance.set_privileged(options[:global][:options][:privileged])
       PDQTest::Instance.set_keep_container(options[:global][:options][:keep_container])
       PDQTest::Instance.set_docker_image(options[:global][:options][:image_name])
-
-      PDQTest::Core.run([
-        lambda {PDQTest::Pdk.run("validate 'metadata,puppet'")},
-        lambda {PDQTest::Puppet.install_modules},
-        lambda {PDQTest::Pdk.run("test unit")},
-        lambda {PDQTest::Instance.run},
-        lambda {system("bundle exec puppet strings generate --format=markdown")},
-        lambda {PDQTest::Pdk.run("build --force")},
-      ])
+      Dir.chdir ".." do
+        PDQTest::Core.run([
+          lambda {PDQTest::Pdk.run("validate 'metadata,puppet'")},
+          lambda {PDQTest::Puppet.install_modules},
+          lambda {PDQTest::Pdk.run("test unit")},
+          lambda {PDQTest::Instance.run},
+          lambda {PDQTest::Pdk.run("build --force")},
+        ])
+      end
     end
   end
 
@@ -114,12 +112,13 @@ Escort::App.create do |app|
       PDQTest::Instance.set_keep_container(options[:global][:options][:keep_container])
       PDQTest::Instance.set_docker_image(options[:global][:options][:image_name])
 
-      PDQTest::Core.run([
-        lambda {PDQTest::Fastcheck.run},
-        lambda {PDQTest::Puppet.install_modules},
-        lambda {PDQTest::Instance.run},
-        lambda {system("bundle exec puppet strings generate --format=markdown")},
-      ])
+      Dir.chdir ".." do
+        PDQTest::Core.run([
+          lambda {PDQTest::Fastcheck.run},
+          lambda {PDQTest::Puppet.install_modules},
+          lambda {PDQTest::Instance.run},
+        ])
+      end
     end
   end
 
@@ -131,7 +130,9 @@ Escort::App.create do |app|
       $logger.level = :debug if options[:global][:options][:debug]
 
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
-      PDQTest::Core.run(lambda {PDQTest::Pdk.run("test unit")})
+      Dir.chdir ".." do
+        PDQTest::Core.run(lambda {PDQTest::Pdk.run("test unit")})
+      end
     end
   end
 
@@ -157,7 +158,9 @@ Escort::App.create do |app|
       PDQTest::Instance.set_docker_image(options[:global][:options][:image_name])
       PDQTest::Instance.set_keep_container(options[:global][:options][:keep_container])
       example = options[:global][:commands][:acceptance][:options][:example]
-      PDQTest::Core.run(lambda {PDQTest::Instance.run(example)})
+      Dir.chdir ".." do
+        PDQTest::Core.run(lambda {PDQTest::Instance.run(example)})
+      end
     end
   end
 
@@ -191,7 +194,9 @@ Escort::App.create do |app|
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
       example = options[:global][:commands][:generate_acceptance][:options][:example]
 
-      PDQTest::Skeleton.generate_acceptance(example)
+      Dir.chdir ".." do
+        PDQTest::Skeleton.generate_acceptance(example)
+      end
     end
   end
 
@@ -216,7 +221,9 @@ Escort::App.create do |app|
       $logger.level = :debug if options[:global][:options][:debug]
 
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
-      PDQTest::Core.run(lambda {PDQTest::Pdk.run("validate 'metadata,puppet'")})
+      Dir.chdir ".." do
+        PDQTest::Core.run(lambda {PDQTest::Pdk.run("validate 'metadata,puppet'")})
+      end
     end
   end
 
@@ -228,11 +235,13 @@ Escort::App.create do |app|
       PDQTest::Logger.logger
       $logger.level = :debug if options[:global][:options][:debug]
 
-      PDQTest::Core.run(lambda {
-        PDQTest::Docker::IMAGES.each { |key, image|
-          system("docker pull #{image}")
-        }
-      })
+      Dir.chdir ".." do
+        PDQTest::Core.run(lambda {
+          PDQTest::Docker::IMAGES.each { |key, image|
+            system("docker pull #{image}")
+          }
+        })
+      end
     end
   end
 
@@ -243,7 +252,9 @@ Escort::App.create do |app|
       PDQTest::Logger.logger
       $logger.level = :debug if options[:global][:options][:debug]
 
-      PDQTest::Puppet.info
+      Dir.chdir ".." do
+        PDQTest::Puppet.info
+      end
     end
   end
 
@@ -255,7 +266,9 @@ Escort::App.create do |app|
       PDQTest::Logger.logger
       $logger.level = :debug if options[:global][:options][:debug]
 
-      PDQTest::Upgrade.upgrade
+      Dir.chdir ".." do
+        PDQTest::Upgrade.upgrade
+      end
     end
   end
 end
