@@ -3,9 +3,12 @@ language: ruby
 services:
   - docker
 rvm:
-  - 2.3.3
-before_install: gem install bundler
+  - 2.5.1
+before_install:
+  - wget https://apt.puppetlabs.com/puppet5-release-trusty.deb
+  - dpkg -i puppet5-release-trusty.deb
+  - apt-get update
+  - gem install bundler
+  - apt install -y pdk
 script:
-  - # wget "https://pm.puppet.com/cgi-bin/pdk_download.cgi?arch=x86_64&dist=el&rel=7&ver=latest" -O pdk.rpm  yum install -y pdk.rpm
-  - # yum install -u pdk.rpm
   - bundle exec pdqtest setup && bundle exec rake spec
