@@ -6,9 +6,9 @@ rvm:
   - 2.5.1
 before_install:
   - wget https://apt.puppetlabs.com/puppet5-release-trusty.deb
-  - dpkg -i puppet5-release-trusty.deb
-  - apt-get update
+  - sudo dpkg -i puppet5-release-trusty.deb
+  - sudo apt-get update
+  - sudo apt install -y pdk
   - gem install bundler
-  - apt install -y pdk
 script:
   - bundle exec pdqtest setup && bundle exec rake spec
