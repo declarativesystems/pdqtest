@@ -32,5 +32,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "docker-api", "1.34.2"
   spec.add_runtime_dependency "r10k", "2.6.4"
   spec.add_runtime_dependency "logging", "~> 2.2"
-  spec.add_runtime_dependency 'deep_merge', '~> 1.2'
+  spec.add_runtime_dependency "deep_merge", "~> 1.2"
+  spec.add_runtime_dependency "json", "<= 2.0.4"
 end
