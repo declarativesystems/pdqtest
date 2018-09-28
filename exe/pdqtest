@@ -23,6 +23,11 @@ require 'pdqtest/fastcheck'
 # display help if nothing specified
 ARGV.push('-h') if ARGV.empty?
 
+# Setup logging and print out where we were started from because we have to use
+# a separate Gemfile to PDK
+PDQTest::Logger.logger
+$logger.info("Entered PDQTest from #{Dir.pwd}")
+
 
 Escort::App.create do |app|
   app.version PDQTest::VERSION
@@ -77,7 +82,7 @@ Escort::App.create do |app|
     command.summary "All"
     command.description "Run all tests"
     command.action do |options, arguments|
-      PDQTest::Logger.logger
+
       $logger.level = :debug if options[:global][:options][:debug]
 
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
@@ -102,7 +107,6 @@ Escort::App.create do |app|
     command.summary "Fast"
     command.description "Run basic lint/syntax and acceptance tests (skips rspec)"
     command.action do |options, arguments|
-      PDQTest::Logger.logger
       $logger.level = :debug if options[:global][:options][:debug]
 
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
@@ -112,6 +116,7 @@ Escort::App.create do |app|
       PDQTest::Instance.set_keep_container(options[:global][:options][:keep_container])
       PDQTest::Instance.set_docker_image(options[:global][:options][:image_name])
 
+      $logger.debug "before chdir #{Dir.pwd}"
       Dir.chdir ".." do
         PDQTest::Core.run([
           lambda {PDQTest::Fastcheck.run},
@@ -121,21 +126,6 @@ Escort::App.create do |app|
       end
     end
   end
-
-  app.command :rspec do |command|
-    command.summary "RSpec"
-    command.description "Run the RSpec tests (`pdk test unit` with emojis)"
-    command.action do |options, arguments|
-      PDQTest::Logger.logger
-      $logger.level = :debug if options[:global][:options][:debug]
-
-      PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
-      Dir.chdir ".." do
-        PDQTest::Core.run(lambda {PDQTest::Pdk.run("test unit")})
-      end
-    end
-  end
-
 
   app.command :acceptance do |command|
     command.summary "Acceptance"
@@ -149,7 +139,6 @@ Escort::App.create do |app|
       )
     end
     command.action do |options, arguments|
-      PDQTest::Logger.logger
       $logger.level = :debug if options[:global][:options][:debug]
 
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
@@ -168,10 +157,11 @@ Escort::App.create do |app|
     command.summary "Initialise testing"
     command.description "Install skeleton testing configuration into this module"
     command.action do |options, arguments|
-      PDQTest::Logger.logger
       $logger.level = :debug if options[:global][:options][:debug]
 
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
+      # Init isn't run with bundler because we're not in the bundle. because its
+      # a system command, we don't need to jump back out of 'our' Gemfile dir
       PDQTest::Skeleton.init
     end
   end
@@ -188,7 +178,6 @@ Escort::App.create do |app|
       )
     end
     command.action do |options, arguments|
-      PDQTest::Logger.logger
       $logger.level = :debug if options[:global][:options][:debug]
 
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
@@ -205,24 +194,28 @@ Escort::App.create do |app|
     command.summary "Shell"
     command.description "Open a shell inside a docker container identical to the test environment before anything has run"
     command.action do |options, arguments|
-      PDQTest::Logger.logger
       $logger.level = :debug if options[:global][:options][:debug]
 
       PDQTest::Instance.set_docker_image(options[:global][:options][:image_name])
-      PDQTest::Instance.shell
+      Dir.chdir ".." do
+        PDQTest::Instance.shell
+      end
     end
   end
 
-  app.command :syntax do |command|
+  app.command :logical do |command|
     command.summary "Syntax"
     command.description "Check for syntax errors (`pdk validate metadata,puppet` with emojis)"
     command.action do |options, arguments|
-      PDQTest::Logger.logger
       $logger.level = :debug if options[:global][:options][:debug]
 
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
       Dir.chdir ".." do
-        PDQTest::Core.run(lambda {PDQTest::Pdk.run("validate 'metadata,puppet'")})
+        PDQTest::Core.run([
+          lambda {PDQTest::Pdk.run("validate 'metadata,puppet'")},
+          lambda {PDQTest::Puppet.install_modules},
+          lambda {PDQTest::Pdk.run("test unit")},
+        ])
       end
     end
   end
@@ -232,7 +225,6 @@ Escort::App.create do |app|
     command.description "Install the docker container required for testing"
 
     command.action do |options, arguments|
-      PDQTest::Logger.logger
       $logger.level = :debug if options[:global][:options][:debug]
 
       Dir.chdir ".." do
@@ -249,7 +241,6 @@ Escort::App.create do |app|
     command.summary "Info"
     command.description "Print info about this module"
     command.action do |options, arguments|
-      PDQTest::Logger.logger
       $logger.level = :debug if options[:global][:options][:debug]
 
       Dir.chdir ".." do
@@ -263,12 +254,11 @@ Escort::App.create do |app|
     command.summary "Upgrade"
     command.description "Upgrade the current module to use this version of PDQTest"
     command.action do |options, arguments|
-      PDQTest::Logger.logger
       $logger.level = :debug if options[:global][:options][:debug]
 
-      Dir.chdir ".." do
-        PDQTest::Upgrade.upgrade
-      end
+      # also runs without bundler since we're not in the bundle yet - see notes
+      # for `init`
+      PDQTest::Upgrade.upgrade
     end
   end
 end

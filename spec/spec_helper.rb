@@ -23,8 +23,8 @@ require 'pdqtest/logger'
 
 PDQTest::Logger.logger
 $logger.level = :debug
-
-GEMFILE = "Gemfile.project"
+PDQTESTDIR                        = ".pdqtest"
+GEMFILE                           = File.join(PDQTESTDIR, "Gemfile")
 BLANK_MODULE_TESTDIR              = File.join('spec', 'fixtures', 'blank_module')
 FAILING_TESTS_TESTDIR             = File.join('spec', 'fixtures', 'failing_tests')
 PASSING_TESTS_TESTDIR             = File.join('spec', 'fixtures', 'passing_tests')

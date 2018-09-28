@@ -5,10 +5,16 @@ module PDQTest
   module Fastcheck
 
     def self.run
-      status = system("bundle exec puppet-lint manifests")
+      $logger.debug "inside Fastcheck::run - current dir: #{Dir.pwd}"
+
+      $logger.debug "Running syntax..."
+      status = system("bundle exec 'rake syntax'")
+      $logger.debug "...done; result: #{status}"
 
       if status
-        status = system("bundle exec rake syntax")
+        $logger.debug "Running lint..."
+        status = system("bundle exec 'puppet-lint manifests'")
+        $logger.debug "...done; result: #{status}"
       end
 
       PDQTest::Emoji.partial_status(status, "fastcheck (syntax+lint)")

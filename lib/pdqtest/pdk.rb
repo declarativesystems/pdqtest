@@ -9,7 +9,7 @@ module PDQTest
   # inside `pdk bundle` to work, nor could I figure out how to load the PDK
   # libraries from the "inside"
   module Pdk
-    SYNC_YML    = '.sync.yaml'
+    SYNC_YML    = '.sync.yml'
 
     # Copy these values from PDK generated metadata to module metadata
     PDK_TAGS    = [

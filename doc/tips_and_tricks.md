@@ -20,3 +20,4 @@
   * Create/copy files, directories, etc.
   * Install OS packages
   * Install python scripts to mock database servers using SQLite... 😉
+* Files added by PDQTest >= 2.0 have the magic marker: `*File originally created by PDQTest*`

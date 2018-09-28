@@ -54,7 +54,22 @@ module PDQTest
         # process each supported OS
         test_platforms = @@image_name || Docker::acceptance_test_images
         $logger.info "Acceptance test on #{test_platforms}..."
-        test_platforms.each { |image_name|
+        test_platforms.reject { |image_name|
+          reject = false
+          if Util.is_windows
+            if image_name !~ /windows/
+              $logger.info "Skipping test image #{image_name} (requires Linux)"
+              reject = true
+            end
+          else
+            if image_name =~ /windows/
+              $logger.info "Skipping test image #{image_name} (requires Windows)"
+              reject = true
+            end
+          end
+
+          reject
+        }.each { |image_name|
           $logger.info "--- start test with #{image_name} ---"
           @@active_container = PDQTest::Docker::new_container(image_name, @@privileged)
           $logger.info "alive, running tests"

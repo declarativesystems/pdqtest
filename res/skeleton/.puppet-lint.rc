@@ -1,3 +1,4 @@
+# *File originally created by PDQTest*
 --fail-on-warnings
 --no-double_quoted_strings-check
 --no-80chars-check

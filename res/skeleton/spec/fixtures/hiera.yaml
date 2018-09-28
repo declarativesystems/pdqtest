@@ -1,4 +1,5 @@
 # Hiera 5 Global configuration file *****test configuration*****
+# *File originally created by PDQTest*
 #
 # Hiera data expected from spec/fixtures/hieradata to give consistent path for
 # testing both rspec and acceptance

@@ -8,19 +8,32 @@ module PDQTest
     GEM_ATTRIB_REGEXP   = /^\s*:\w+/
 
     GEMS = {
-      'pdqtest'         => {
-        'line'  => "gem 'pdqtest', '#{PDQTest::VERSION}'",
-        'added' => false,
-      },
-      'puppet-strings'         => {
-          'line'  => "gem 'puppet-strings'",
+      # 'gemsource' => {
+      #     'line' => "source ENV['GEM_SOURCE'] || 'https://rubygems.org'",
+      #     'added' => false,
+      # },
+      'pdqtest' => {
+          'line' => "gem 'pdqtest', '#{PDQTest::VERSION}'",
           'added' => false,
       },
-      'puppet'         => {
-          'line'  => "gem 'puppet'",
+      'puppet-strings' => {
+          'line' => "gem 'puppet-strings'",
           'added' => false,
       },
-    }
+      'puppet' => {
+          'line' => "gem 'puppet'",
+          'added' => false,
+      },
+      'puppet-lint' => {
+          'line' => "gem 'puppet-lint'",
+          'added' => false,
+      },
+      'puppet-syntax' => {
+          'line' => "gem 'puppet-syntax'",
+          'added' => false,
+      },
+
+    }.freeze
 
 
     # upgrade a module to the latest version of PDQTest
@@ -37,11 +50,11 @@ module PDQTest
         FileUtils.touch(GEMFILE)
       end
       File.open(GEMFILE, 'r') do |f|
-        f.each_line{ |line|
+        f.each_line { |line|
           if line =~ GEM_REGEXP
             # a gem stanza
-            processing_gem = $2
-            if GEMS.keys.include?(processing_gem)
+            processing_gem = Regexp.last_match(2)
+            if GEMS.key?(processing_gem)
               # fixup one of our monitored gems as needed, mark
               # this as being a gem that is being updated so
               # that we can kill any multi-line attributes
@@ -53,7 +66,7 @@ module PDQTest
               t_file.puts line
               updating_gem = false
             end
-          elsif updating_gem and line =~ GEM_ATTRIB_REGEXP
+          elsif updating_gem && line =~ GEM_ATTRIB_REGEXP
             # do nothing - remove the multi-line attributes
           else
             # anything else... (esp comments)

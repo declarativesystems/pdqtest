@@ -10,6 +10,7 @@
 .PARAMETER target
   Test suite to run
 #>
+# *File originally created by PDQTest*
 param(
     $target = "all"
 )

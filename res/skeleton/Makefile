@@ -1,27 +1,26 @@
+# *File originally created by PDQTest*
 all:
-	cd .pdqtest && pwd && bundle exec pdqtest all
+	cd .pdqtest && bundle exec pdqtest all
 	$(MAKE) docs
 
 fast:
-	cd .pdqtest && pwd && bundle exec pdqtest fast
+	cd .pdqtest && bundle exec pdqtest fast
+
+acceptance:
+	cd .pdqtest && bundle exec pdqtest acceptance
 
 shell:
-	cd .pdqtest && pwd && bundle exec pdqtest --keep-container acceptance
+	cd .pdqtest && bundle exec pdqtest --keep-container acceptance
 
 setup:
-	cd .pdqtest && pwd && bundle exec pdqtest setup
+	cd .pdqtest && bundle exec pdqtest setup
 
 shellnopuppet:
-	cd .pdqtest && pwd && bundle exec pdqtest shell
+	cd .pdqtest && bundle exec pdqtest shell
 
 logical:
-	cd .pdqtest && pwd && bundle exec pdqtest syntax
-	cd .pdqtest && pwd && bundle exec pdqtest rspec
+	cd .pdqtest && bundle exec pdqtest logical
 	$(MAKE) docs
-
-#nastyhack:
-#	# fix for - https://tickets.puppetlabs.com/browse/PDK-1192
-#	find vendor -iname '*.pp' -exec rm {} \;
 
 pdqtestbundle:
 	# Install all gems into _normal world_ bundle so we can use all of em

@@ -1,4 +1,5 @@
 # test.yaml *****for testing*****
+# *File originally created by PDQTest*
 #
 # This allows you to acceptance test the _global_ hierarchy. Usually this is not
 # what you want- for in-module data, just look at `/hiera.yaml` and `/data`

@@ -17,7 +17,7 @@ module PDQTest
     ACCEPTANCE_DIR   = File.join(SPEC_DIR, 'acceptance')
     SKELETON_DIR     = 'skeleton'
     EXAMPLES_DIR     = 'examples'
-    HIERA_DIR        =  File.join(SPEC_DIR, 'fixtures', 'hieradata')
+    HIERA_DIR        = File.join(SPEC_DIR, 'fixtures', 'hieradata')
     HIERA_YAML       = 'hiera.yaml'
     HIERA_TEST       = 'test.yaml'
     PDK_FILES        = [
@@ -36,20 +36,20 @@ module PDQTest
     # Every time we `pdqtest upgrade`, update .sync.yml (merges)
     SYNC_YML_CONTENT = {
         ".travis.yml" => {
-            "unmanaged": true
+            "unmanaged" => true,
+        },
+        ".gitignore" => {
+            "paths" => [
+                ".Puppetfile.pdqtest",
+            ],
         }
-    }
+    }.freeze
 
 
     def self.should_replace_file(target, skeleton)
       target_hash   = Digest::SHA256.file target
       skeleton_hash = Digest::SHA256.file skeleton
-      puts Dir.pwd
-puts target
-      puts skeleton
-      puts target_hash
-      puts skeleton_hash
-      puts Digest::SHA256.file "/nothere"
+
       should = (target_hash != skeleton_hash)
       $logger.debug "should replace: #{should}"
 
@@ -81,7 +81,6 @@ puts target
 
     # vars is a hash of variables that can be accessed in template
     def self.install_template(target, template_file, vars)
-      example_file = File.join(EXAMPLES_DIR, template_file)
       if ! File.exists?(target)
         template = File.read(Util::resource_path(File.join('templates', template_file)))
         content  = ERB.new(template, nil, '-').result(binding)
