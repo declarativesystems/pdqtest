@@ -10,10 +10,10 @@
 .PARAMETER target
   Test suite to run
 #>
-# *File originally created by PDQTest*
 param(
     $target = "all"
 )
+# *File originally created by PDQTest*
 
 $gfl = "Gemfile.local"
 $gfp = "Gemfile.project"
@@ -41,25 +41,44 @@ function Install-GemfileLocal {
 
 switch ($target) {
     "all" {
-      Install-GemfileLocal
-	    bundle exec pdqtest all
+        cd .pdqtest; bundle exec pdqtest all; cd ..
     }
     "fast" {
-      Install-GemfileLocal
-	    bundle exec pdqtest fast
+        cd .pdqtest; bundle exec pdqtest fast; cd ..
+    }
+    "acceptance" {
+        cd .pdqtest; bundle exec pdqtest acceptance; cd ..
     }
     "shell" {
-      Install-GemfileLocal
-	    bundle exec pdqtest --keep-container acceptance
+        cd .pdqtest; bundle exec pdqtest --keep-container acceptance; cd ..
     }
     "shellnopuppet" {
-      Install-GemfileLocal
-	    bundle exec pdqtest shell
+        cd .pdqtest; bundle exec pdqtest shell; cd ..
+    }
+    "setup" {
+        cd .pdqtest; bundle exec pdqtest setup; cd ..
     }
     "logical" {
-      Install-GemfileLocal
-	    bundle exec pdqtest syntax
-	    bundle exec pdqtest rspec
+        cd .pdqtest; bundle exec pdqtest logical; cd ..
+        cd .pdqtest ; bundle exec "cd ..; puppet strings"; cd ..
+    }
+    "docs" {
+        cd .pdqtest ; bundle exec "cd ..; puppet strings"; cd ..
+    }
+    "Gemfile.local" {
+        echo "[(-_-)zzz] *copying* Gemfile.project to Gemfile.local and running pdk bundle..."
+        Install-GemfileLocal
+        .\make.ps1 pdkbundle
+    }
+    "pdqtestbundle" {
+        cd .pdqtest ; bundle install; cd ..
+    }
+    "pdkbundle" {
+        pdk bundle install
+    }
+    "clean" {
+        Remove-Item -ErrorAction SilentlyContinue -Confirm:$false -Recurse -force pkg
+        Remove-Item -ErrorAction SilentlyContinue -Confirm:$false -Recurse -force spec/fixtures/modules
     }
     default {
         Write-Error "No such target: $($target)"

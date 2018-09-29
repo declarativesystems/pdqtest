@@ -37,3 +37,7 @@ Gemfile.local:
 
 pdkbundle:
 	pdk bundle install
+
+clean:
+	rm -rf pkg
+	rm -rf spec/fixtures/modules

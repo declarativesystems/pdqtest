@@ -20,18 +20,25 @@ module PDQTest
           'added' => false,
       },
       'puppet' => {
-          'line' => "gem 'puppet'",
+          'line' => "gem 'puppet', '5.5.3'",
           'added' => false,
       },
       'puppet-lint' => {
-          'line' => "gem 'puppet-lint'",
+          'line' => "gem 'puppet-lint', '2.3.6'",
           'added' => false,
       },
       'puppet-syntax' => {
-          'line' => "gem 'puppet-syntax'",
+          'line' => "gem 'puppet-syntax', '2.4.1'",
           'added' => false,
       },
-
+      'puppetlabs_spec_helper' => {
+          'line' => "gem 'puppetlabs_spec_helper', '2.11.0'",
+          'added' => false,
+      },
+      'rake' => {
+          'line' => "gem 'rake', '12.3.1'",
+          'added' => false,
+      },
     }.freeze
 
 

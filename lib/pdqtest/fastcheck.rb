@@ -7,13 +7,20 @@ module PDQTest
     def self.run
       $logger.debug "inside Fastcheck::run - current dir: #{Dir.pwd}"
 
-      $logger.debug "Running syntax..."
-      status = system("bundle exec 'rake syntax'")
+      # On windows, `system()` always executes `cmd.exe` so we can use `&&` to
+      # join commands... even when we launched from powershell.exe (! unproved)
+      #
+      # also must, MUST, MUST!!! use double quotes not singles to feed `system`
+      # or it will be eaten
+      cmd = "cd .pdqtest && bundle exec \"cd .. && rake syntax\""
+      $logger.debug "Running syntax...: #{cmd}"
+      status = system(cmd)
       $logger.debug "...done; result: #{status}"
 
       if status
-        $logger.debug "Running lint..."
-        status = system("bundle exec 'puppet-lint manifests'")
+        cmd = "cd .pdqtest && bundle exec \"cd .. && puppet lint --relative manifests\""
+        $logger.debug "Running lint...: #{cmd}"
+        status = system(cmd)
         $logger.debug "...done; result: #{status}"
       end
 
