@@ -2,16 +2,15 @@ require 'pdqtest/skeleton'
 
 module PDQTest
   module Upgrade
-    GEMDIR              = '.pdqtest'
+    GEMDIR              = '.pdqtest'.freeze
     GEMFILE             = File.join(GEMDIR,'Gemfile')
     GEM_REGEXP          = /gem ('|")([-\w]+)('|").*$/
     GEM_ATTRIB_REGEXP   = /^\s*:\w+/
 
+    GEM_SOURCE = "source ENV['GEM_SOURCE'] || 'https://rubygems.org'".freeze
+    PDQTEST_MAGIC_MARKER = "*File originally created by PDQTest*".freeze
+
     GEMS = {
-      # 'gemsource' => {
-      #     'line' => "source ENV['GEM_SOURCE'] || 'https://rubygems.org'",
-      #     'added' => false,
-      # },
       'pdqtest' => {
           'line' => "gem 'pdqtest', '#{PDQTest::VERSION}'",
           'added' => false,
@@ -48,6 +47,13 @@ module PDQTest
 
       if ! File.exists?(GEMFILE)
         FileUtils.touch(GEMFILE)
+
+        # We are creating Gemfile for the first time, so add a gemsource and
+        # a magic marker
+        File.open(GEMFILE, 'w') do |file|
+          file.puts("# #{PDQTEST_MAGIC_MARKER}")
+          file.puts(GEM_SOURCE)
+        end
       end
       File.open(GEMFILE, 'r') do |f|
         f.each_line { |line|
