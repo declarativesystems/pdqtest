@@ -170,6 +170,13 @@ module PDQTest
               # snag generated metadata now we are in the temporary module dir
               Dir.chdir TEMP_PDK_MODULE do
                 @@pdk_metadata = PDQTest::Puppet.module_metadata
+
+                # Now we need to install .sync.yml and re-install otherwise not
+                # applied until `pdk update`
+                PDQTest::Pdk.amend_sync_yml(SYNC_YML_CONTENT)
+
+                # Next do a forced update to make PDK process sync.yml
+                PDQTest::Pdk.run("update --force")
               end
 
               PDK_FILES.each do |pdk_file|

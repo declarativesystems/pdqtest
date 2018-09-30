@@ -27,7 +27,7 @@ pdqtestbundle:
 	cd .pdqtest && pwd && bundle install
 
 docs:
-	cd .pdqtest && pwd && bundle exec "cd ..&& puppet strings"
+	cd .pdqtest && pwd && bundle exec "cd ..&& puppet strings generate --format markdown"
 
 
 Gemfile.local:

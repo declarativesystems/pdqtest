@@ -63,7 +63,7 @@ switch ($target) {
         cd .pdqtest ; bundle exec "cd ..; puppet strings"; cd ..
     }
     "docs" {
-        cd .pdqtest ; bundle exec "cd ..; puppet strings"; cd ..
+        cd .pdqtest ; bundle exec "cd ..; puppet strings generate --format markdown"; cd ..
     }
     "Gemfile.local" {
         echo "[(-_-)zzz] *copying* Gemfile.project to Gemfile.local and running pdk bundle..."
