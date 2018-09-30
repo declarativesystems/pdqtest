@@ -27,6 +27,7 @@ module PDQTest
         "Gemfile",
         "Rakefile",
         ".gitignore",
+        ".gitattributes",
     ]
 
     # PDK adds custom metadata fields which we can ONLY get by creating a new
@@ -42,6 +43,15 @@ module PDQTest
             "paths" => [
                 ".Puppetfile.pdqtest",
             ],
+        },
+        ".gitattributes" => {
+            "include" => [
+                "*.epp eol=lf",
+                "*.json eol=lf",
+                "*.yaml eol=lf",
+                "*.yml eol=lf",
+                "*.md eol=lf",
+            ]
         }
     }.freeze
 
