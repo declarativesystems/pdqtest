@@ -31,6 +31,18 @@ PDQTest and Docker.
    `docker` group.  You will need to log out and back in again after doing this
 8. Install the PDQTest docker images by typing `pdqtest setup`
 
+## Mac instructions
+**UNTESTED! Do you own a mac? Please let me know what works**
+
+Instructions should be as Linux, but from memory, I had to run:
+
+```shell
+eval "$(docker-machine env default)"
+```
+
+to configure the shell last time I owned a mac. If things have moved on since
+then, let me know what else is needed (possibly including a patch) 
+
 ## Windows Instructions
 
 1. You will need Windows 10 (Windows 10 Enterprise, Professional, or Education)
@@ -61,6 +73,6 @@ PDQTest and Docker.
 5. Install PDK: `choco install pdk`
 6. Install bundler `gem install bundler`
 
-**Be sure to read the [Windows notes](windows.md) for guidance on how to run tests
-on Windows**
+**Be sure to read the [Windows notes](windows.md) for guidance on how to run 
+tests on Windows**
 

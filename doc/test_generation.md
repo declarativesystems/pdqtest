@@ -23,4 +23,14 @@ This will also create examples/mynewthing.pp if you haven't created it yet.
 
 ## RSpec tests
 PDQTest < 2.0 includes rspec test generation. This functionality is replaced by
-PDK in later versions.
+PDK in later versions:
+
+```shell
+pdk new class
+```
+
+Generates Puppet classes _and_ RSpec tests
+
+## Other files
+You should investigate PDK for generating more boiler plate code for things like
+types/providers, defined resources, etc.

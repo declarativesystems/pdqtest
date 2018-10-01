@@ -39,9 +39,13 @@ module PDQTest
         ".travis.yml" => {
             "unmanaged" => true,
         },
+        "bitbucket-pipelines.yml" => {
+            "unmanaged" => true,
+        },
         ".gitignore" => {
             "paths" => [
                 ".Puppetfile.pdqtest",
+                "refresh.ps1",
             ],
         },
         ".gitattributes" => {

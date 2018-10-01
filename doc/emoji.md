@@ -15,14 +15,14 @@ On windows, we fallback to output emoticons instead of Emoji
 
 ### Progress
 
-| Symbol | Meaning | Platform                                 |
-| ---    | ---                             | ---              |
-| Progress: Test passed                    | `😬` | `:-)`      |
-| Progress: Test failed                    | `💣` | `●~*`      |
-| Overall Status: All tests passed         | `😎` | `=D`       |
-| Overall Status: One or more tests failed | `💩` | `><(((*>`  |
-| Slow operation                           | `🐌` | `(-_-)zzz` |
-| Platform issue/limitation                | - | `(-_-)`       |
+| Description                              | Linux | Windows   |
+| ---                                      | ---   | ---        |
+| Progress: Test passed                    | `😬`  | `:-)`      |
+| Progress: Test failed                    | `💣`  | `●~*`      |
+| Overall Status: All tests passed         | `😎`  | `=D`       |
+| Overall Status: One or more tests failed | `💩`  | `><(((*>`  |
+| Slow operation                           | `🐌`  | `(-_-)zzz` |
+| Platform issue/limitation                | -     | `(-_-)`    |
 
 
 ## Disabling emoji

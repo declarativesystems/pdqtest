@@ -1,5 +1,6 @@
 # Windows
-PDQTest now supports windows! There are a few gotchas though:
+PDQTest now supports Windows! There are a few gotchas though and this support is
+still experimental:
 
 * The docker volume doesn't play nice with puppet/ruby: Whole app breaks if 
   `/lib` directory present, so we have to _copy_ the files into the container
@@ -30,22 +31,18 @@ know
 
 Q: what's going on with `.bat` files?
 
-A:They seem to work but you need to pass the full filename to docker run, eg:
+A:They seem to work but you need to pass the full filename to docker run (yes, 
+`puppet` is actually `puppet.bat` on an installed system), eg:
 
 ```shell
-docker exec XXX foo.bat
+docker exec XXX puppet.bat apply c:\testcase\examples\init.pp
 ```
 
 not
 
 ```shell
-docker exec XXX foo
+docker exec XXX puppet
 ```
 _where XXX is the ID of your container. Use `docker ps` to get a listing.
 
-Q: My module refuses to be found or work! (class not found...)
-
-A: Beats me.. This came up during testing but I haven't investigated further. 
-Make sure you have a `depenedencies` section in `metadata.json` even if its 
-empty or puppet seems to break (unverified)
 

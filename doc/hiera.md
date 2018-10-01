@@ -1,15 +1,17 @@
 # Hiera
 Under normal circumstances, only a `profile` module would be consuming Hiera 
-data directly using the `hiera()` function, and its suggested by many that these
-too fall back to automatic data binding parameters rather then use the `hiera()`
-function directly.  In this case it makes more sense to use the excellent 
+data directly using the `lookup()` function, and its suggested by Puppet that 
+most of these fall back to automatic data binding parameters rather then using
+the function directly.  
+
+In this case it makes more sense to use the excellent 
 [Onceover](https://github.com/dylanratcliffe/onceover) tool to perform 
 end-to-end testing of your Hiera data, puppet control repository and 
 roles/profile modules.
 
 That said, there may be occasions where you need to mock hiera data:
 * You have implemented Roles and Profiles as a namespace inside a team module 
-  (for multi-tennanting)
+  (for multi-tenanting)
 * You have a module that performs `lookup()` lookups directly
 * You intend to drive your module by adding data to hiera and including a class
   to make something happen
@@ -18,8 +20,8 @@ That said, there may be occasions where you need to mock hiera data:
   able to test it
 
 ## Alternative method
-In some cases where it may be easiest to directly inject strings in lieu of 
-setting up a fake hiera:
+In most cases it may be easiest to directly inject strings in lieu of setting up
+a fake hiera:
 
 ### RSpec Tests
 ```ruby
@@ -42,7 +44,7 @@ class { "foo":
 Note that you would need to duplicate your hard-coded mock data between the 
 rspec tests and any acceptance tests.
 
-In the more complex cases it may instead be desireable to mock the hiera data in
+In the more complex cases it may instead be desirable to mock the hiera data in
 order to enable Puppet's regular lookup systems to work.
 
 ## Mocking Hiera (RSpec tests)

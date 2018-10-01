@@ -32,16 +32,11 @@ fixtures:
 ```
 
 It is an error to define the same module in both `metadata.json` and 
-`.fixtures.yml` and the results of doing this are undefined:
+`.fixtures.yml` and the results of doing so are undefined:
 * Always use `metadata.json` for public forge modules and we will update 
   `.fixtures.yml` based on it
 * Modules from git should _only_ be defined in `.fixtures.yml`
 
-## Notes:
-* The file format of `.fixtures.yml` and `fixtures.yml` for specifing git 
-  repositories is identical
-* Previous versions of pdqtest configured the r10k cache via `.r10k.yaml` which
-  caused [#44](https://github.com/declarativesystems/pdqtest/issues/44). To fix
-  this, we now use the default r10k cache dir at `~/.r10k/cache` and don't write
-  `.r10k.yaml` any more. You should remove any `.r10k.yaml` files from your 
-  project unless you need it for something specific.
+### pdk build
+Note that running `pdk build` will remove any modules present under 
+`/spec/fixtures/modules`. Run unit tests to restore them.

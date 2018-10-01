@@ -1,6 +1,7 @@
 # Tips and tricks
 * You can put any puppet code you like (including an empty file...) in each of 
-  the files under `/examples` and it will executed with `puppet apply`
+  the files under `/examples` and it will executed with `puppet apply` as long
+  as it contains the magic marker `#@PDQTest` or `#@PDQTestWin`
 * If you need to test multiple different things (eg different parameters for a 
   new type and provider), you need to create a different (acceptance) testcase
   for each distinct thing to test
@@ -11,14 +12,16 @@
 * To disable tests temporarily for a specific example, remove the magic marker 
   `#@PDQTest` or `#@PDQTestWin` from the example
 * Nested examples (subdirectories) are not supported at this time
-* Since the all of the `*__setup.sh` scripts are run in the container as root 
-  before executing tests, they can be used to mock _almost anything_ in the 
-  test system:
+* Since all of the `*__setup.sh`/`*__setup.ps1` scripts are run in the container
+  as `root`/`Administrator` before executing tests, they can be used to mock 
+  _almost anything_ in the test system:
   * Replace system binaries to fake network operations
   * Add system binaries to simulate other operating systems such as AIX, 
     Solaris, etc
   * Create/copy files, directories, etc.
   * Install OS packages
   * Install python scripts to mock database servers using SQLite... 😉
-* Files added by PDQTest >= 2.0 have the magic marker: 
+* Files added by PDQTest >= 2.0 that are not originating from PDK are marked: 
   `*File originally created by PDQTest*`
+* See [development](development.md) guide for how to turn on debugging and exit
+  stack traces
