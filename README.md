@@ -29,8 +29,8 @@ _Adding PDQTest to a project and running acceptance tests in Docker_
 
 ## PDQTest 2.0 Release notes
 PDQTest 2.0 new features:
-* PDK Support
-* Windows support
+* [PDK Support](doc/pdk.md)
+* [Windows support](doc/windows.md)
 * [PDQTest 1.x -> 2.x Upgrade guide](doc/upgrade_1_2.md)
 
 ## PDQTest Manual
@@ -51,3 +51,4 @@ PDQTest 2.0 new features:
 1. [Troubleshooting](doc/troubleshooting.md)
 1. [Examples](doc/examples.md)
 1. [Development](doc/development.md)
+1. [PDQTest 1.x -> 2.x Upgrade guide](doc/upgrade_1_2.md)
