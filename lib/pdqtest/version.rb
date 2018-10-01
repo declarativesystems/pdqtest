@@ -1,3 +1,3 @@
 module PDQTest
-  VERSION = "1.9.9beta7"
+  VERSION = "1.9.9beta8"
 end
