@@ -1,0 +1,19 @@
+# appveyor.yml
+---
+image: "Visual Studio 2017"
+
+install:
+  - "cinst ruby --version 2.4.3.1"
+  - "cinst pdk"
+  - set PATH=C:\tools\ruby24\bin;c:\pats\;%PATH%
+  - "gem install bundler"
+  - "ruby --version"
+  - "gem --version"
+  - git clone https://github.com/GeoffWilliams/pats c:\pats
+
+build_script:
+  - "gem install bundler"
+
+test_script:
+  - ps: ./make.ps1 pdqtestbundle
+  - cd .pdqtest && bundle exec pdqtest --inplace --inplace-enable all

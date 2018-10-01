@@ -138,6 +138,7 @@ or supported.
 * ⚡ - File updated/replaced when you run `pdqtest upgrade`:
 
 ```
+├── appveyor.yml ⚡
 ├── bitbucket-pipelines.yml ⚡
 ├── Gemfile 🛠
 ├── Gemfile.local
@@ -163,6 +164,7 @@ or supported.
 ```
 
 Notes:
+* `appveyor.yml` - Complete test suite for Windows modules
 * `.travis.yml` - Complete test suite for Linux modules
 * `bitbucket-pipelines.yaml` - logical testing only (unit/RSpec) 
 * `.puppet-lint.rc` - Make lint errors test failures, ignore double quotes, etc

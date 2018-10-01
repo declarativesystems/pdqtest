@@ -42,6 +42,9 @@ module PDQTest
         "bitbucket-pipelines.yml" => {
             "unmanaged" => true,
         },
+        "appveyor.yml" => {
+            "unmanaged" => true,
+        },
         ".gitignore" => {
             "paths" => [
                 ".Puppetfile.pdqtest",
@@ -135,6 +138,7 @@ module PDQTest
       install_skeleton('make.ps1', 'make.ps1')
       install_skeleton('bitbucket-pipelines.yml', 'bitbucket-pipelines.yml')
       install_skeleton('.travis.yml', '.travis.yml')
+      install_skeleton('appveyor.yml', 'appveyor.yml')
       Pdk.amend_sync_yml(SYNC_YML_CONTENT)
     end
 
