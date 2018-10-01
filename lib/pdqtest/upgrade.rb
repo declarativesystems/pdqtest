@@ -20,7 +20,7 @@ module PDQTest
           'added' => false,
       },
       'puppet' => {
-          'line' => "gem 'puppet', '5.5.3'",
+          'line' => "gem 'puppet', '5.5.6'",
           'added' => false,
       },
       'puppet-lint' => {

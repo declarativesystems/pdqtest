@@ -66,7 +66,8 @@ describe PDQTest::Puppet do
 
       # attempt to run bats
       testcase = './examples/init.pp'
-      res = PDQTest::Puppet.xats_test(c, testcase, PDQTest::Puppet.setting(:after_suffix))
+      cc = PDQTest::Docker
+      res = PDQTest::Puppet.xats_test(cc, c, testcase, PDQTest::Puppet.setting(:after_suffix))
       expect(res).to be true
 
       # Check that we did indeed execute the bats test
@@ -87,7 +88,8 @@ describe PDQTest::Puppet do
 
       # attempt to run bats
       testcase = './examples/init.pp'
-      res = PDQTest::Puppet.xats_test(c, testcase, PDQTest::Puppet.setting(:after_suffix))
+      cc = PDQTest::Docker
+      res = PDQTest::Puppet.xats_test(cc, c, testcase, PDQTest::Puppet.setting(:after_suffix))
       expect(res).to be false
 
       # Check that we did indeed execute the bats test
@@ -110,7 +112,8 @@ describe PDQTest::Puppet do
 
       # attempt to run bats
       testcase = './examples/init.pp'
-      res = PDQTest::Puppet.setup_test(c, testcase)
+      cc = PDQTest::Docker
+      res = PDQTest::Puppet.setup_test(cc, c, testcase)
       expect(res).to be true
 
       # Check that we did indeed execute the bats test
@@ -132,7 +135,8 @@ describe PDQTest::Puppet do
 
       # attempt to run bats
       testcase = './examples/init.pp'
-      res = PDQTest::Puppet.setup_test(c, testcase)
+      cc = PDQTest::Docker
+      res = PDQTest::Puppet.setup_test(cc, c, testcase)
       expect(res).to be false
 
       # Check that we did indeed execute the bats test
@@ -150,7 +154,8 @@ describe PDQTest::Puppet do
   it "returns true on test success" do
     Dir.chdir(PASSING_TESTS_TESTDIR) do
       c = PDQTest::Docker.new_container(PDQTest::Docker::IMAGES[:DEFAULT], false)
-      status = PDQTest::Puppet.run(c)
+      cc = PDQTest::Docker
+      status = PDQTest::Puppet.run(cc, c)
       expect(status).to be true
       PDQTest::Docker.cleanup_container(c)
     end
@@ -159,7 +164,8 @@ describe PDQTest::Puppet do
   it "returns false on test failure" do
     Dir.chdir(FAILING_TESTS_TESTDIR) do
       c = PDQTest::Docker.new_container(PDQTest::Docker::IMAGES[:DEFAULT], false)
-      status = PDQTest::Puppet.run(c)
+      cc = PDQTest::Docker
+      status = PDQTest::Puppet.run(cc, c)
       expect(status).to be false
       PDQTest::Docker.cleanup_container(c)
     end
@@ -168,7 +174,8 @@ describe PDQTest::Puppet do
   it "passes individual test suite correctly" do
     Dir.chdir(PASSING_TESTS_TESTDIR) do
       c = PDQTest::Docker.new_container(PDQTest::Docker::IMAGES[:DEFAULT], false)
-      status = PDQTest::Puppet.run_example(c, 'examples/init.pp')
+      cc = PDQTest::Docker
+      status = PDQTest::Puppet.run_example(cc, c, 'examples/init.pp')
 
       # make sure setup was executed
       setup_executed = PDQTest::Puppet.get_setup_executed
@@ -192,7 +199,10 @@ describe PDQTest::Puppet do
   it "fails individual test suite correctly" do
     Dir.chdir(FAILING_TESTS_TESTDIR) do
       c = PDQTest::Docker.new_container(PDQTest::Docker::IMAGES[:DEFAULT], false)
-      status = PDQTest::Puppet.run_example(c, 'examples/init.pp')
+
+      # all tests in Docker
+      cc = PDQTest::Docker
+      status = PDQTest::Puppet.run_example(cc, c, 'examples/init.pp')
 
       # make sure setup was executed
       setup_executed = PDQTest::Puppet.get_setup_executed

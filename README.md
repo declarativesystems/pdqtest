@@ -32,6 +32,7 @@ PDQTest 2.0 new features:
 * [PDK Support](doc/pdk.md)
 * [Windows support](doc/windows.md)
 * [PDQTest 1.x -> 2.x Upgrade guide](doc/upgrade_1_2.md)
+* [Inplace execution](https://github.com/declarativesystems/pdqtest/issues/34)
 
 ## PDQTest Manual
 1. [Installation](doc/installation.md)
@@ -51,4 +52,5 @@ PDQTest 2.0 new features:
 1. [Troubleshooting](doc/troubleshooting.md)
 1. [Examples](doc/examples.md)
 1. [Development](doc/development.md)
+1  [Inplace execution](doc/inplace.md)
 1. [PDQTest 1.x -> 2.x Upgrade guide](doc/upgrade_1_2.md)

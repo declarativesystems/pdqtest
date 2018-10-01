@@ -76,6 +76,20 @@ Escort::App.create do |app|
       :type     => :boolean,
       :default  => false,
     )
+
+    opts.opt(:inplace,
+       'Run puppet in place on *THIS* system -- WARNING! this is likely to destroy your computer',
+       :long     => '--inplace',
+       :type     => :boolean,
+       :default  => false,
+     )
+
+    opts.opt(:inplace_enable,
+       'Enable inplace mode to make changes (safety/debugging switch)',
+       :long     => '--inplace-enable',
+       :type     => :boolean,
+       :default  => false,
+    )
   end
 
   app.command :all do |command|
@@ -85,9 +99,12 @@ Escort::App.create do |app|
 
       $logger.level = :debug if options[:global][:options][:debug]
 
+
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
       PDQTest::Puppet.skip_second_run(options[:global][:options][:skip_idempotency])
 
+      PDQTest::Inplace.set_enable options[:global][:options][:inplace_enable]
+      PDQTest::Instance.set_inplace options[:global][:options][:inplace]
       PDQTest::Instance.set_privileged(options[:global][:options][:privileged])
       PDQTest::Instance.set_keep_container(options[:global][:options][:keep_container])
       PDQTest::Instance.set_docker_image(options[:global][:options][:image_name])
@@ -112,6 +129,8 @@ Escort::App.create do |app|
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
       PDQTest::Puppet.skip_second_run(options[:global][:options][:skip_idempotency])
 
+      PDQTest::Inplace.set_enable options[:global][:options][:inplace_enable]
+      PDQTest::Instance.set_inplace options[:global][:options][:inplace]
       PDQTest::Instance.set_privileged(options[:global][:options][:privileged])
       PDQTest::Instance.set_keep_container(options[:global][:options][:keep_container])
       PDQTest::Instance.set_docker_image(options[:global][:options][:image_name])
@@ -143,6 +162,9 @@ Escort::App.create do |app|
 
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
       PDQTest::Puppet.skip_second_run(options[:global][:options][:skip_idempotency])
+
+      PDQTest::Inplace.set_enable options[:global][:options][:inplace_enable]
+      PDQTest::Instance.set_inplace options[:global][:options][:inplace]
       PDQTest::Instance.set_privileged(options[:global][:options][:privileged])
       PDQTest::Instance.set_docker_image(options[:global][:options][:image_name])
       PDQTest::Instance.set_keep_container(options[:global][:options][:keep_container])
