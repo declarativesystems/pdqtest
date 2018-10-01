@@ -260,13 +260,13 @@ module PDQTest
       t.gsub(EXAMPLES_DIR + '/','').gsub('.pp','')
     end
 
-    def self.xats_test(container, example, suffix)
+    def self.xats_test(cc, container, example, suffix)
       testcase = Util.joinp(XATS_TESTS, test_basename(example) + suffix)
       if File.exists?(testcase)
         $logger.info "*** #{setting(:name)} test **** #{setting(:test_cmd)} #{testcase}"
-        res = PDQTest::Docker.exec(container, "cd #{Docker.test_dir} ; #{setting(:test_cmd)} #{testcase}")
-        status = PDQTest::Docker.exec_status(res)
-        PDQTest::Docker.log_out(res)
+        res = PDQTest::Execution.exec(cc, container, "cd #{Docker.test_dir} ; #{setting(:test_cmd)} #{testcase}")
+        status = PDQTest::Execution.exec_status(res)
+        PDQTest::Execution.log_all(res)
         @@bats_executed << testcase
       else
         $logger.info "no #{suffix} tests for #{example} (should be at #{testcase})"
@@ -276,19 +276,20 @@ module PDQTest
       status
     end
 
-    def self.setup_test(container, example)
+    def self.setup_test(cc, container, example)
       setup_script = Util.joinp(XATS_TESTS, test_basename(example)) + setting(:setup_suffix)
       if File.exists?(setup_script)
         script = File.read(setup_script)
         $logger.debug "setup script: \n #{script}"
         if script.strip.empty?
           $logger.info "skipping empty setup script at #{setup_script}"
+          status = true
         else
           $logger.info "Setting up test for #{example}"
 
-          res = PDQTest::Docker.exec(container, script)
-          status = PDQTest::Docker.exec_status(res)
-          PDQTest::Docker.log_out(res)
+          res = PDQTest::Execution.exec(cc, container, script)
+          status = PDQTest::Execution.exec_status(res)
+          PDQTest::Execution.log_all(res)
         end
         @@setup_executed << setup_script
       else
@@ -299,42 +300,42 @@ module PDQTest
       status
     end
 
-    def self.run_example(container, example)
+    def self.run_example(cc, container, example)
       $logger.info "testing #{example}"
       status = false
 
-      if setup_test(container, example)
+      if setup_test(cc, container, example)
 
         # see if we should run a bats test before running puppet
-        if xats_test(container, example, setting(:before_suffix))
+        if xats_test(cc, container, example, setting(:before_suffix))
 
           # run puppet apply - 1st run
-          res = PDQTest::Docker.exec(container, puppet_apply(example))
-          PDQTest::Docker.log_out(res)
-          if PDQTest::Docker.exec_status(res, true) # allow 2 as exit status
+          res = PDQTest::Execution.exec(cc, container, puppet_apply(example))
+          PDQTest::Execution.log_out(res)
+          if PDQTest::Execution.exec_status(res, true) # allow 2 as exit status
 
             if @@skip_second_run
               $logger.info "Skipping idempotency check as you requested..."
 
               # check the system right now since puppet ran OK once
-              status = xats_test(container, example, setting(:after_suffix))
+              status = xats_test(cc, container, example, setting(:after_suffix))
             else
               # run puppet apply - 2nd run (check for idempotencey/no more changes)
-              res = PDQTest::Docker.exec(container, puppet_apply(example))
-              PDQTest::Docker.log_out(res)
+              res = PDQTest::Execution.exec(cc, container, puppet_apply(example))
+              PDQTest::Execution.log_out(res)
 
               # run the bats test if nothing failed yet
-              if PDQTest::Docker.exec_status(res) # only allow 0 as exit status
-                status = xats_test(container, example, setting(:after_suffix))
+              if PDQTest::Execution.exec_status(res) # only allow 0 as exit status
+                status = xats_test(cc, container, example, setting(:after_suffix))
               else
                 $logger.error "Not idempotent: #{example}"
               end
             end
           else
-            $logger.error "First puppet run of #{example} failed (status: #{res[Docker::STATUS]})"
+            $logger.error "First puppet run of #{example} failed (status: #{res[:STATUS]})"
           end
         else
-          $logger.error "#{setting(:name)} tests to run before #{example} failed (status: #{res[Docker::STATUS]})"
+          $logger.error "#{setting(:name)} tests to run before #{example} failed"
         end
       else
         $logger.error "Setup script for #{example} failed (see previous error)"
@@ -343,7 +344,7 @@ module PDQTest
       status
     end
 
-    def self.run(container, example=nil)
+    def self.run(cc, container, example=nil)
       # we must always have ./spec/fixtures/modules because we need to create a
       # symlink back to the main module inside here...
       # (spec/fixtures/modules/foo -> /testcase)
@@ -357,14 +358,14 @@ module PDQTest
       status = true
       $logger.info "...running container setup"
       setup_start = Time.now
-      res = PDQTest::Docker.exec(container, setup)
+      res = PDQTest::Execution.exec(cc, container, setup)
       setup_end = Time.now
-      status &= PDQTest::Docker.exec_status(res)
+      status &= PDQTest::Execution.exec_status(res)
       if Util.is_windows
         # write a script to allow user to update modules
         $logger.info "wasted #{((setup_end - setup_start))} seconds of your life on windows tax"
         File.open("refresh.ps1", 'w') do |file|
-          res[Docker::REAL_CMD].each do |c|
+          res[:REAL_CMD].each do |c|
             file.puts("#{c[0]} #{c[1]} \"#{c[2]}\"")
           end
         end
@@ -376,14 +377,14 @@ module PDQTest
       if status
           $logger.info "...run tests"
           if example
-            status &= run_example(container, example)
+            status &= run_example(cc, container, example)
             if ! status
               $logger.error "Example #{example} failed!"
             end
           else
             find_examples.each { |e|
               if status
-                status &= run_example(container, e)
+                status &= run_example(cc, container, e)
                 if ! status
                   $logger.error "Example #{e} failed! - skipping rest of tests"
                 end
@@ -391,8 +392,8 @@ module PDQTest
             }
           end
       else
-        PDQTest::Docker.log_all(res)
-        $logger.error "Error running puppet setup, see previous error, command was: #{res[Docker::REAL_CMD]}"
+        PDQTest::Execution.log_all(res)
+        $logger.error "Error running puppet setup, see previous error, command was: #{res[:REAL_CMD]}"
       end
 
       PDQTest::Emoji.partial_status(status, 'Puppet')

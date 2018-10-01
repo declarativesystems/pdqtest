@@ -11,22 +11,6 @@ describe PDQTest::Docker do
     expect(result[2]).to match(/; ls -lR \* && abcd/)
   end
 
-  it "returns the correct exit status for a result object (normal/ok)" do
-    expect(PDQTest::Docker.exec_status([nil,nil,0])).to be true
-  end
-
-  it "returns the correct exit status for a result object (normal/error)" do
-    expect(PDQTest::Docker.exec_status([nil,nil,255])).to be false
-  end
-
-  it "returns the correct exit status for a result object (puppet/ok)" do
-    expect(PDQTest::Docker.exec_status([nil,nil,0], true)).to be true
-    expect(PDQTest::Docker.exec_status([nil,nil,2], true)).to be true
-  end
-
-  it "returns the correct exit status for a result object (puppet/error)" do
-    expect(PDQTest::Docker.exec_status([nil,nil,4], true)).to be false
-  end
 
   it "starts a container correctly" do
     c = PDQTest::Docker.new_container(PDQTest::Docker::IMAGES[:DEFAULT], false)

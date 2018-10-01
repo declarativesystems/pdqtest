@@ -1,6 +1,7 @@
 require 'docker-api'
 require 'pdqtest/puppet'
 require 'pdqtest/docker'
+require 'pdqtest/inplace'
 require 'escort'
 
 module PDQTest
@@ -9,6 +10,7 @@ module PDQTest
     @@active_container = nil
     @@image_name = false
     @@privileged = false
+    @@inplace = false
 
     def self.get_active_container
       @@active_container
@@ -39,6 +41,37 @@ module PDQTest
       @@privileged
     end
 
+    def self.set_inplace(inplace)
+      @@inplace = inplace
+    end
+
+    def self.get_inplace()
+      @@inplace
+    end
+
+
+    def self.get_acceptance_test_images
+      test_platforms = @@image_name || PDQTest::Docker.acceptance_test_images
+      filtered_test_platforms = test_platforms.reject do |image_name|
+        reject = false
+        if Util.is_windows
+          if image_name !~ /windows/
+            $logger.info "Skipping test image #{image_name} (requires Linux)"
+            reject = true
+          end
+        else
+          if image_name =~ /windows/
+            $logger.info "Skipping test image #{image_name} (requires Windows)"
+            reject = true
+          end
+        end
+
+        reject
+      end
+
+      filtered_test_platforms
+    end
+
     def self.run(example=nil)
       # needed to prevent timeouts from container.exec()
       Excon.defaults[:write_timeout] = 10000
@@ -48,38 +81,29 @@ module PDQTest
       # remove reference to any previous test container
       @@active_container = nil
 
-      if PDQTest::Puppet::find_examples().empty?
+      if PDQTest::Puppet.find_examples.empty?
         $logger.info "No acceptance tests found, annotate examples with #{PDQTest::Puppet.setting(:magic_marker)} to make some"
       else
-        # process each supported OS
-        test_platforms = @@image_name || Docker::acceptance_test_images
-        $logger.info "Acceptance test on #{test_platforms}..."
-        test_platforms.reject { |image_name|
-          reject = false
-          if Util.is_windows
-            if image_name !~ /windows/
-              $logger.info "Skipping test image #{image_name} (requires Linux)"
-              reject = true
-            end
-          else
-            if image_name =~ /windows/
-              $logger.info "Skipping test image #{image_name} (requires Windows)"
-              reject = true
-            end
-          end
+        # process each supported OS and figure out what controller container to use
+        if @@inplace
+          test_platforms = [PDQTest::Inplace::INPLACE_IMAGE]
+          cc = PDQTest::Inplace
+        else
+          test_platforms = get_acceptance_test_images
+          cc = PDQTest::Docker
+        end
 
-          reject
-        }.each { |image_name|
+        test_platforms.each { |image_name|
           $logger.info "--- start test with #{image_name} ---"
-          @@active_container = PDQTest::Docker::new_container(image_name, @@privileged)
+          @@active_container = cc.new_container(image_name, @@privileged)
           $logger.info "alive, running tests"
-          status &= PDQTest::Puppet.run(@@active_container, example)
+          status &= PDQTest::Puppet.run(cc, @@active_container, example)
 
-          if @@keep_container
+          if @@keep_container && ! @@inplace
             $logger.info "finished build, container #{@@active_container.id} left on system"
             $logger.info "  docker exec -ti #{@@active_container.id} #{Util.shell} "
           else
-            PDQTest::Docker.cleanup_container(@@active_container)
+            cc.cleanup_container(@@active_container)
             @@active_container = nil
           end
 
@@ -97,7 +121,9 @@ module PDQTest
       $logger.info "Opening a shell in #{image_name}"
       @@active_container = PDQTest::Docker::new_container(image_name, @@privileged)
 
-      PDQTest::Docker.exec(@@active_container, PDQTest::Puppet.setup)
+      # Shell is always executed with docker - if you want a new shell for
+      # in-place, your already in it ;-)
+      PDQTest::Execution.exec(PDQTest::Docker, @@active_container, PDQTest::Puppet.setup)
 
       # In theory I should be able to get something like the code below to
       # redirect all input streams and give a makeshift interactive shell, howeve

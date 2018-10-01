@@ -18,7 +18,7 @@ pipelines:
           - apt install -y pdk
           - sh .ci_custom.sh
           - make pdqtestbundle
-          - make logical
+          - cd .pdqtest && bundle exec pdqtest --inplace --inplace enable all
 
 definitions:
   caches:
