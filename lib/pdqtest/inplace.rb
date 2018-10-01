@@ -46,13 +46,13 @@ module PDQTest
     end
 
     def self.new_container(image_name, privileged)
-      FileUtils.rm_f Docker.test_dir if Dir.exist? Docker.test_dir
+      FileUtils.rm_rf Docker.test_dir if Dir.exist? Docker.test_dir
 
       FileUtils.cp_r(File.join(Dir.pwd, "."), Docker.test_dir)
     end
 
     def self.cleanup_container(container)
-      FileUtils.rm_f Docker.test_dir
+      FileUtils.rm_rf Docker.test_dir
     end
   end
 end
