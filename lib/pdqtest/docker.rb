@@ -10,7 +10,7 @@ module PDQTest
     IMAGES = {
      :DEFAULT => 'declarativesystems/pdqtest-centos:2018-09-15-0',
      :UBUNTU  => 'declarativesystems/pdqtest-ubuntu:2018-09-15-0',
-     :WINDOWS => 'declarativesystems/pdqtest-windows:2018-09-29-0',
+     :WINDOWS => 'declarativesystems/pdqtest-windows:2018-09-30-0',
     }
 
     # volume paths are different for windows containers
