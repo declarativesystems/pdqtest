@@ -26,13 +26,10 @@ module PDQTest
       res[:STATUS] = 0
       $logger.debug("exec_real: running inplace command: #{real_c}")
       if @@enable
-        # must splat to avoid "wrong first argument"
-        Open3.popen3(*real_c) do |stdin, stdout, stderr, wait_thr|
-          res[:OUT] = stdout.read.split("\n")
-          res[:ERR] = stderr.read.split("\n")
-          # Process::Status object returned from `.value`
-          res[:STATUS] = wait_thr.value.exitstatus
-        end
+        stdout, stderr, status = Open3.capture3(*real_c)
+        res[:OUT] = stdout.split("\n")
+        res[:ERR] = stderr.split("\n")
+        res[:STATUS] = status.exitstatus
       else
         $logger.info "didn't run command, reason: DISABLED"
       end

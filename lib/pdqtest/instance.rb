@@ -89,7 +89,7 @@ module PDQTest
           test_platforms = [PDQTest::Inplace::INPLACE_IMAGE]
           cc = PDQTest::Inplace
         else
-          test_platforms = get_acceptance_test_images
+          test_platforms = get_acceptance_test_images.uniq
           cc = PDQTest::Docker
         end
 

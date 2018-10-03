@@ -85,6 +85,7 @@ module PDQTest
     @@bats_executed   = []
     @@setup_executed  = []
     @@skip_second_run = false
+    @@debug           = false
 
     def self.cp(key)
       CONTAINER_PATHS[Util.host_platform][key] ||
@@ -119,6 +120,10 @@ module PDQTest
 
     def self.get_setup_executed
       @@setup_executed
+    end
+
+    def self.set_debug(debug)
+      @@debug = debug
     end
 
     def self.module_metadata
@@ -400,9 +405,12 @@ module PDQTest
       status
     end
 
+    def self.debug_arg
+      @@debug ? "--debug --trace --evaltrace" : ""
+    end
 
     def self.puppet_apply(example)
-      "cd #{Docker.test_dir} ; #{setting(:puppet)} apply --detailed-exitcodes #{example}"
+      "cd #{Docker.test_dir} ; #{setting(:puppet)} apply #{debug_arg} --detailed-exitcodes #{example}"
     end
 
     def self.info

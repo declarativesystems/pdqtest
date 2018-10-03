@@ -102,6 +102,7 @@ Escort::App.create do |app|
 
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
       PDQTest::Puppet.skip_second_run(options[:global][:options][:skip_idempotency])
+      PDQTest::Puppet.set_debug(options[:global][:options][:debug])
 
       PDQTest::Inplace.set_enable options[:global][:options][:inplace_enable]
       PDQTest::Instance.set_inplace options[:global][:options][:inplace]
@@ -128,6 +129,7 @@ Escort::App.create do |app|
 
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
       PDQTest::Puppet.skip_second_run(options[:global][:options][:skip_idempotency])
+      PDQTest::Puppet.set_debug(options[:global][:options][:debug])
 
       PDQTest::Inplace.set_enable options[:global][:options][:inplace_enable]
       PDQTest::Instance.set_inplace options[:global][:options][:inplace]
@@ -162,6 +164,7 @@ Escort::App.create do |app|
 
       PDQTest::Emoji.disable(options[:global][:options][:disable_emoji])
       PDQTest::Puppet.skip_second_run(options[:global][:options][:skip_idempotency])
+      PDQTest::Puppet.set_debug(options[:global][:options][:debug])
 
       PDQTest::Inplace.set_enable options[:global][:options][:inplace_enable]
       PDQTest::Instance.set_inplace options[:global][:options][:inplace]
