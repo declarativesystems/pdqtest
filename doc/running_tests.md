@@ -43,6 +43,8 @@ an argument from this table:
 * no: we run an alternative command
 * -: There is no corresponding `pdk` command
 
+Fast mode requires `puppet` in your path (not installed via gem).
+
 **Examples**
 
 Test the module as quickly as possible:
