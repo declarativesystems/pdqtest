@@ -139,6 +139,7 @@ module PDQTest
       install_skeleton('bitbucket-pipelines.yml', 'bitbucket-pipelines.yml')
       install_skeleton('.travis.yml', '.travis.yml')
       install_skeleton('appveyor.yml', 'appveyor.yml')
+      install_skeleton('.ci_custom.sh', '.ci_custom.sh', false)
       Pdk.amend_sync_yml(SYNC_YML_CONTENT)
     end
 
