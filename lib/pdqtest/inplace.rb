@@ -50,7 +50,7 @@ module PDQTest
               "RUBYOPT",
           ].include? e
         }
-        env["PATH"] = "/opt/puppetlabs/puppet/bin/:#{ENV["PATH"]}"
+        #env["PATH"] = "/opt/puppetlabs/puppet/bin/:#{ENV["PATH"]}"
         puts "LAUNCHING PUPPET"
         env.each { | e|
           puts e
