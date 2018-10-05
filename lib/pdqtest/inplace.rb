@@ -26,13 +26,36 @@ module PDQTest
       res[:STATUS] = 0
       $logger.debug("exec_real: running inplace command: #{real_c}")
       if @@enable
-        Bundler.with_clean_env do
-          stdout, stderr, status = Open3.capture3(*real_c)
+        env = ENV.reject { |e|
+          [
+              "BUNDLER_ORIG_BUNDLER_ORIG_MANPATH",
+              "BUNDLER_ORIG_BUNDLER_VERSION",
+              "BUNDLER_ORIG_BUNDLE_BIN_PATH",
+              "BUNDLER_ORIG_BUNDLE_GEMFILE",
+              "BUNDLER_ORIG_GEM_HOME",
+              "BUNDLER_ORIG_GEM_PATH",
+              "BUNDLER_ORIG_MANPATH",
+              "BUNDLER_ORIG_PATH",
+              "BUNDLER_ORIG_RB_USER_INSTALL",
+              "BUNDLER_ORIG_RUBYLIB",
+              "BUNDLER_ORIG_RUBYOPT",
+              "BUNDLER_VERSION",
+              "BUNDLE_BIN_PATH",
+              "BUNDLE_GEMFILE",
+              "GEM_HOME",
+              "GEM_PATH",
+              "MANPATH",
+              "PROMPT",
+              "RUBYLIB",
+              "RUBYOPT",
+          ].include? e
+        }
+        stdout, stderr, status = Open3.capture3(env, *real_c)
 
-          res[:OUT] = stdout.split("\n")
-          res[:ERR] = stderr.split("\n")
-          res[:STATUS] = status.exitstatus
-        end
+        res[:OUT] = stdout.split("\n")
+        res[:ERR] = stderr.split("\n")
+        res[:STATUS] = status.exitstatus
+
       else
         $logger.info "didn't run command, reason: DISABLED"
       end
