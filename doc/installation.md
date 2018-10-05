@@ -26,10 +26,12 @@ PDQTest and Docker.
 4. Install PDQTest - `gem install pdqtest`
 5. Install bundler (the only sane way to manage Ruby dependencies) 
    `gem install bundler`
-6. Install [Docker CE](www.docker.com)
-7. Start the `docker` daemon and make sure the user your running as is in the
+7  Add PDK to your path (add to `.profile` for permanent): 
+   `export PATH=/opt/puppetlabs/pdk/bin/:$PATH`
+8. Install [Docker CE](www.docker.com)
+9. Start the `docker` daemon and make sure the user your running as is in the
    `docker` group.  You will need to log out and back in again after doing this
-8. Install the PDQTest docker images by typing `pdqtest setup`
+10. Install the PDQTest docker images by typing `pdqtest setup`
 
 ## Mac instructions
 **UNTESTED! Do you own a mac? Please let me know what works**

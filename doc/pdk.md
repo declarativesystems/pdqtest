@@ -337,3 +337,9 @@ With PDK!:
 ```shell
 pdk validate -a
 ```
+
+## What's going on with Puppet Strings?
+We use the system puppet and system rubygem for `puppet-stings` to run the 
+`puppet strings` command. Puppet Strings requires the `puppet` rubygem be in the
+bundle but this was observed to cause a deadlock on Bitbucket Pipelines so we 
+now rely on the system instead. 

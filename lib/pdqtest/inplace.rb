@@ -26,10 +26,13 @@ module PDQTest
       res[:STATUS] = 0
       $logger.debug("exec_real: running inplace command: #{real_c}")
       if @@enable
-        stdout, stderr, status = Open3.capture3(*real_c)
-        res[:OUT] = stdout.split("\n")
-        res[:ERR] = stderr.split("\n")
-        res[:STATUS] = status.exitstatus
+        Bundler.with_clean_env do
+          stdout, stderr, status = Open3.capture3(*real_c)
+
+          res[:OUT] = stdout.split("\n")
+          res[:ERR] = stderr.split("\n")
+          res[:STATUS] = status.exitstatus
+        end
       else
         $logger.info "didn't run command, reason: DISABLED"
       end

@@ -13,6 +13,7 @@ shell:
 	cd .pdqtest && bundle exec pdqtest --keep-container acceptance
 
 setup:
+	gem install puppet-strings
 	cd .pdqtest && bundle exec pdqtest setup
 
 shellnopuppet:
@@ -27,7 +28,7 @@ pdqtestbundle:
 	cd .pdqtest && pwd && bundle install
 
 docs:
-	cd .pdqtest && pwd && bundle exec "cd ..&& puppet strings generate --format markdown"
+	puppet strings generate --format markdown
 
 
 Gemfile.local:

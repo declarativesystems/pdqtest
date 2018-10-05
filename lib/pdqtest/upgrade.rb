@@ -15,10 +15,6 @@ module PDQTest
           'line' => "gem 'pdqtest', '#{PDQTest::VERSION}'",
           'added' => false,
       },
-      'puppet-strings' => {
-          'line' => "gem 'puppet-strings'",
-          'added' => false,
-      },
       'puppet-lint' => {
           'line' => "gem 'puppet-lint', '2.3.6'",
           'added' => false,
