@@ -16,7 +16,7 @@ module PDQTest
           'added' => false,
       },
       'puppet-strings' => {
-          'line' => "gem 'puppet-strings'",
+          'line' => "gem 'puppet-strings', '2.1.0'",
           'added' => false,
       },
       'puppet-lint' => {
@@ -33,6 +33,10 @@ module PDQTest
       },
       'rake' => {
           'line' => "gem 'rake', '12.3.1'",
+          'added' => false,
+      },
+      'puppet' => {
+          'line' => "gem 'puppet', '6.0.2'",
           'added' => false,
       },
     }.freeze

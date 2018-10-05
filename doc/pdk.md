@@ -337,3 +337,9 @@ With PDK!:
 ```shell
 pdk validate -a
 ```
+
+## What's going on with Puppet Strings?
+We use our own gem version of `puppet` and `puppet-strings` because
+`puppet-strings` is not shipped by PDK.
+
+We execute `puppet strings` outside of ruby for simplicity.

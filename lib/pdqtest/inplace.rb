@@ -20,16 +20,19 @@ module PDQTest
 
     def self._exec_real(container, real_c)
       res = {}
-
       res[:OUT]    = []
       res[:ERR]    = []
       res[:STATUS] = 0
       $logger.debug("exec_real: running inplace command: #{real_c}")
       if @@enable
-        stdout, stderr, status = Open3.capture3(*real_c)
+        # OMG ruby... https://dmerej.info/blog/post/why-i-dont-like-ruby/
+        stdout, stderr, status = Open3.capture3(
+          Util.clean_env, *real_c, unsetenv_others: true
+        )
+
+        res[:STATUS] = status.exitstatus
         res[:OUT] = stdout.split("\n")
         res[:ERR] = stderr.split("\n")
-        res[:STATUS] = status.exitstatus
       else
         $logger.info "didn't run command, reason: DISABLED"
       end
