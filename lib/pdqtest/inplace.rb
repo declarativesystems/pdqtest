@@ -52,7 +52,7 @@ module PDQTest
         }
         env["PATH"] = "/opt/puppetlabs/puppet/bin/:#{ENV["PATH"]}"
         stdout, stderr, status = Open3.capture3(env, *real_c)
-
+        stdout, stderr, status = Open3.capture3(env, '/opt/puppetlabs/puppet/bin/puppet apply -e "notify{x:}"')
         res[:OUT] = stdout.split("\n")
         res[:ERR] = stderr.split("\n")
         res[:STATUS] = status.exitstatus

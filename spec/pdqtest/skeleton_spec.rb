@@ -43,7 +43,7 @@ describe PDQTest::Skeleton do
           expect(File.exists?(File.join('spec', 'acceptance', 'init.bats'))).to be true
           expect(File.exists?(File.join('examples', 'init.pp'))).to be true
           expect(File.exists?(GEMFILE)).to be true
-          expect(File.readlines(GEMFILE).grep(/pdqtest/).any?).to be true=
+          expect(File.readlines(GEMFILE).grep(/pdqtest/).any?).to be true
         end
       end
     end
