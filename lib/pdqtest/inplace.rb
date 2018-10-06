@@ -50,18 +50,10 @@ module PDQTest
               "RUBYOPT",
           ].include? e
         }
-        #env["PATH"] = "/opt/puppetlabs/puppet/bin/:#{ENV["PATH"]}"
-        puts "LAUNCHING PUPPET"
-        env.each { | e|
-          puts e
-        }
-        stdout, stderr, status = Open3.capture3(env, '/opt/puppetlabs/puppet/bin/puppet apply --debug -e "notify{x:}"')
+        stdout, stderr, status = Open3.capture3(env, *real_c)
         res[:OUT] = stdout.split("\n")
         res[:ERR] = stderr.split("\n")
         res[:STATUS] = status.exitstatus
-        puts res
-        exit(128)
-
       else
         $logger.info "didn't run command, reason: DISABLED"
       end

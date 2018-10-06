@@ -36,7 +36,7 @@ RUN apt-get update && apt-get install -y cron \
 RUN echo 'LANG=en_US.UTF-8' > /etc/locale.conf
 ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
-ENV PATH /usr/local/bats/bin:/opt/puppetlabs/puppet/bin/:/usr/sbin:/sbin:/usr/bin:/bin
+ENV PATH /usr/local/bats/bin:/usr/sbin:/sbin:/usr/bin:/bin:/opt/puppetlabs/puppet/bin:/opt/puppetlabs/pdk/bin
 ENV TERM xterm
 
 # puppet (and dont run the daemons)
@@ -59,6 +59,19 @@ VOLUME /testcase
 
 # hiera
 RUN mkdir -p /spec/fixtures/
+
+# PDK
+RUN curl -O https://apt.puppetlabs.com/puppet5-release-trusty.deb && \
+    dpkg -i puppet5-release-trusty.deb && \
+    apt-get update && \
+    apt install -y pdk
+
+# ruby
+RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
+RUN curl -sSL https://get.rvm.io | bash -s stable
+RUN echo "source /etc/profile.d/rvm.sh" >> ~/.bashrc
+RUN /bin/bash -c "source /etc/profile.d/rvm.sh ; rvm install 2.4.1"
+RUN /bin/bash -c "source /etc/profile.d/rvm.sh ; gem install bundler ; bundle --version"
 
 # alternate shudown for systemd
 STOPSIGNAL SIGRTMIN+3
