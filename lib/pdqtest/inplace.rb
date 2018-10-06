@@ -20,49 +20,11 @@ module PDQTest
 
     def self._exec_real(container, real_c)
       res = {}
-
       res[:OUT]    = []
       res[:ERR]    = []
       res[:STATUS] = 0
       $logger.debug("exec_real: running inplace command: #{real_c}")
       if @@enable
-        # env =
-        #   [
-        #       "BUNDLER_ORIG_BUNDLER_ORIG_MANPATH",
-        #       "BUNDLER_ORIG_BUNDLER_VERSION",
-        #       "BUNDLER_ORIG_BUNDLE_BIN_PATH",
-        #       "BUNDLER_ORIG_BUNDLE_GEMFILE",
-        #       "BUNDLER_ORIG_GEM_HOME",
-        #       "BUNDLER_ORIG_GEM_PATH",
-        #       "BUNDLER_ORIG_MANPATH",
-        #       "BUNDLER_ORIG_PATH",
-        #       "BUNDLER_ORIG_RB_USER_INSTALL",
-        #       "BUNDLER_ORIG_RUBYLIB",
-        #       "BUNDLER_ORIG_RUBYOPT",
-        #       "BUNDLER_VERSION",
-        #       "BUNDLE_BIN_PATH",
-        #       "BUNDLE_GEMFILE",
-        #       "GEM_HOME",
-        #       "GEM_PATH",
-        #       "MANPATH",
-        #       "PROMPT",
-        #       "RUBYLIB",
-        #       "RUBYOPT",
-        #
-        #       # more random crap
-        #       "rvm_bin_path",
-        #       "IRBRC",
-        #       "MY_RUBY_HOME",
-        #       "rvm_path",
-        #       "rvm_prefix",
-        #       "RUBY_VERSION"
-        #   ].include? e
-        # }
-        #
-        # env["PATH"] = "/usr/local/bats/bin:/usr/sbin:/sbin:/usr/bin:/bin:/opt/puppetlabs/puppet/bin:/opt/puppetlabs/pdk/bin"
-        # env["LC_ALL"]="C"
-        # env["LANG"]="C"
-
         # OMG ruby... https://dmerej.info/blog/post/why-i-dont-like-ruby/
         stdout, stderr, status = Open3.capture3(
           Util.clean_env, *real_c, unsetenv_others: true
