@@ -65,13 +65,9 @@ module PDQTest
         $logger.debug("running command with ENV: #{env}")
         #stdout, stderr, status = Open3.capture3(env, *real_c)
 
-        if real_c[2] =~ /puppet/
-          $logger.debug "fixup pupper commandd"
-          real_c = "cd /testcase ; puppet apply --debug --trace --evaltrace --detailed-exitcodes examples/init.pp"
-        end
-
         Bundler.with_clean_env do
-          res[:STATUS] = system(*real_c) ? 0 : 255
+          system(env, *real_c)
+          res[:STATUS] = 0
           res[:OUT] = ["grr"]#stdout.split("\n")
           res[:ERR] =["arg"] #stderr.split("\n")
         end
