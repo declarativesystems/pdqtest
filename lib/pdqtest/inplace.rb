@@ -66,7 +66,7 @@ module PDQTest
         #stdout, stderr, status = Open3.capture3(env, *real_c)
 
 
-        res[:STATUS] = system(env, *real_c) == true
+        res[:STATUS] = system(env, *real_c) ? 0 : 255
         res[:OUT] = "grr"#stdout.split("\n")
         res[:ERR] ="arg" #stderr.split("\n")
         #res[:STATUS] = status.exitstatus
