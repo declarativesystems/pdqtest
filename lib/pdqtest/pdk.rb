@@ -33,35 +33,8 @@ module PDQTest
         PDQTest::Puppet.fixtures_yml
       end
 
-      # on windows our environment is heavly contaminated by bundler - we have
-      # to remove it's environment or pdk command will flatout refuse to run
-      # probably doens't hurt to do this on linux too.
-      env = ENV.reject { |e|
-        [
-            "BUNDLER_ORIG_BUNDLER_ORIG_MANPATH",
-            "BUNDLER_ORIG_BUNDLER_VERSION",
-            "BUNDLER_ORIG_BUNDLE_BIN_PATH",
-            "BUNDLER_ORIG_BUNDLE_GEMFILE",
-            "BUNDLER_ORIG_GEM_HOME",
-            "BUNDLER_ORIG_GEM_PATH",
-            "BUNDLER_ORIG_MANPATH",
-            "BUNDLER_ORIG_PATH",
-            "BUNDLER_ORIG_RB_USER_INSTALL",
-            "BUNDLER_ORIG_RUBYLIB",
-            "BUNDLER_ORIG_RUBYOPT",
-            "BUNDLER_VERSION",
-            "BUNDLE_BIN_PATH",
-            "BUNDLE_GEMFILE",
-            "GEM_HOME",
-            "GEM_PATH",
-            "MANPATH",
-            "PROMPT",
-            "RUBYLIB",
-            "RUBYOPT",
-        ].include? e
-      }
-
-      status = system(env, pdk, :unsetenv_others=>true)
+      # our environment is heavly contaminated by bundler and maybe RVM too
+      status = system(Util.clean_env, pdk, unsetenv_others: true)
 
       PDQTest::Emoji.partial_status(status, subcommand)
       status

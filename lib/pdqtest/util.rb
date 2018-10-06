@@ -92,5 +92,46 @@ module PDQTest
         }.first
       }
     end
+
+    # return a clean environment with no bundler and no RVM - essential for
+    # running the puppet command otherwise it will load the wrong version from
+    # our path. Bundler.with_clean_env isn't enough here because of RVM which we
+    # use in our in-place container environments
+    def self.clean_env
+      env = ENV.reject { |e|
+        [
+            "BUNDLER_ORIG_BUNDLER_ORIG_MANPATH",
+            "BUNDLER_ORIG_BUNDLER_VERSION",
+            "BUNDLER_ORIG_BUNDLE_BIN_PATH",
+            "BUNDLER_ORIG_BUNDLE_GEMFILE",
+            "BUNDLER_ORIG_GEM_HOME",
+            "BUNDLER_ORIG_GEM_PATH",
+            "BUNDLER_ORIG_MANPATH",
+            "BUNDLER_ORIG_PATH",
+            "BUNDLER_ORIG_RB_USER_INSTALL",
+            "BUNDLER_ORIG_RUBYLIB",
+            "BUNDLER_ORIG_RUBYOPT",
+            "BUNDLER_VERSION",
+            "BUNDLE_BIN_PATH",
+            "BUNDLE_GEMFILE",
+            "GEM_HOME",
+            "GEM_PATH",
+            "MANPATH",
+            "PROMPT",
+            "RUBYLIB",
+            "RUBYOPT",
+
+            # more random crap
+            "rvm_bin_path",
+            "IRBRC",
+            "MY_RUBY_HOME",
+            "rvm_path",
+            "rvm_prefix",
+            "RUBY_VERSION"
+        ].include? e
+      }
+
+      env
+    end
   end
 end
