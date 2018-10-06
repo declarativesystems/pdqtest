@@ -62,7 +62,6 @@ module PDQTest
         # env["PATH"] = "/usr/local/bats/bin:/usr/sbin:/sbin:/usr/bin:/bin:/opt/puppetlabs/puppet/bin:/opt/puppetlabs/pdk/bin"
         # env["LC_ALL"]="C"
         # env["LANG"]="C"
-        $logger.debug("running command with ENV: #{env}")
 
         # OMG ruby... https://dmerej.info/blog/post/why-i-dont-like-ruby/
         stdout, stderr, status = Open3.capture3(
