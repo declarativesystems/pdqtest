@@ -10,7 +10,7 @@ module PDQTest
 
     IMAGES = {
      :DEFAULT => 'declarativesystems/pdqtest-centos:2018-09-15-0',
-     :UBUNTU  => 'declarativesystems/pdqtest-ubuntu:2018-09-15-0',
+     :UBUNTU  => 'declarativesystems/pdqtest-ubuntu:2018-10-06-0',
      :WINDOWS => 'declarativesystems/pdqtest-windows:2018-09-30-0',
     }
 
