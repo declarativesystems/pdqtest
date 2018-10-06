@@ -60,10 +60,15 @@ module PDQTest
         }
 
         env["PATH"] = "/usr/local/bats/bin:/usr/sbin:/sbin:/usr/bin:/bin:/opt/puppetlabs/puppet/bin:/opt/puppetlabs/pdk/bin"
+        env["LC_ALL"]="C"
+        env["LANG"]="C"
         $logger.debug("running command with ENV: #{env}")
-        stdout, stderr, status = Open3.capture3(env, *real_c)
-        res[:OUT] = stdout.split("\n")
-        res[:ERR] = stderr.split("\n")
+        #stdout, stderr, status = Open3.capture3(env, *real_c)
+
+
+        res[:STATUS] = system(env, *real_c) == true
+        res[:OUT] = "grr"#stdout.split("\n")
+        res[:ERR] ="arg" #stderr.split("\n")
         res[:STATUS] = status.exitstatus
       else
         $logger.info "didn't run command, reason: DISABLED"
