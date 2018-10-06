@@ -50,6 +50,9 @@ module PDQTest
               "RUBYOPT",
           ].include? e
         }
+
+        env["PATH"] = "/usr/local/bats/bin:/usr/sbin:/sbin:/usr/bin:/bin:/opt/puppetlabs/puppet/bin:/opt/puppetlabs/pdk/bin"
+
         stdout, stderr, status = Open3.capture3(env, *real_c)
         res[:OUT] = stdout.split("\n")
         res[:ERR] = stderr.split("\n")
