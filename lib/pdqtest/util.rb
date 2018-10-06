@@ -37,7 +37,7 @@ module PDQTest
       if is_windows
         wrapped = [shell, "-command", "#{cmd} ; exit $LastExitCode"]
       else
-        wrapped = [shell, "-c", "#{PDQENV'} #{cmd}"]
+        wrapped = [shell, "-c", "#{PDQENV} #{cmd}"]
       end
 
       wrapped
