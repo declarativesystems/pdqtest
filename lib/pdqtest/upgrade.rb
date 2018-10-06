@@ -15,6 +15,10 @@ module PDQTest
           'line' => "gem 'pdqtest', '#{PDQTest::VERSION}'",
           'added' => false,
       },
+      'puppet-strings' => {
+          'line' => "gem 'puppet-strings', '2.1.0'",
+          'added' => false,
+      },
       'puppet-lint' => {
           'line' => "gem 'puppet-lint', '2.3.6'",
           'added' => false,
@@ -29,6 +33,10 @@ module PDQTest
       },
       'rake' => {
           'line' => "gem 'rake', '12.3.1'",
+          'added' => false,
+      },
+      'puppet' => {
+          'line' => "gem 'puppet', '6.0.2'",
           'added' => false,
       },
     }.freeze

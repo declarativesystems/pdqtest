@@ -56,7 +56,6 @@ switch ($target) {
         cd .pdqtest; bundle exec pdqtest shell; cd ..
     }
     "setup" {
-        gem install puppet-strings
         cd .pdqtest; bundle exec pdqtest setup; cd ..
     }
     "logical" {
@@ -64,7 +63,7 @@ switch ($target) {
         cd .pdqtest ; bundle exec "cd ..; puppet strings"; cd ..
     }
     "docs" {
-        puppet strings generate --format markdown
+        cd .pdqtest ; bundle exec "cd ..; puppet strings generate --format markdown"; cd ..
     }
     "Gemfile.local" {
         echo "[(-_-)zzz] *copying* Gemfile.project to Gemfile.local and running pdk bundle..."
