@@ -70,9 +70,11 @@ module PDQTest
           real_c = "cd /testcase ; puppet apply --debug --trace --evaltrace --detailed-exitcodes examples/init.pp"
         end
 
-        res[:STATUS] = system(env, *real_c) ? 0 : 255
-        res[:OUT] = ["grr"]#stdout.split("\n")
-        res[:ERR] =["arg"] #stderr.split("\n")
+        Bundler.with_clean_env do
+          res[:STATUS] = system(*real_c) ? 0 : 255
+          res[:OUT] = ["grr"]#stdout.split("\n")
+          res[:ERR] =["arg"] #stderr.split("\n")
+        end
         #res[:STATUS] = status.exitstatus
       else
         $logger.info "didn't run command, reason: DISABLED"
