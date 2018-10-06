@@ -52,7 +52,7 @@ module PDQTest
         }
 
         env["PATH"] = "/usr/local/bats/bin:/usr/sbin:/sbin:/usr/bin:/bin:/opt/puppetlabs/puppet/bin:/opt/puppetlabs/pdk/bin"
-        $logger.debug("running command with ENV: #{env.pretty_print_inspect}")
+        $logger.debug("running command with ENV: #{env}")
         stdout, stderr, status = Open3.capture3(env, *real_c)
         res[:OUT] = stdout.split("\n")
         res[:ERR] = stderr.split("\n")
