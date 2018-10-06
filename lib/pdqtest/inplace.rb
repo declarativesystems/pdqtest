@@ -69,7 +69,7 @@ module PDQTest
         res[:STATUS] = system(env, *real_c) == true
         res[:OUT] = "grr"#stdout.split("\n")
         res[:ERR] ="arg" #stderr.split("\n")
-        res[:STATUS] = status.exitstatus
+        #res[:STATUS] = status.exitstatus
       else
         $logger.info "didn't run command, reason: DISABLED"
       end
