@@ -1,6 +1,6 @@
 module PDQTest
   module Util
-    ENV='export TERM=xterm LC_ALL=C PATH=/usr/local/bats/bin:/opt/puppetlabs/puppet/bin:$PATH;'
+    PDQENV = 'export TERM=xterm LC_ALL=C PATH=/usr/local/bats/bin:/opt/puppetlabs/puppet/bin:$PATH;'
 
     def self.resource_path(resource)
       joinp(File.dirname(File.expand_path(__FILE__)), "../../res/#{resource}")
@@ -37,7 +37,7 @@ module PDQTest
       if is_windows
         wrapped = [shell, "-command", "#{cmd} ; exit $LastExitCode"]
       else
-        wrapped = [shell, "-c", "#{ENV} #{cmd}"]
+        wrapped = [shell, "-c", "#{PDQENV'} #{cmd}"]
       end
 
       wrapped
@@ -93,41 +93,38 @@ module PDQTest
       }
     end
 
-    # return a clean environment with no bundler and no RVM - essential for
-    # running the puppet command otherwise it will load the wrong version from
-    # our path. Bundler.with_clean_env isn't enough here because of RVM which we
-    # use in our in-place container environments
+    # environment - rvm and bundler 🤮
     def self.clean_env
       env = ENV.reject { |e|
         [
-            "BUNDLER_ORIG_BUNDLER_ORIG_MANPATH",
-            "BUNDLER_ORIG_BUNDLER_VERSION",
-            "BUNDLER_ORIG_BUNDLE_BIN_PATH",
-            "BUNDLER_ORIG_BUNDLE_GEMFILE",
-            "BUNDLER_ORIG_GEM_HOME",
-            "BUNDLER_ORIG_GEM_PATH",
-            "BUNDLER_ORIG_MANPATH",
-            "BUNDLER_ORIG_PATH",
-            "BUNDLER_ORIG_RB_USER_INSTALL",
-            "BUNDLER_ORIG_RUBYLIB",
-            "BUNDLER_ORIG_RUBYOPT",
-            "BUNDLER_VERSION",
-            "BUNDLE_BIN_PATH",
-            "BUNDLE_GEMFILE",
-            "GEM_HOME",
-            "GEM_PATH",
-            "MANPATH",
-            "PROMPT",
-            "RUBYLIB",
-            "RUBYOPT",
+          "BUNDLER_ORIG_BUNDLER_ORIG_MANPATH",
+          "BUNDLER_ORIG_BUNDLER_VERSION",
+          "BUNDLER_ORIG_BUNDLE_BIN_PATH",
+          "BUNDLER_ORIG_BUNDLE_GEMFILE",
+          "BUNDLER_ORIG_GEM_HOME",
+          "BUNDLER_ORIG_GEM_PATH",
+          "BUNDLER_ORIG_MANPATH",
+          "BUNDLER_ORIG_PATH",
+          "BUNDLER_ORIG_RB_USER_INSTALL",
+          "BUNDLER_ORIG_RUBYLIB",
+          "BUNDLER_ORIG_RUBYOPT",
+          "BUNDLER_VERSION",
+          "BUNDLE_BIN_PATH",
+          "BUNDLE_GEMFILE",
+          "GEM_HOME",
+          "GEM_PATH",
+          "MANPATH",
+          "PROMPT",
+          "RUBYLIB",
+          "RUBYOPT",
 
-            # more random crap
-            "rvm_bin_path",
-            "IRBRC",
-            "MY_RUBY_HOME",
-            "rvm_path",
-            "rvm_prefix",
-            "RUBY_VERSION"
+          # more random crap
+          "rvm_bin_path",
+          "IRBRC",
+          "MY_RUBY_HOME",
+          "rvm_path",
+          "rvm_prefix",
+          "RUBY_VERSION"
         ].include? e
       }
 
