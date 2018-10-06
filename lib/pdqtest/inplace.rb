@@ -48,6 +48,14 @@ module PDQTest
               "PROMPT",
               "RUBYLIB",
               "RUBYOPT",
+
+              # more random crap
+              "rvm_bin_path",
+              "IRBRC",
+              "MY_RUBY_HOME",
+              "rvm_path",
+              "rvm_prefix",
+              "RUBY_VERSION"
           ].include? e
         }
 
