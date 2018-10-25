@@ -77,6 +77,7 @@ module PDQTest
     FIXTURES          = '.fixtures.yml'
     TMP_PUPPETFILE    = '.Puppetfile.pdqtest'
     METADATA          = 'metadata.json'
+    DEFAULT_FACTS_C   = 'default_facts.yaml'
 
 
     #
@@ -497,7 +498,7 @@ module PDQTest
 
       # link external facts
       commands << Util.mk_link(
-          Util.joinp(cp(:facts_dir), File.basename(hp(:default_facts))),
+          Util.joinp(cp(:facts_dir), DEFAULT_FACTS_C),
           Util.joinp(Docker.test_dir, hp(:default_facts))
       )
       commands
