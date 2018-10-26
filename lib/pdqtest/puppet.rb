@@ -504,5 +504,10 @@ module PDQTest
       commands
 
     end
+
+    def self.puppet_strings
+      # Runs in the context of _our_ PDQTest bundle so doesn't need clean env
+      system("bundle exec puppet strings generate --format markdown")
+    end
   end
 end

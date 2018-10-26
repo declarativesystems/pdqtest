@@ -115,6 +115,7 @@ Escort::App.create do |app|
           lambda {PDQTest::Puppet.install_modules},
           lambda {PDQTest::Pdk.run("test unit")},
           lambda {PDQTest::Instance.run},
+          lambda {PDQTest::Puppet.puppet_strings},
           lambda {PDQTest::Pdk.run("build --force")},
         ])
       end
@@ -240,6 +241,7 @@ Escort::App.create do |app|
           lambda {PDQTest::Pdk.run("validate 'metadata,puppet'")},
           lambda {PDQTest::Puppet.install_modules},
           lambda {PDQTest::Pdk.run("test unit")},
+          lambda {PDQTest::Puppet.puppet_strings},
         ])
       end
     end

@@ -1,7 +1,6 @@
 # *File originally created by PDQTest*
 all:
 	cd .pdqtest && bundle exec pdqtest all
-	$(MAKE) docs
 
 fast:
 	cd .pdqtest && bundle exec pdqtest fast
@@ -20,7 +19,6 @@ shellnopuppet:
 
 logical:
 	cd .pdqtest && bundle exec pdqtest logical
-	$(MAKE) docs
 
 pdqtestbundle:
 	# Install all gems into _normal world_ bundle so we can use all of em

@@ -60,7 +60,6 @@ switch ($target) {
     }
     "logical" {
         cd .pdqtest; bundle exec pdqtest logical; cd ..
-        cd .pdqtest ; bundle exec "cd ..; puppet strings"; cd ..
     }
     "docs" {
         cd .pdqtest ; bundle exec "cd ..; puppet strings generate --format markdown"; cd ..
