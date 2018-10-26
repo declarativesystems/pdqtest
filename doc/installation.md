@@ -46,7 +46,7 @@ to configure the shell last time I owned a mac. If things have moved on since
 then, let me know what else is needed (possibly including a patch) 
 
 ## Windows Instructions
-
+_You will need to reboot/restart powershell several times_
 1. You will need Windows 10 (Windows 10 Enterprise, Professional, or Education)
    and the system your running on must enable 
    [VTx](https://en.wikipedia.org/wiki/X86_virtualization#Intel_virtualization_(VT-x))
@@ -59,22 +59,23 @@ then, let me know what else is needed (possibly including a patch)
     * VMs - You **must** run under VMWare and enable VTx in VM settings (as well
       as enabling on the host)
     * Make sure to allocate plenty of CPU and memory
-    * Enable Hyper-V (The Hyper-V role cannot be installed on Windows 10 Home)
-2. Install [Docker](http://docker.com/)
-    * [Docker for Windows](https://docs.docker.com/docker-for-windows/install) 
-      installed and 
-      [windows containers enabled](https://docs.docker.com/docker-for-windows/#switch-between-windows-and-linux-containers)
-    * [Docker API port enabled for localhost access](https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-docker/configure-docker-daemon)
+2. Enable Hyper-V (The Hyper-V role cannot be installed on Windows 10 Home) - 
+   `Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All -All -Verbose`
+3. Install [Chocolatey](https://chocolatey.org/install)
+4. Install [Docker for Windows](https://docs.docker.com/docker-for-windows/install) - 
+   `choco install docker-for-windows`
+5. [Enable windows containers](https://docs.docker.com/docker-for-windows/#switch-between-windows-and-linux-containers)
+6. [Enable localhost access to Docker API](https://docs.microsoft.com/en-us/virtualization/windowscontainers/manage-docker/configure-docker-daemon)
     ```json
     "hosts": ["tcp://127.0.0.1:2375"]
     ```
-3. Install [Chocolatey](https://chocolatey.org/install)
-4. Install Ruby 2.4 (Ruby 2.5 doesn't work yet 
+7. Install Ruby 2.4 (Ruby 2.5 doesn't work yet 
    [PDK-1171](https://tickets.puppetlabs.com/browse/PDK-1171)): 
    `choco install ruby --version 2.4.3.1`
-5. Install PDK: `choco install pdk`
-6. Install bundler `gem install bundler`
+8. Install PDK: `choco install pdk` 
+9. Install PDQTest - `gem install pdqtest`
+10. Install bundler `gem install bundler`
+11. Enable running scripts - `Set-ExecutionPolicy -ExecutionPolicy unrestricted`
 
 **Be sure to read the [Windows notes](windows.md) for guidance on how to run 
 tests on Windows**
-

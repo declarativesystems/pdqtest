@@ -13,6 +13,9 @@ still experimental:
 * You **must** develop your modules on your **guest** filesystem (eg not at 
   `c:\vagrant` if your running windows 10 in a VM on linux):
   [PDK-1169](https://tickets.puppetlabs.com/browse/PDK-1169)
+* The best way I can think of to work on the guest without going blind would be
+  to share the folder _from the guest_ and mount it on the host, using Windows
+  file-sharing
 
 ## FAQ
 Q: How do I just get a shell inside my container? 
@@ -46,3 +49,8 @@ docker exec XXX puppet
 _where XXX is the ID of your container. Use `docker ps` to get a listing.
 
 
+Q: I get `permission denied @ rb_sysopen` errors when running PDQTest but the
+   files exist and I even gave ownership to `Everyone`
+
+A: Ruby seems to be unable to read files that have the `hidden` attribute set.
+   Remove the attribute from any files that are complained about.
