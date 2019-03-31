@@ -24,7 +24,6 @@ RUN yum install -y cronie \
     gpm-libs \
     policycoreutils \
     policycoreutils-restorecond && yum clean all
-RUN echo "metadata_expire=never" >> /etc/yum.conf
 
 # fix locale
 RUN echo 'LANG=en_US.UTF-8' > /etc/locale.conf
