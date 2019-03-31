@@ -8,7 +8,7 @@ module PDQTest
     STATUS = 2
     ENV='export TERM=xterm LC_ALL=C PATH=/usr/local/bats/bin:/opt/puppetlabs/puppet/bin:$PATH;'
     IMAGES = {
-     :DEFAULT => 'declarativesystems/pdqtest-centos:2018-08-29-0',
+     :DEFAULT => 'declarativesystems/pdqtest-1x-centos:2019-04-01-0',
      :UBUNTU  => 'declarativesystems/pdqtest-ubuntu:2018-08-29-0',
     }
     HIERA_YAML_CONTAINER = '/etc/puppetlabs/puppet/hiera.yaml'
