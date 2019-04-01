@@ -59,6 +59,13 @@ module PDQTest
     def self.amend_sync_yml(data)
       if File.exist? SYNC_YML
         sync = YAML.load_file(SYNC_YML)
+
+        # PDQTest < 2.0.4 mistakenly dropped an array into
+        # .sync.yml[.gitattributes][include] that will crash PDK on upgrade
+        # nuke this key on sight to fix
+        if sync.dig(".gitattributes", "include").is_a? Array
+          sync[".gitattributes"].delete("include")
+        end
       else
         sync = {}
       end

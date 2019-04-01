@@ -52,13 +52,13 @@ module PDQTest
             ],
         },
         ".gitattributes" => {
-            "include" => [
-                "*.epp eol=lf",
-                "*.json eol=lf",
-                "*.yaml eol=lf",
-                "*.yml eol=lf",
-                "*.md eol=lf",
-            ]
+            "include" => {
+                "*.epp" => "eol=lf",
+                "*.json"=> "eol=lf",
+                "*.yaml"=> "eol=lf",
+                "*.yml" => "eol=lf",
+                "*.md"  => "eol=lf",
+            }
         }
     }.freeze
 
